@@ -1,0 +1,29 @@
+/*
+ *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
+ */
+
+module;
+
+#include <Windows.h>
+ 
+module WinUtil;
+
+
+namespace WinUtil::MsgBox
+{
+
+int Show(
+    const std::wstring& title,
+    const std::wstring& text,
+    UINT uType)
+{
+    auto iwc = CursorManager::InhibitWaitCursor{};
+
+    return ::MessageBox(
+        ::GetActiveWindow(),
+        text.c_str(),
+        title.c_str(),
+        uType);
+}
+
+}

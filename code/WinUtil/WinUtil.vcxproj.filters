@@ -1,0 +1,369 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="_Module.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="CException.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="Clipboard.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="CLSID.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="ComException.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsumeDropHandle.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateObjectDescriptor.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="CriticalSection.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="CursorManager.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="d1DragDetect.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="Date.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="DCfromWindow.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="CalcNewWindowPos.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="CException.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ChildWindowVisitor.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ClipboardHelpers.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="CLSID.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ComException.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="CommonClipboardFormats.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsumeDropHandle.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateObjectDescriptor.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="CursorManager.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="d1DragDetect.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="Date.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="DCfromWindow.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugEnv.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="DevMode.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="dout.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ExceptionBox.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtractDEVNAMES.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtractDROPFILES.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="DcOwner.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="DevMode.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="ExceptionBox.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtractDEVNAMES.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtractDROPFILES.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="Gdi.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalLocker.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalOwner.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="GdiplusException.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalOwner.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="GuardedFunctionCall.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="IMouseInputControl.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="IWindow.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyboard.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ListenerWindow.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuHandle.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageFilter.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageLoop.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="MsgBox.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="MsiLib.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenFileDialog.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="PrivateClipFormat.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="PrivateMessage.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ProductVersion.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="Registry.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="GuardedFunctionCall.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="Mouse.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="IReadOnlyObserver.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="ISaveObserver.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="IWindow.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyboard.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="ListenerWindow.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuHandle.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="Message.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="MsgBox.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="MsiLib.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="OleString.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenFileDialog.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="OwnerSTGMEDIUM.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="ProductVersion.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="Registry.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="ReplaceFileContent.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="ResolveLink.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceLoader.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="SaveFileDialog.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="scrollKeyTranslator.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="SetCharsetInfo.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="StreamConnector.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="ReplaceFileContent.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ResolveLink.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceLoader.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="SaveFileDialog.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="scrollKeyTranslator.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="SEHTranslator.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="SetCharsetInfo.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="StreamConnector.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="SuspendQuit.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="UniqueFileHandle.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowClass.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowDisabler.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowPlacement.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowPlacementHandler.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowResizer.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="types.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="UniqueHandle.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="WinOstream.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowStartupProc.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="WinOstream.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="QueryInterface.ixx.cpp">
+      <Filter>_ixx.cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="SEHTranslator.ixx.cpp">
+      <Filter>_ixx.cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="Messages.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="WinMsg.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="IWinMsgPlug.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuMsg.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="MouseMsg.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessorRegistrar.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="WinMsgDispatcher.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcRegistrar.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="GIClasses.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="d1Trace.h">
+      <Filter>cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugEntryExitReporter.h">
+      <Filter>cpp</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="_ixx">
+      <UniqueIdentifier>{ee7996f9-011a-4b52-a1dd-31b561904dec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cpp">
+      <UniqueIdentifier>{3fa66e4c-ab0d-4593-9ee8-03771dc9bed0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_ixx.cpp">
+      <UniqueIdentifier>{280c941f-41f6-41ae-8e30-1bad79a6cb84}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
