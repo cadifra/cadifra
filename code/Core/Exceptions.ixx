@@ -13,7 +13,7 @@ import d1.ostringstream;
 import d1.stringConvert;
 import d1.Exception;
 
-import xml;
+import xml.Exceptions;
 
 
 export namespace Core::Exceptions

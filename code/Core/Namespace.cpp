@@ -4,7 +4,7 @@
 
 module Core;
 
-import xml;
+import xml.Name;
 
 
 namespace Core

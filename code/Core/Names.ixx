@@ -4,7 +4,7 @@
 
 export module Core:Names;
 
-import xml;
+import xml.Name;
 
 import std;
 
