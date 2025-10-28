@@ -30,20 +30,15 @@ class UndoerRef;
 }
 
 export class IElement;
-export class IElementPtr;
 export class IShiftable;
 
 
-export enum class ExtendSelectionResult {
-    no = 0,
-    possibly,
-    yes
-};
+export using IElementRef = std::shared_ptr<IElement>;
 
 
 export class ElementSet
 {
-    std::vector<IElementPtr> itsContents;
+    std::vector<IElementRef> itsContents;
 
 public:
     ElementSet() {}
@@ -97,86 +92,127 @@ public:
 };
 
 
-export class ExtendSelectionParam
+namespace ExtendSelection
+{
+
+export enum class Result {
+    no = 0,
+    possibly,
+    yes
+};
+
+
+export class Param
 {
 public:
-    class ICaller
-    {
-    public:
-        virtual ExtendSelectionResult MakeCall(
-            const IElement* target, ExtendSelectionParam& p) const = 0;
+    class ICaller;
 
-    protected:
-        ~ICaller() = default;
-    };
+    Param(const ICaller& caller, const ElementSet& selection);
+    ~Param();
 
-private:
-    class CacheEntry;
-    using Cache = std::multimap<const IElement*, CacheEntry>;
-    Cache itsCache;
+    Param(const Param&) = delete;
+    Param& operator=(const Param&) = delete;
 
-    const ICaller& itsCaller;
-    const ElementSet& itsSelection;
-    const IElement* itsPrevious = nullptr;
-
-public:
-    ExtendSelectionParam(const ICaller& caller, const ElementSet& selection);
-    ~ExtendSelectionParam();
-
-    ExtendSelectionParam(const ExtendSelectionParam&) = delete;
-    ExtendSelectionParam& operator=(const ExtendSelectionParam&) = delete;
-
-    auto Call(const IElement* target) -> ExtendSelectionResult;
+    auto Call(const IElement* target) -> Result;
 
     auto Selection() const -> const ElementSet& { return itsSelection; }
 
 private:
-    bool FindCacheEntry(const IElement* target, ExtendSelectionResult& res) const;
+    class CacheEntry;
+    using Cache = std::multimap<const IElement*, CacheEntry>;
+
+    bool FindCacheEntry(const IElement* target, Result& res) const;
 
     void EraseOtherCacheEntries(const Cache::iterator except);
+
+    Cache itsCache;
+    const ICaller& itsCaller;
+    const ElementSet& itsSelection;
+    const IElement* itsPrevious = nullptr;
 };
 
 
-export class SelectionTracker
+class Param::ICaller
 {
-    IView* itsView = nullptr; // may be zero (dummy SelectionTracker)
+public:
+    virtual Result MakeCall(const IElement* target, Param& p) const = 0;
+
+protected:
+    ~ICaller() = default;
+};
+
+}
+
+namespace Selection
+{
+
+export class Tracker
+{
+    IView* itsView = nullptr; // may be zero (dummy Tracker)
     bool itsSelectionChanged = false;
 
 public:
-    SelectionTracker(IView* v):
+    Tracker(IView* v):
         itsView{ v }
     {
     }
 
-    SelectionTracker(const SelectionTracker&) = delete;
-    SelectionTracker& operator=(const SelectionTracker&) = delete;
+    Tracker(const Tracker&) = delete;
+    Tracker& operator=(const Tracker&) = delete;
 
-    ~SelectionTracker(); // intentionally NOT virtual
+    ~Tracker(); // intentionally NOT virtual
 
     void Changed() { itsSelectionChanged = true; }
 };
 
 
-export class ISelectionRestorer
+export class IRestorer
 {
 public:
-    ISelectionRestorer() = default;
+    IRestorer() = default;
 
-    virtual ~ISelectionRestorer() = default;
+    virtual ~IRestorer() = default;
 
-    ISelectionRestorer(const ISelectionRestorer&) = delete;
-    ISelectionRestorer& operator=(const ISelectionRestorer&) = delete;
+    IRestorer(const IRestorer&) = delete;
+    IRestorer& operator=(const IRestorer&) = delete;
 
-    virtual void Restore(SelectionTracker&, IView&) = 0;
+    virtual void Restore(Tracker&, IView&) = 0;
 };
 
-export using ISelectionRestorerRef = std::shared_ptr<ISelectionRestorer>;
+export using IRestorerRef = std::shared_ptr<IRestorer>;
 
 
-class SelectionVisibilityServerImp final
+export class Hider;
+
+export class VisibilityServer
 {
-    friend class SelectionVisibilityServer;
-    friend class SelectionHider;
+public:
+    VisibilityServer(IView& v):
+        itsView{ v }
+    {
+    }
+
+    VisibilityServer(const VisibilityServer& rhs) = delete;
+    VisibilityServer& operator=(const VisibilityServer& rhs) = delete;
+
+    ~VisibilityServer();
+
+    Hider HideSelection();
+    // Makes the selection invisible in itsView. If the returned Hider
+    // is destructed, the selection is made visible again (if there are no
+    // other selection hiders at this VisibilityServer)
+
+    class Imp;
+
+private:
+    std::shared_ptr<Imp> itsImp;
+    IView& itsView;
+};
+
+class VisibilityServer::Imp final
+{
+    friend class VisibilityServer;
+    friend class Hider;
 
     unsigned long itsNumOfServers{};
     IView* itsView{};
@@ -190,45 +226,26 @@ class SelectionVisibilityServerImp final
 };
 
 
-export class SelectionHider // has value semantics
+export class Hider // has value semantics
 {
-    friend class SelectionVisibilityServer;
+    using VS = VisibilityServer;
 
-    std::shared_ptr<SelectionVisibilityServerImp> itsServerImp; // may be zero
+    friend class VS;
+
+    std::shared_ptr<VS::Imp> itsServerImp; // may be zero
 
 public:
-    SelectionHider() = default;
-    ~SelectionHider(); // intentionally NOT virtual
+    Hider() = default;
+    ~Hider(); // intentionally NOT virtual
 
-    SelectionHider(const SelectionHider& rhs);
-    SelectionHider& operator=(const SelectionHider& rhs);
+    Hider(const Hider& rhs);
+    Hider& operator=(const Hider& rhs);
 
 private:
-    SelectionHider(const std::shared_ptr<SelectionVisibilityServerImp>& server);
+    Hider(const std::shared_ptr<VS::Imp>& server);
 };
 
-
-export class SelectionVisibilityServer
-{
-    std::shared_ptr<SelectionVisibilityServerImp> itsImp;
-    IView& itsView;
-
-public:
-    SelectionVisibilityServer(IView& v):
-        itsView{ v }
-    {
-    }
-
-    SelectionVisibilityServer(const SelectionVisibilityServer& rhs) = delete;
-    SelectionVisibilityServer& operator=(const SelectionVisibilityServer& rhs) = delete;
-
-    ~SelectionVisibilityServer();
-
-    SelectionHider HideSelection();
-    // Makes the selection invisible in itsView. If the returned SelectionHider
-    // is destructed, the selection is made visible again (if there are no
-    // other selection hiders at this SelectionVisibilityServer)
-};
+}
 
 
 export class ObjectID
@@ -387,20 +404,21 @@ protected:
 
 export class IElement: public ObjectWithID
 {
-    friend class TransactionImp;
-    friend class IElementPrivateAccess;
+    friend class Transaction;
 
     class Rep;
     std::unique_ptr<Rep> itsRep;
 
 public:
+    class PrivateAccess;
+
     // Make famous type Env available for derived classes in other
     // packages without namespace qualification (only for convenience).
     using Env = Env;
 
     virtual ~IElement();
 
-    virtual auto Copy() const -> IElementPtr = 0;
+    virtual auto Copy() const -> IElementRef = 0;
     // Creates a shallow copy of this element.
 
     virtual void DeepInsert(ElementSet& s);
@@ -432,7 +450,7 @@ public:
     void DeleteViewElement(IViewElement&);
     // Delete and forget the IViewElement.
 
-    void DeleteViewElements(SelectionTracker&, IView* v);
+    void DeleteViewElements(Selection::Tracker&, IView* v);
     // If v is not zero, deletes the view element in v.
     // If v is zero, deletes all view elements of this model element.
 
@@ -451,7 +469,7 @@ public:
     // This member function does have a default implementation, which
     // returns nullptr.
 
-    void SetSelectionState(SelectionTracker&, bool new_state, IView& v);
+    void SetSelectionState(Selection::Tracker&, bool new_state, IView& v);
     // Set the selection state of its view element in v
 
     bool IsSelected(const IView* v) const;
@@ -469,7 +487,7 @@ public:
     // Looks through all its view elements and returns the one that is in v.
     // Returns zero if v is zero.
 
-    virtual auto IsCopySelected(ExtendSelectionParam&) const -> ExtendSelectionResult;
+    virtual auto IsCopySelected(ExtendSelection::Param&) const -> ExtendSelection::Result;
 
     void SetClub(IClub*);
     auto Club() const -> IClub*;
@@ -519,7 +537,7 @@ public:
     // Return non-zero if this object is a named object. Named objects are
     // stored under their name.
 
-    class Register
+    struct Register
     {
     public:
         void operator()() {}
@@ -635,7 +653,7 @@ protected:
 };
 
 
-export class IElementPrivateAccess
+class IElement::PrivateAccess
 {
 public:
     static void TransactionAborted(IElement& me) { me.TransactionAborted(); }
@@ -644,22 +662,6 @@ public:
     static void SetTouched(IElement& me, bool t) { me.SetTouched(t); }
     static void DisconnectTransaction(IElement& me) { me.DisconnectTransaction(); }
     static void TransactionDone(IElement& me) { me.TransactionDone(); }
-};
-
-
-export class IElementPtr: public std::shared_ptr<IElement>
-{
-public:
-    IElementPtr(const IElement*) = delete;
-
-    IElementPtr() = default;
-    IElementPtr(const IElementPtr&) = default;
-    IElementPtr& operator=(const IElementPtr&) = default;
-
-    IElementPtr(const shared_ptr& base):
-        shared_ptr{ base }
-    {
-    }
 };
 
 
@@ -675,10 +677,10 @@ export inline bool SmallerID(const ObjectWithID* obj1, const ObjectWithID* obj2)
 }
 
 
-export template <class Iter, class Pred>
-void PrintSortedIDs(std::ostream& os, Iter first, Iter last, Pred pred)
+export template <class R, class Pred>
+void PrintSortedIDs(std::ostream& os, const R& range, Pred pred)
 {
-    auto v = std::vector(first, last);
+    auto v = std::vector(begin(range), end(range));
 
     std::ranges::sort(v, pred);
 
@@ -690,10 +692,10 @@ void PrintSortedIDs(std::ostream& os, Iter first, Iter last, Pred pred)
 }
 
 
-export template <class Iter>
-void PrintSortedIDs(std::ostream& os, Iter first, Iter last)
+export template <class R>
+void PrintSortedIDs(std::ostream& os, const R& range)
 {
-    PrintSortedIDs(os, first, last, SmallerID);
+    PrintSortedIDs(os, range, SmallerID);
 }
 
 
@@ -856,7 +858,6 @@ inline d1::Point ShiftVector::GetNewPos(
 
 export class DeferredShiftSet
 {
-private:
     using Shiftables = d1::ListSet<IShiftable*>;
     using Dependents = d1::ListSet<std::pair<
         IShiftable* /*sender*/, IShiftable* /*dependent*/>>;
@@ -985,6 +986,6 @@ auto Build(const ElementSet& selection, IDiagram&) -> ElementSet;
 
 
 export auto MakeStandardSelectionRestorer(
-    const ElementSet& selection) -> ISelectionRestorerRef;
+    const ElementSet& selection) -> Selection::IRestorerRef;
 
 }

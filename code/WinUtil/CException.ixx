@@ -6,7 +6,7 @@ module;
 
 #include <Windows.h>
 
-export module WinUtil:CException;
+export module WinUtil.CException;
 
 import std;
 

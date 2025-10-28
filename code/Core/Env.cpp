@@ -20,7 +20,7 @@ auto Env::WorkingView() const -> IView*
 }
 
 
-void Env::AddNewlyCreated(IElementPtr me)
+void Env::AddNewlyCreated(IElementRef me)
 {
     transaction.AddNewlyCreated(me);
 }

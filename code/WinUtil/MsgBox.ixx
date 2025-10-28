@@ -6,7 +6,7 @@ module;
 
 #include <Windows.h>
 
-export module WinUtil:MsgBox;
+export module WinUtil.MsgBox;
 
 import std;
 

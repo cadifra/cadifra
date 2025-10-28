@@ -20,7 +20,7 @@ export struct Size
 
     bool operator==(const Size&) const = default;
 
-    Size& operator+=(const Size& delta)
+    auto& operator+=(const Size& delta)
     {
         w += delta.w;
         h += delta.h;
@@ -59,9 +59,9 @@ export struct fSize
 
 
 
-export Size operator+(const Size& s1, const Size& s2)
+export auto operator+(const Size& s1, const Size& s2)
 {
-    return { s1.w + s2.w, s1.h + s2.h };
+    return Size{ s1.w + s2.w, s1.h + s2.h };
 }
 
 }

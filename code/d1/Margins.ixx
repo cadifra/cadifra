@@ -128,9 +128,9 @@ export struct fMargins: public MarginsBase<float64>
 // non-member functions
 //
 
-export inline Margins round(const fMargins& r)
+export inline auto round(const fMargins& r)
 {
-    return { round(r.l), round(r.t), round(r.r), round(r.b) };
+    return Margins{ round(r.l), round(r.t), round(r.r), round(r.b) };
 }
 
 }

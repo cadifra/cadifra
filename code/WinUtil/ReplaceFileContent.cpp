@@ -6,7 +6,9 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.ReplaceFileContent;
+
+import WinUtil.UniqueHandle;
 
 
 namespace WinUtil

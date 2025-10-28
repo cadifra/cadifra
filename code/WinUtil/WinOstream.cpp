@@ -7,7 +7,7 @@ module;
 #include <Windows.h>
 #include <comdef.h>
 
-module WinUtil;
+module WinUtil.WinOstream;
 
 import d1.stringConvert;
 

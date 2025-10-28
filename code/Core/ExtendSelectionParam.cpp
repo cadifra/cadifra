@@ -14,7 +14,7 @@ namespace Core
 
 namespace
 {
-using C = ExtendSelectionParam;
+using C = ExtendSelection::Param;
 }
 
 
@@ -22,27 +22,25 @@ class C::CacheEntry
 {
 public:
     const IElement* previous;
-    ExtendSelectionResult res;
-    CacheEntry(const IElement* p, ExtendSelectionResult r):
+    Result res;
+    CacheEntry(const IElement* p, Result r):
         previous{ p }, res{ r }
     {
     }
 };
 
 
-C::ExtendSelectionParam(
-    const ICaller& caller, const ElementSet& selection):
+C::Param(const ICaller& caller, const ElementSet& selection):
     itsCaller{ caller },
     itsSelection{ selection }
 {
 }
 
 
-C::~ExtendSelectionParam() = default;
+C::~Param() = default;
 
 
-bool ExtendSelectionParam::FindCacheEntry(
-    const IElement* target, ExtendSelectionResult& res) const
+bool C::FindCacheEntry(const IElement* target, Result& res) const
 {
     bool found = false;
 
@@ -82,13 +80,13 @@ void C::EraseOtherCacheEntries(const Cache::iterator except)
 }
 
 
-auto C::Call(const IElement* target) -> ExtendSelectionResult
+auto C::Call(const IElement* target) -> Result
 {
     D1_ASSERT(target);
     if (target->IsInTrash())
-        return ExtendSelectionResult::no;
+        return Result::no;
 
-    auto res = ExtendSelectionResult::possibly;
+    auto res = Result::possibly;
 
     if (FindCacheEntry(target, res))
         return res;

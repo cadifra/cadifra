@@ -2,9 +2,7 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-module WinUtil;
-
-import :CException;
+module WinUtil.CException;
 
 import std;
 

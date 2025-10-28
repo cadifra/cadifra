@@ -2,7 +2,7 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module WinUtil:ProductVersion;
+export module WinUtil.ProductVersion;
 
 import d1.types;
 

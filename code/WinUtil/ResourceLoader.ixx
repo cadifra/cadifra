@@ -6,10 +6,10 @@ module;
 
 #include <Windows.h>
 
-export module WinUtil:ResourceLoader;
+export module WinUtil.ResourceLoader;
 
-import :Gdi;
-import :MenuHandle;
+import WinUtil.Gdi;
+import WinUtil.MenuHandle;
 
 import std;
 
@@ -52,8 +52,7 @@ public:
     // The returned handle refers to a shared resource. The caller
     // does not need to destroy it after use.
 
-    virtual GdiObjectOwner<HBITMAP> GetBitmap(WORD id) const = 0;
-
+    virtual auto GetBitmap(WORD id) const -> GdiObjectOwner<HBITMAP> = 0;
 
     virtual HINSTANCE GetInstanceHandle() const = 0;
 

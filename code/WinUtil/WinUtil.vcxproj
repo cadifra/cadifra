@@ -235,6 +235,7 @@
   <ItemGroup>
     <ClInclude Include="d1Trace.h" />
     <ClInclude Include="DebugEntryExitReporter.h" />
+    <ClInclude Include="MessageWrapperMacros.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Messages.ixx" />
@@ -327,14 +328,8 @@
     </ClCompile>
     <ClCompile Include="GdiplusException.cpp" />
     <ClCompile Include="GIClasses.ixx" />
-    <ClCompile Include="GlobalLocker.ixx">
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </ForcedIncludeFiles>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ForcedIncludeFiles>
-    </ClCompile>
     <ClCompile Include="GlobalOwner.cpp" />
-    <ClCompile Include="GlobalOwner.ixx">
+    <ClCompile Include="Global.ixx">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -347,7 +342,7 @@
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="IMouseInputControl.cpp" />
+    <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Mouse.ixx">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </ForcedIncludeFiles>
@@ -373,7 +368,7 @@
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="IWinMsgPlug.cpp" />
+    <ClCompile Include="IMessagePlug.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Keyboard.ixx" />
     <ClCompile Include="ListenerWindow.cpp" />
@@ -387,7 +382,7 @@
     </ClCompile>
     <ClCompile Include="MenuMsg.cpp" />
     <ClCompile Include="MessageFilter.cpp" />
-    <ClCompile Include="Message.ixx">
+    <ClCompile Include="MessageLoop.ixx">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -395,11 +390,10 @@
     </ClCompile>
     <ClCompile Include="MessageLoop.cpp" />
     <ClCompile Include="MouseMsg.cpp" />
-    <ClCompile Include="ProcessorRegistrar.cpp" />
+    <ClCompile Include="ProcRegistrar.cpp" />
     <ClCompile Include="ProcRegistrar.ixx" />
-    <ClCompile Include="WinMsg.ixx" />
-    <ClCompile Include="WinMsgDispatcher.cpp" />
-    <ClCompile Include="_Module.ixx" />
+    <ClCompile Include="Message.ixx" />
+    <ClCompile Include="MessageDispatcher.cpp" />
     <ClCompile Include="MsgBox.cpp" />
     <ClCompile Include="MsgBox.ixx" />
     <ClCompile Include="MsiLib.cpp" />
@@ -422,9 +416,9 @@
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="QueryInterface.ixx.cpp">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsCppModuleInternalPartition</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsCppModuleInternalPartition</CompileAs>
+    <ClCompile Include="QueryInterface.ixx">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Default</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Default</CompileAs>
     </ClCompile>
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Registry.ixx" />
@@ -464,9 +458,9 @@
       </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="SEHTranslator.cpp" />
-    <ClCompile Include="SEHTranslator.ixx.cpp">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsCppModuleInternalPartition</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsCppModuleInternalPartition</CompileAs>
+    <ClCompile Include="SEHTranslator.ixx">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Default</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Default</CompileAs>
     </ClCompile>
     <ClCompile Include="SetCharsetInfo.cpp" />
     <ClCompile Include="SetCharsetInfo.ixx" />

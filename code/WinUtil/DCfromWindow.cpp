@@ -8,7 +8,7 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.DCfromWindow;
 
 
 namespace WinUtil
@@ -20,7 +20,7 @@ using C = DCfromWindow;
 }
 
 
-C::DCfromWindow(HWND w):
+C::DCfromWindow(d1::HWND w):
     itsHwnd{ w },
     itsDC{ ::GetDC(w) }
 {

@@ -14,24 +14,24 @@ namespace Core
 
 namespace
 {
-using C = UndoerParam;
+using C = Undoer;
 }
 
 
-C::UndoerParam(IDiagram& d, SelectionTracker& sc):
+C::Param::Param(IDiagram& d, Selection::Tracker& sc):
     itsDiagram{ d },
     itsSelectionTracker{ sc }
 {
 }
 
 
-C::~UndoerParam()
+C::Param::~Param()
 {
     Finish();
 }
 
 
-void C::Finish()
+void C::Param::Finish()
 {
     for (auto me : itsAddToDiagram)
     {
@@ -61,19 +61,19 @@ void C::Finish()
 }
 
 
-void C::AddToDiagram(const IElementPtr& me)
+void C::Param::AddToDiagram(const IElementRef& me)
 {
     itsAddToDiagram.insert(me);
 }
 
 
-void C::RemoveFromDiagram(const IElementPtr& me)
+void C::Param::RemoveFromDiagram(const IElementRef& me)
 {
     itsRemoveFromDiagram.insert(me);
 }
 
 
-void C::UpdateViews(const IElementPtr& me)
+void C::Param::UpdateViews(const IElementRef& me)
 {
     itsUpdateViews.insert(me);
 }

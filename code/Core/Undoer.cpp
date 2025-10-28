@@ -14,8 +14,8 @@ auto UndoerRef::MakeNullUndoer() -> UndoerRef
     {
     public:
         virtual bool IsNull() const final { return true; }
-        virtual void UndoImp(UndoerParam&) final {}
-        virtual void RedoImp(UndoerParam&) final {}
+        virtual void UndoImp(Param&) final {}
+        virtual void RedoImp(Param&) final {}
         virtual bool Merge(Undoer& u) final { return u.IsNull(); }
         virtual void Remove(IElement&) final {}
     };
@@ -47,14 +47,14 @@ public:
 }
 
 
-void Undoer::Undo(UndoerParam& p)
+void Undoer::Undo(Param& p)
 {
     auto r = UndoRedoReporter{ *this, p.Diagram() };
     UndoImp(p);
 }
 
 
-void Undoer::Redo(UndoerParam& p)
+void Undoer::Redo(Param& p)
 {
     auto r = UndoRedoReporter{ *this, p.Diagram() };
     RedoImp(p);

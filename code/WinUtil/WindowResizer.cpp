@@ -8,7 +8,7 @@ module;
 
 #include "d1/d1verify.h"
 
-module WinUtil;
+module WinUtil.IWindow;
 
 
 namespace WinUtil

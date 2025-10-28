@@ -6,7 +6,7 @@ module;
 
 #include <Windows.h>
 
-export module WinUtil:StreamConnector;
+export module WinUtil.StreamConnector;
 
 import d1.RefCounter;
 

@@ -6,7 +6,7 @@ module;
 
 #include "d1/ExceptionUtil.h"
 
-export module Core:Exceptions;
+export module Core.Exceptions;
 
 import d1.types;
 import d1.ostringstream;

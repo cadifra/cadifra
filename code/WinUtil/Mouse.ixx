@@ -2,26 +2,52 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-module;
-
-#include "d1/d1assert.h"
-
-#include <Windows.h>
-
-export module WinUtil:Mouse;
+export module WinUtil.Mouse;
 
 import d1.MouseButton;
 import d1.types;
+import d1.wintypes;
 
 
 namespace WinUtil
 {
 
-export class IMouseInputControl
+export class MouseInputCapturer
+{
+public:
+    class Control;
+
+private:
+    Control& itsControl;
+    bool itIsCaptured = false;
+
+public:
+    MouseInputCapturer(Control& mic):
+        itsControl{ mic }
+    {
+    }
+
+    MouseInputCapturer(Control& mic, bool capture);
+
+    ~MouseInputCapturer()
+    {
+        Release();
+    }
+
+    void Capture();
+    void Release();
+
+    bool IsCaptured() const
+    {
+        return itIsCaptured;
+    }
+};
+
+
+class MouseInputCapturer::Control
 {
     friend class MouseInputCapturer;
 
-private:
     d1::int32 itsNumCapture = 0;
 
 private:
@@ -38,79 +64,45 @@ private:
     void ReleaseMouseInput();
 
 protected:
-    ~IMouseInputControl() = default;
+    ~Control() = default;
 
 private:
     virtual void ImplSetCaptureMouseInput(bool) = 0;
 };
 
 
-export class MouseInputCapturer
+MouseInputCapturer::MouseInputCapturer(Control& mic, bool capture):
+    itsControl{ mic }, itIsCaptured{ capture }
 {
-    IMouseInputControl& itsMouseInputControl;
-    bool itIsCaptured = false;
+    if (itIsCaptured)
+        itsControl.CaptureMouseInput();
+}
 
-public:
-    MouseInputCapturer(IMouseInputControl& mic):
-        itsMouseInputControl{ mic }
-    {
-    }
 
-    MouseInputCapturer(IMouseInputControl& mic, bool capture):
-        itsMouseInputControl{ mic }, itIsCaptured{ capture }
+void MouseInputCapturer::Capture()
+{
+    if (!itIsCaptured)
     {
-        if (itIsCaptured)
-            itsMouseInputControl.CaptureMouseInput();
+        itsControl.CaptureMouseInput();
+        itIsCaptured = true;
     }
+}
 
-    ~MouseInputCapturer()
-    {
-        Release();
-    }
 
-    void Capture()
+void MouseInputCapturer::Release()
+{
+    if (itIsCaptured)
     {
-        if (!itIsCaptured)
-        {
-            itsMouseInputControl.CaptureMouseInput();
-            itIsCaptured = true;
-        }
+        itsControl.ReleaseMouseInput();
+        itIsCaptured = false;
     }
-
-    void Release()
-    {
-        if (itIsCaptured)
-        {
-            itsMouseInputControl.ReleaseMouseInput();
-            itIsCaptured = false;
-        }
-    }
-
-    bool IsCaptured() const
-    {
-        return itIsCaptured;
-    }
-};
+}
 
 
 export namespace MouseButton
 {
 
-WPARAM fwKeysVal(d1::MouseButton mb)
-{
-    switch (mb)
-    {
-    case d1::MouseButton::left:
-        return MK_LBUTTON;
-    case d1::MouseButton::middle:
-        return MK_MBUTTON;
-    case d1::MouseButton::right:
-        return MK_RBUTTON;
-    default:
-        D1_ASSERT(0);
-        return 0;
-    }
-}
+d1::WPARAM fwKeysVal(d1::MouseButton mb);
 
 }
 

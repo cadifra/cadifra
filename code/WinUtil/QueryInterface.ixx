@@ -6,13 +6,13 @@ module;
 
 #include <Windows.h>
 
-module WinUtil:QueryInterface;
+export module WinUtil.QueryInterface;
 
 
 import d1.AutoComPtr;
 
 
-namespace WinUtil
+export namespace WinUtil
 {
 
 template <class T1, class T2>

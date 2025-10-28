@@ -6,7 +6,7 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.ComException;
 
 import std;
 
@@ -47,6 +47,13 @@ const char* C::what() const
     o << GetHRESULT_string() << std::ends;
 
     return lastWhat.c_str();
+}
+
+
+void C::Check(d1::HRESULT r)
+{
+    if (FAILED(r))
+        throw ComException{ r };
 }
 
 

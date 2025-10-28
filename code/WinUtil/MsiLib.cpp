@@ -7,7 +7,7 @@ module;
 #include <Windows.h>
 #include <msi.h>
 
-module WinUtil;
+module WinUtil.MsiLib;
 
 
 namespace WinUtil

@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="_Module.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
     <ClCompile Include="CException.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
@@ -115,10 +112,7 @@
     <ClCompile Include="Gdi.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
-    <ClCompile Include="GlobalLocker.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="GlobalOwner.ixx">
+    <ClCompile Include="Global.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
     <ClCompile Include="GdiplusException.cpp">
@@ -130,7 +124,7 @@
     <ClCompile Include="GuardedFunctionCall.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
-    <ClCompile Include="IMouseInputControl.cpp">
+    <ClCompile Include="Mouse.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
     <ClCompile Include="IWindow.cpp">
@@ -196,7 +190,7 @@
     <ClCompile Include="MenuHandle.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
-    <ClCompile Include="Message.ixx">
+    <ClCompile Include="MessageLoop.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
     <ClCompile Include="MsgBox.ixx">
@@ -313,19 +307,13 @@
     <ClCompile Include="WinOstream.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
-    <ClCompile Include="QueryInterface.ixx.cpp">
-      <Filter>_ixx.cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="SEHTranslator.ixx.cpp">
-      <Filter>_ixx.cpp</Filter>
-    </ClCompile>
     <ClCompile Include="Messages.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
-    <ClCompile Include="WinMsg.ixx">
+    <ClCompile Include="Message.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
-    <ClCompile Include="IWinMsgPlug.cpp">
+    <ClCompile Include="IMessagePlug.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
     <ClCompile Include="MenuMsg.cpp">
@@ -334,16 +322,22 @@
     <ClCompile Include="MouseMsg.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
-    <ClCompile Include="ProcessorRegistrar.cpp">
+    <ClCompile Include="ProcRegistrar.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
-    <ClCompile Include="WinMsgDispatcher.cpp">
+    <ClCompile Include="MessageDispatcher.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
     <ClCompile Include="ProcRegistrar.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
     <ClCompile Include="GIClasses.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="SEHTranslator.ixx">
+      <Filter>_ixx</Filter>
+    </ClCompile>
+    <ClCompile Include="QueryInterface.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
   </ItemGroup>
@@ -354,6 +348,9 @@
     <ClInclude Include="DebugEntryExitReporter.h">
       <Filter>cpp</Filter>
     </ClInclude>
+    <ClInclude Include="MessageWrapperMacros.h">
+      <Filter>_ixx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="_ixx">
@@ -361,9 +358,6 @@
     </Filter>
     <Filter Include="cpp">
       <UniqueIdentifier>{3fa66e4c-ab0d-4593-9ee8-03771dc9bed0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="_ixx.cpp">
-      <UniqueIdentifier>{280c941f-41f6-41ae-8e30-1bad79a6cb84}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

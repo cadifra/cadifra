@@ -6,9 +6,9 @@ module;
 
 #include <shlobj.h>
 
-module WinUtil;
+module WinUtil.ResolveLink;
 
-import :QueryInterface;
+import WinUtil.QueryInterface;
 
 import d1.AutoComPtr;
 import d1.buffer;

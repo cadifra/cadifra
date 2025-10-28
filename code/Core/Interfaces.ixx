@@ -55,9 +55,8 @@ export class IResizable: public virtual IElement
     constexpr static int MinSizeX = 300, MinSizeY = 300;
 
 public:
-    class ResizeMode
+    struct ResizeMode
     {
-    public:
         bool horizontal_symmetric = false;
     };
     virtual void Resize(Env&, const d1::nRect& /*new_rect*/, const ResizeMode* = 0) = 0;

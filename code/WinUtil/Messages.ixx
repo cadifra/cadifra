@@ -8,9 +8,9 @@ module;
 
 #include "MessageWrapperMacros.h"
 
-export module WinUtil:Messages;
+export module WinUtil.Messages;
 
-import :WinMsg;
+import WinUtil.Message;
 
 import d1.MouseButton;
 import d1.Point;
@@ -253,7 +253,7 @@ class WM_XBUTTONX_Msg:
     public StaticWinMsgWrapper<MsgId>
 {
 public:
-    WM_XBUTTONX_Msg(WinMsg& msg):
+    WM_XBUTTONX_Msg(Message& msg):
         StaticWinMsgWrapper<MsgId>(msg) {}
 
     WPARAM fwKeys() const { return this->GetWParam(); }

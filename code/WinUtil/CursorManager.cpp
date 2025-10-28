@@ -18,10 +18,13 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.CursorManager;
+
+import WinUtil.CriticalSection;
+import WinUtil.UniqueHandle;
 
 
-namespace WinUtil::CursorManager
+namespace WinUtil
 {
 
 namespace
@@ -31,7 +34,7 @@ constexpr LONGLONG WaitBeforeWaitCursor = -300 * 10000;
 // time in 100ns, negative means relative
 
 
-class Impl: public Manager
+class Impl: public CursorManager
 {
     bool itIsRunning = false;
     HCURSOR itsWaitCursor{};
@@ -42,7 +45,7 @@ class Impl: public Manager
     UniqueHandle itsThread;
     DWORD itsCreatorThreadId = {};
 
-    CriticalSectionObject itsCSO;
+    CriticalSection::Object itsCSO;
     HCURSOR itsCursor = {};
     bool itsWaitCursorSet = false;
 
@@ -272,29 +275,30 @@ Impl::~Impl()
     ::WaitForSingleObject(itsThread.get(), INFINITE);
 }
 
+using C = CursorManager;
 }
 
 
-WaitCursorSwitch::WaitCursorSwitch()
+C::WaitCursorSwitch::WaitCursorSwitch()
 {
 }
 
 
-WaitCursorSwitch::~WaitCursorSwitch()
+C::WaitCursorSwitch::~WaitCursorSwitch()
 {
     if (itIsOn)
         Instance().Stop();
 }
 
 
-void WaitCursorSwitch::On()
+void C::WaitCursorSwitch::On()
 {
     if (!itIsOn)
         itIsOn = Instance().Start();
 }
 
 
-void WaitCursorSwitch::Off()
+void C::WaitCursorSwitch::Off()
 {
     if (itIsOn)
     {
@@ -304,20 +308,20 @@ void WaitCursorSwitch::Off()
 }
 
 
-ImmediateWaitCursor::ImmediateWaitCursor():
+C::ImmediateWaitCursor::ImmediateWaitCursor():
     itsOldCursor{ Instance().GetCursor() }
 {
     Instance().Set(Instance().GetWaitCursor());
 }
 
 
-ImmediateWaitCursor::~ImmediateWaitCursor()
+C::ImmediateWaitCursor::~ImmediateWaitCursor()
 {
     if (itsOldCursor)
         Instance().Set(itsOldCursor);
 }
 
-auto Instance() -> Manager&
+auto C::Instance() -> CursorManager&
 {
     static Impl instance;
     return instance;

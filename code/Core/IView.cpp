@@ -8,7 +8,7 @@ module;
 
 module Core;
 
-import WinUtil;
+import WinUtil.Debug;
 
 
 namespace Core
@@ -168,7 +168,7 @@ bool C::HasSelection() const
 }
 
 
-void C::DeselectAll(SelectionTracker& sc)
+void C::DeselectAll(Selection::Tracker& sc)
 {
     if (itsDeleting)
         return;
@@ -183,7 +183,7 @@ void C::DeselectAll(SelectionTracker& sc)
 }
 
 
-void C::SelectAll(SelectionTracker& sc)
+void C::SelectAll(Selection::Tracker& sc)
 {
     if (itsDeleting)
         return;
@@ -244,7 +244,7 @@ void C::NotifySelectionObservers() const
 
 
 
-void C::SetSelection(SelectionTracker& sc, ElementSet theSelection)
+void C::SetSelection(Selection::Tracker& sc, ElementSet theSelection)
 {
     if (itsDeleting)
         return;
@@ -260,7 +260,7 @@ void C::SetSelection(SelectionTracker& sc, ElementSet theSelection)
 }
 
 
-auto C::HideSelection() -> SelectionHider
+auto C::HideSelection() -> Selection::Hider
 {
     return itsSelectionVisibilityServer.HideSelection();
 }

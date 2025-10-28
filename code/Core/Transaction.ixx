@@ -84,9 +84,11 @@ export class Transaction
 {
     using FollowUps = std::deque<FollowUpJob>;
 
+	class Imp;
+
     IDiagram& itsDiagram;
     IView* itsWorkingView; // may be 0
-    std::unique_ptr<TransactionImp> itsImp;
+    std::unique_ptr<Imp> itsImp;
     FollowUps itsFollowUps;
 
 public:
@@ -101,7 +103,7 @@ public:
     auto Diagram() const -> IDiagram& { return itsDiagram; }
     auto WorkingView() const -> IView* { return itsWorkingView; }
 
-    auto Close(SelectionTracker&, const IGrid&) -> UndoerRef;
+    auto Close(Selection::Tracker&, const IGrid&) -> UndoerRef;
     // Closes this transaction and returns a ref to an undoer that
     // is capable of undoing/redoing this transaction. This includes
     // changes made to clients that were added with AddTouched(),
@@ -121,11 +123,11 @@ public:
     // inserted into the needs update view set.
     // PRE: me is not in trash.
 
-    void PutIntoTrash(SelectionTracker&, const IElementPtr& me);
+    void PutIntoTrash(Selection::Tracker&, const IElementRef& me);
     // Trashes me and takes ownership over me. me may have been
     // AddTouched() and AddNewlyCreated() to this same transaction.
 
-    void AddNewlyCreated(IElementPtr me);
+    void AddNewlyCreated(IElementRef me);
     // me was newly created during this transaction. The Transaction
     // ensures, that me will be trashed when someone calls Undo()
     // on the undoer that is returned by Close().
@@ -137,18 +139,18 @@ public:
     void ScheduleFollowUpJob(FollowUpJob);
 
 private:
-    auto SubTransactionClose(SelectionTracker&, const IGrid&) -> UndoerRef;
+    auto SubTransactionClose(Selection::Tracker&, const IGrid&) -> UndoerRef;
 
     void MakeNew();
 };
 
 
-export class TransactionImp
+class Transaction::Imp
 {
     friend class Transaction;
 
-    using MESet = std::vector<IElementPtr>;
-    using FinalizeDeque = std::deque<IElementPtr>;
+    using MESet = std::vector<IElementRef>;
+    using FinalizeDeque = std::deque<IElementRef>;
 
     Transaction& itsTransaction;
     MESet itsTouchedElements;
@@ -163,34 +165,34 @@ export class TransactionImp
 
 
 public:
-    TransactionImp(IDiagram&, IView* working_view, Transaction&);
+    Imp(IDiagram&, IView* working_view, Transaction&);
     // working_view may be zero
 
-    TransactionImp(const TransactionImp&) = delete;
-    TransactionImp& operator=(const TransactionImp& rhs) = delete;
+    Imp(const Imp&) = delete;
+    Imp& operator=(const Imp& rhs) = delete;
 
-    ~TransactionImp();
+    ~Imp();
 
 private:
-    bool Finalize(SelectionTracker&, const IGrid&);
-    auto Close(SelectionTracker&, const IGrid&) -> UndoerRef;
+    bool Finalize(Selection::Tracker&, const IGrid&);
+    auto Close(Selection::Tracker&, const IGrid&) -> UndoerRef;
     void Abort();
     void AddTouched(IElement& me, bool update_view);
-    void PutIntoTrash(SelectionTracker&, const IElementPtr& me);
-    void AddNewlyCreated(IElementPtr me);
+    void PutIntoTrash(Selection::Tracker&, const IElementRef& me);
+    void AddNewlyCreated(IElementRef me);
     bool HasNewlyCreated(const IElement& me) const;
 
 private:
-    auto NonNullClose(SelectionTracker& sc, const IGrid& g) -> UndoerRef;
+    auto NonNullClose(Selection::Tracker& sc, const IGrid& g) -> UndoerRef;
 
     auto CloseAllTouched() -> UndoerRef;
 
     void DisconnectAllNewlyCreated();
-    void DisconnectAllTrashed(SelectionTracker& sc);
+    void DisconnectAllTrashed(Selection::Tracker& sc);
     void DisconnectAllTouched();
 
     void AbortAllTrashed();
-    void AbortAllNewlyCreated(SelectionTracker& sc);
+    void AbortAllNewlyCreated(Selection::Tracker& sc);
 
     void Destruct();
 };
@@ -244,20 +246,21 @@ public:
     Finalizer& operator=(const Finalizer& rhs) = delete;
 
     virtual void Execute(Env&) = 0;
+
+    class Dock;
+    static auto GetDock() -> Dock&;
 };
 
 
-export class FinalizerDock
+class Finalizer::Dock
 {
 public:
-    static auto Get() -> FinalizerDock&;
-
     virtual void Add(std::unique_ptr<Finalizer>) = 0;
 
     virtual void ExecuteAll(Env&) = 0;
 
 protected:
-    ~FinalizerDock() = default;
+    ~Dock() = default;
 };
 
 }

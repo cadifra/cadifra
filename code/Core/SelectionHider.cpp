@@ -10,18 +10,18 @@ namespace Core
 
 namespace
 {
-using C = SelectionHider;
+using C = Selection::Hider;
 }
 
 
-C::~SelectionHider()
+C::~Hider()
 {
     if (itsServerImp)
         itsServerImp->RemoveHider();
 }
 
 
-C::SelectionHider(const SelectionHider& rhs):
+C::Hider(const Hider& rhs):
     itsServerImp{ rhs.itsServerImp }
 {
     if (itsServerImp)
@@ -29,7 +29,7 @@ C::SelectionHider(const SelectionHider& rhs):
 }
 
 
-auto C::operator=(const SelectionHider& rhs) -> SelectionHider&
+auto C::operator=(const Hider& rhs) -> Hider&
 {
     if (rhs.itsServerImp)
         rhs.itsServerImp->AddHider();
@@ -40,7 +40,7 @@ auto C::operator=(const SelectionHider& rhs) -> SelectionHider&
 }
 
 
-C::SelectionHider(const std::shared_ptr<SelectionVisibilityServerImp>& server):
+C::Hider(const std::shared_ptr<VS::Imp>& server):
 
     itsServerImp{ server }
 {

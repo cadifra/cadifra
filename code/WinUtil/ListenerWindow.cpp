@@ -6,7 +6,10 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.ListenerWindow;
+
+import WinUtil.IWindow;
+import WinUtil.Window;
 
 import std;
 
@@ -26,7 +29,7 @@ public:
 
     HWND GetWindowHandle() const { return itsWindow.GetWindowHandle(); }
 
-    auto GetDispatcher() -> IWinMsgDispatcher&
+    auto GetDispatcher() -> IMessageDispatcher&
     {
         return itsWindow.GetMsgDispatcher();
     }
@@ -60,7 +63,7 @@ C::Impl::Impl()
 }
 
 
-auto C::GetMsgDispatcher() const -> IWinMsgDispatcher&
+auto C::GetMsgDispatcher() const -> IMessageDispatcher&
 {
     return Instance().GetDispatcher();
 }

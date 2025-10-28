@@ -27,7 +27,7 @@ C::~TransferSet()
 }
 
 
-void C::Add(IElementPtr m)
+void C::Add(IElementRef m)
 {
     itsElements.push_back(m);
     m->SetClub(this);
@@ -177,20 +177,22 @@ auto C::StartCopy() -> Copier
 
 namespace
 {
-class IteratorImp: public d1::IIteratorImp<IElement*>
+class IteratorImp: public d1::Iterator<IElement*>::Imp
 {
+    using Base = d1::Iterator<IElement*>::Imp;
     using C = TransferSet::MeSet;
 
     C::const_iterator itsIterator;
 
-    auto Clone() const -> std::unique_ptr<IIteratorImp> final
+    auto Clone() const -> std::unique_ptr<Base> final
     {
         return std::make_unique<IteratorImp>(itsIterator);
     }
 
-    bool IsEqual(const IIteratorImp& rhs) const final
+    bool IsEqual(const Base& rhs) const final
     {
-        return itsIterator == static_cast<const IteratorImp&>(rhs).itsIterator;
+        return itsIterator ==
+               static_cast<const IteratorImp&>(rhs).itsIterator;
     }
 
     void Next() final { ++itsIterator; }

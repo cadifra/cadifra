@@ -2,7 +2,7 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-module WinUtil;
+module WinUtil.ProductVersion;
 
 
 namespace WinUtil
@@ -27,4 +27,3 @@ bool ProductVersion::operator>(const ProductVersion& rhs) const
 }
 
 }
-

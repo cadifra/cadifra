@@ -6,7 +6,7 @@ module;
 
 #include <Windows.h>
 
-export module WinUtil:Registry;
+export module WinUtil.Registry;
 
 import d1.types;
 import d1.Exception;

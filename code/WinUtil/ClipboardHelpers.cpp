@@ -6,7 +6,9 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.Clipboard;
+
+import WinUtil.Global;
 
 import d1.AutoComPtr;
 

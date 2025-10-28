@@ -6,7 +6,8 @@
 
 #ifdef _DEBUG
 
-import WinUtil;
+import WinUtil.Debug;
+
 
 namespace WinUtil
 {

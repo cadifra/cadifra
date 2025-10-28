@@ -1,21 +1,16 @@
-/*
+ /*
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module WinUtil:CursorManager;
+export module WinUtil.CursorManager;
 
 import d1.wintypes;
 
 
-export namespace WinUtil::CursorManager
+namespace WinUtil
 {
 
-class LengthyOperation;
-class WaitCursorSwitch;
-class InhibitWaitCursor;
-
-
-class Manager
+export class CursorManager
 {
 public:
     virtual void Set(d1::HCURSOR newCursor) = 0;
@@ -32,23 +27,23 @@ public:
     // Used to "correct" the cursor. This is needed if someone
     // has directly called the OS-function SetCursor
 
+    static CursorManager& Instance();
+
+    class LengthyOperation;
+    class WaitCursorSwitch;
+    class InhibitWaitCursor;
+    class ImmediateWaitCursor;
+
 protected:
-    ~Manager() {}
+    ~CursorManager() {}
 
 private:
-    friend class LengthyOperation;
-    friend class WaitCursorSwitch;
-    friend class InhibitWaitCursor;
-
     virtual bool Start() = 0; // Returns true if it was not running before.
     virtual bool Stop() = 0;  // Returns true if it was running before.
 };
 
 
-Manager& Instance();
-
-
-class WaitCursorSwitch
+class CursorManager::WaitCursorSwitch
 {
     bool itIsOn = false;
 
@@ -60,7 +55,7 @@ public:
 };
 
 
-class InhibitWaitCursor
+class CursorManager::InhibitWaitCursor
 {
     bool itHasStopped{ Instance().Stop() };
 
@@ -74,7 +69,7 @@ public:
 };
 
 
-class LengthyOperation
+class CursorManager::LengthyOperation
 {
     bool itHasStarted{ Instance().Start() };
 
@@ -88,7 +83,7 @@ public:
 };
 
 
-class ImmediateWaitCursor: private InhibitWaitCursor
+class CursorManager::ImmediateWaitCursor: private InhibitWaitCursor
 // Create an instance of this class before you show a dialog box.
 {
     d1::HCURSOR itsOldCursor = {};

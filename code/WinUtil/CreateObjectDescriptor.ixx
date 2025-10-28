@@ -2,7 +2,7 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module WinUtil:CreateObjectDescriptor;
+export module WinUtil.CreateObjectDescriptor;
 
 import d1.Point;
 import d1.Size;

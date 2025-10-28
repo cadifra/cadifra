@@ -70,8 +70,6 @@ public:
     T& operator*() const { return *p; }
 
 
-    class Ptr;
-    friend class Ptr;
     class Ptr
     {
         AutoComPtr* p;

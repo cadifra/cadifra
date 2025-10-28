@@ -299,17 +299,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\App\App.vcxproj">
-      <Project>{758911ae-d508-4f11-ba13-38c6e481b1c1}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\d1\d1.vcxproj">
       <Project>{12797005-ffd3-43c0-827d-eebb672690c0}</Project>
     </ProjectReference>
     <ProjectReference Include="..\GraphUtil\GraphUtil.vcxproj">
       <Project>{44d28738-46b3-4c1d-aa11-f4116cbd480e}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Resources\Resources.vcxproj">
-      <Project>{83d817ae-360c-4efc-b4a8-d57643baaf2a}</Project>
     </ProjectReference>
     <ProjectReference Include="..\WinUtil\WinUtil.vcxproj">
       <Project>{27a4aa7c-fd21-4312-a9d8-e62f9fdab027}</Project>

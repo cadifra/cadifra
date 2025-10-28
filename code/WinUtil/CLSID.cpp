@@ -6,7 +6,9 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.CLSID;
+
+import WinUtil.ComException;
 
 
 namespace WinUtil

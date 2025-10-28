@@ -12,7 +12,10 @@ module;
 #include <crtdbg.h>
 #endif
 
-module WinUtil;
+module WinUtil.MessageLoop;
+
+import WinUtil.Debug;
+import WinUtil.GuardedFunctionCall;
 
 import std;
 

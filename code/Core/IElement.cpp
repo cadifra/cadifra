@@ -11,7 +11,7 @@ module Core;
 import d1.StackFlag;
 import d1.algorithm;
 
-import WinUtil;
+import WinUtil.Debug;
 
 
 namespace Core
@@ -141,7 +141,7 @@ void C::DeleteViewElement(IViewElement& e)
 }
 
 
-void C::DeleteViewElements(SelectionTracker& st, IView* v)
+void C::DeleteViewElements(Selection::Tracker& st, IView* v)
 {
     for (auto i = begin(itsRep->itsViewElements);
         i != end(itsRep->itsViewElements);
@@ -213,7 +213,7 @@ void C::DisconnectTransaction()
 }
 
 
-void C::SetSelectionState(SelectionTracker& sc, bool new_state, IView& v)
+void C::SetSelectionState(Selection::Tracker& sc, bool new_state, IView& v)
 {
     auto* ve = ViewElement(&v);
     if (!ve)
@@ -269,13 +269,13 @@ bool C::IsCompletelySelectedImp(const ElementSet& selection) const
 }
 
 
-auto C::IsCopySelected(ExtendSelectionParam& p) const
-    -> ExtendSelectionResult
+auto C::IsCopySelected(ExtendSelection::Param& p) const
+    -> ExtendSelection::Result
 {
     // ## Default implementation.
     return p.Selection().Contains(*this)
-               ? ExtendSelectionResult::yes
-               : ExtendSelectionResult::no;
+               ? ExtendSelection::Result::yes
+               : ExtendSelection::Result::no;
 }
 
 

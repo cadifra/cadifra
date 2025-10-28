@@ -6,9 +6,9 @@ module;
 
 #include <Windows.h>
 
-export module WinUtil:Window;
+export module WinUtil.Window;
 
-import :Registry;
+import WinUtil.Registry;
 
 import std;
 

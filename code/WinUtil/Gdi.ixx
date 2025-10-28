@@ -9,9 +9,11 @@ module;
 
 #include "d1/d1verify.h"
 
-export module WinUtil:Gdi;
+export module WinUtil.Gdi;
 
-import :ComException;
+import d1.Exception;
+
+import WinUtil.ComException;
 
 import std;
 

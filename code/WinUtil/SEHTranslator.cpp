@@ -6,10 +6,9 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.SEHTranslator;
 
-import :SEHTranslator;
-import :CException;
+import WinUtil.CException;
 
 
 namespace WinUtil::SEHTranslator

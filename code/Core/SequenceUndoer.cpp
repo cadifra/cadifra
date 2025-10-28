@@ -16,14 +16,14 @@ using C = SequenceUndoer;
 }
 
 
-void C::UndoImp(UndoerParam& p)
+void C::UndoImp(Param& p)
 {
     auto a = [&](const auto& u) { u.Undo(p); };
     for_each(ItsUndoerList | std::views::reverse, a);
 }
 
 
-void C::RedoImp(UndoerParam& p)
+void C::RedoImp(Param& p)
 {
     auto a = [&](const auto& u) { u.Redo(p); };
     for_each(ItsUndoerList, a);

@@ -2,11 +2,11 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module WinUtil:scrollKeyTranslator;
+export module WinUtil.scrollKeyTranslator;
 
 import d1.wintypes;
 
-import :Messages;
+import WinUtil.Messages;
 
 
 namespace WinUtil

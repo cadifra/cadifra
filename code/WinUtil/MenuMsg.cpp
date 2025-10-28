@@ -8,7 +8,7 @@ module;
 
 #include "d1/d1verify.h"
 
-module WinUtil;
+module WinUtil.Messages;
 
 import d1.Point;
 

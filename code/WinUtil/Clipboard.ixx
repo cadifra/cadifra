@@ -6,7 +6,7 @@ module;
 
 #include <Windows.h>
 
-export module WinUtil:Clipboard;
+export module WinUtil.Clipboard;
 
 import std;
 

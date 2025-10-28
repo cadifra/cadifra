@@ -37,27 +37,11 @@ public:
 export using FilterRef = std::shared_ptr<IFilter>;
 
 
-class SelectionObserverDock
-{
-    using SelObsContainer = std::vector<ISelectionObserver*>;
-    SelObsContainer itsObservers;
-
-public:
-    SelectionObserverDock() {}
-    SelectionObserverDock(const SelectionObserverDock&) = delete;
-    SelectionObserverDock& operator=(const SelectionObserverDock&) = delete;
-
-    void Attach(ISelectionObserver&);
-    void Detach(ISelectionObserver&);
-    void Notify() const;
-};
-
-
 export class ISelectionObserver
 {
-    SelectionObserverDock* itsDock = nullptr;
-
 public:
+    class Dock;
+
     ISelectionObserver() {}
 
     ISelectionObserver(const ISelectionObserver&) = delete;
@@ -68,7 +52,26 @@ public:
     virtual void SelectionChanged() = 0;
     // The observed selection may have been changed.
 
-    void SetDock(SelectionObserverDock* d) { itsDock = d; }
+    void SetDock(Dock* d) { itsDock = d; }
+
+private:
+    Dock* itsDock = nullptr;
+};
+
+
+class ISelectionObserver::Dock
+{
+    using SelObsContainer = std::vector<ISelectionObserver*>;
+    SelObsContainer itsObservers;
+
+public:
+    Dock() {}
+    Dock(const Dock&) = delete;
+    Dock& operator=(const Dock&) = delete;
+
+    void Attach(ISelectionObserver&);
+    void Detach(ISelectionObserver&);
+    void Notify() const;
 };
 
 
@@ -79,8 +82,8 @@ export class IView
 
     IClub& itsClub;
     ItsViewElementsType itsViewElements; // reference only
-    SelectionObserverDock itsSelectionObserverDock;
-    SelectionVisibilityServer itsSelectionVisibilityServer{ *this };
+    ISelectionObserver::Dock itsSelectionObserverDock;
+    Selection::VisibilityServer itsSelectionVisibilityServer{ *this };
     bool itsSelectionVisible = true;
     bool itIsActive = false;
     bool itsDeleting = false;
@@ -107,7 +110,7 @@ public:
     // creates a new view element in this view and adds it to the view
     // elements of me.
 
-    virtual void AddToSelection(SelectionTracker&, const d1::nRect& bounding_box) = 0;
+    virtual void AddToSelection(Selection::Tracker&, const d1::nRect& bounding_box) = 0;
     // Sets the selection based on a bounding box. bounding_box must be
     // normalized.
 
@@ -125,18 +128,18 @@ public:
     bool HasSelection() const;
     // Returns true if at least one ViewElement is selected.
 
-    void DeselectAll(SelectionTracker&);
-    void SelectAll(SelectionTracker&);
+    void DeselectAll(Selection::Tracker&);
+    void SelectAll(Selection::Tracker&);
 
     auto Selection() const -> ElementSet;
 
-    void SetSelection(SelectionTracker&, ElementSet theSelection);
+    void SetSelection(Selection::Tracker&, ElementSet theSelection);
     // POST: all elements which are in "theSelection" are selected.
     //       All others are deselected.
 
-    auto HideSelection() -> SelectionHider;
+    auto HideSelection() -> Selection::Hider;
     // Hides the selection. The selection is unhidden, after the last
-    // SelectionHider has been destructed. SelectionHiders are allowed
+    // Selection::Hider has been destructed. SelectionHiders are allowed
     // to live longer than their view.
 
     bool SelectionIsVisible() const { return itsSelectionVisible; }
@@ -284,15 +287,15 @@ public:
 
     //--
 
-    virtual void SetSelectionState(SelectionTracker&, bool);
+    virtual void SetSelectionState(Selection::Tracker&, bool);
     // selects or deselects a view element.
     // The new selection states becomes immediately visible (no update call
     // needed). The selection state acts only on one view element in a
     // distinct view.
 
-    void ToggleSelectionState(SelectionTracker& c) { SetSelectionState(c, !itIsSelected); }
-    void Select(SelectionTracker& c) { SetSelectionState(c, true); }
-    void Deselect(SelectionTracker& c) { SetSelectionState(c, false); }
+    void ToggleSelectionState(Selection::Tracker& c) { SetSelectionState(c, !itIsSelected); }
+    void Select(Selection::Tracker& c) { SetSelectionState(c, true); }
+    void Deselect(Selection::Tracker& c) { SetSelectionState(c, false); }
 
     bool IsSelected() const { return itIsSelected; }
 

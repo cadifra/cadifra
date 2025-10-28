@@ -6,7 +6,9 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.CreateObjectDescriptor;
+
+import WinUtil.Global;
 
 
 namespace WinUtil

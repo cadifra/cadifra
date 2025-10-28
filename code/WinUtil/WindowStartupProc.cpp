@@ -6,7 +6,9 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.Window;
+
+import WinUtil.IWindow;
 
 
 namespace WinUtil

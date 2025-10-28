@@ -6,12 +6,12 @@ module;
 
 #include <Windows.h>
 
-export module WinUtil:CriticalSection;
+export module WinUtil.CriticalSection;
 
 
 /*******************************************************************************
 
-  CriticalSection & CriticalSectionObject
+  CriticalSection
 
 When to use:
 
@@ -24,7 +24,7 @@ How to use:
 
   Add an additional attribute to your class:
 
-    CriticalSectionObject itsCSO;
+    CriticalSection::Object itsCSO;
 
   (You don't need to worry about it in your constructor/destructor or assignment
   operator.)
@@ -48,28 +48,42 @@ How to use:
 namespace WinUtil
 {
 
-export class CriticalSection;
-
-export class CriticalSectionObject
+export class CriticalSection
 {
 public:
-    CriticalSectionObject()
+    class Object;
+
+    explicit CriticalSection(Object& cso);
+    ~CriticalSection();
+
+    CriticalSection(const CriticalSection&) = delete;
+    CriticalSection& operator=(const CriticalSection&) = delete;
+
+private:
+    Object& itsCSObject;
+};
+
+
+class CriticalSection::Object
+{
+public:
+    Object()
     {
         ::InitializeCriticalSection(&itsCriticalSection);
     }
 
-    ~CriticalSectionObject()
+    ~Object()
     {
         ::DeleteCriticalSection(&itsCriticalSection);
     }
 
-    CriticalSectionObject(const CriticalSectionObject&)
+    Object(const Object&)
     {
         ::InitializeCriticalSection(&itsCriticalSection);
         // the duplicate has nothing in common with the copy.
     }
 
-    auto& operator=(const CriticalSectionObject&)
+    auto& operator=(const Object&)
     {
         /* nothing to do */
         return *this;
@@ -81,25 +95,16 @@ private:
 };
 
 
-export class CriticalSection
+CriticalSection::CriticalSection(Object& cso):
+    itsCSObject{ cso }
 {
-public:
-    explicit CriticalSection(CriticalSectionObject& cso):
-        itsCSObject{ cso }
-    {
-        ::EnterCriticalSection(&itsCSObject.itsCriticalSection);
-    }
+    ::EnterCriticalSection(&itsCSObject.itsCriticalSection);
+}
 
-    ~CriticalSection()
-    {
-        ::LeaveCriticalSection(&itsCSObject.itsCriticalSection);
-    }
 
-    CriticalSection(const CriticalSection&) = delete;
-    CriticalSection& operator=(const CriticalSection&) = delete;
-
-private:
-    CriticalSectionObject& itsCSObject;
-};
+CriticalSection::~CriticalSection()
+{
+    ::LeaveCriticalSection(&itsCSObject.itsCriticalSection);
+}
 
 }

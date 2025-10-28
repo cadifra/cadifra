@@ -4,6 +4,8 @@
 
 module Core;
 
+import Core.Exceptions;
+
 
 namespace Core
 {

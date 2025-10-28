@@ -2,7 +2,7 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module WinUtil:ReplaceFileContent;
+export module WinUtil.ReplaceFileContent;
 
 import d1.wintypes;
 

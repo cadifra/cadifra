@@ -6,9 +6,11 @@ module;
 
 #include <Windows.h>
 
-export module WinUtil:DevMode;
+export module WinUtil.DevMode;
 
-import :GlobalOwner;
+import WinUtil.Global;
+
+import d1.wintypes;
 
 import std;
 
@@ -19,15 +21,15 @@ namespace WinUtil
 export class DevMode
 {
 public:
-    std::vector<BYTE> itsBuf;
+    std::vector<d1::BYTE> itsBuf;
 
 public:
-    DevMode(WORD dmDriverExtra = 0);
+    DevMode(d1::WORD dmDriverExtra = 0);
 
     explicit DevMode(const DEVMODE&);
 
-    explicit DevMode(HGLOBAL g);   // does not take ownership of g!
-    DevMode& operator=(HGLOBAL g); // does not take ownership of g!
+    explicit DevMode(d1::HGLOBAL g);   // does not take ownership of g!
+    DevMode& operator=(d1::HGLOBAL g); // does not take ownership of g!
 
     GlobalOwner CreateHGLOBAL() const;
 

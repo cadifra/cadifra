@@ -6,7 +6,7 @@ module;
 
 #include <shlobj_core.h>
 
-export module WinUtil:ExtractDROPFILES;
+export module WinUtil.ExtractDROPFILES;
 
 import std;
 

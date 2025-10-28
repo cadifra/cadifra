@@ -2,203 +2,156 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module WinUtil:Message;
+module;
+
+#include "d1/d1assert.h"
+
+export module WinUtil.Message;
 
 import d1.wintypes;
-
-import :types;
-
-import std;
 
 
 namespace WinUtil
 {
 
-export class MessageFilter
+export class Message
 {
 public:
-    static MessageFilter& Instance();
+    Message(d1::UINT message, d1::WPARAM wParam, d1::LPARAM lParam);
 
-    void Register(d1::HWND window);
-    // The first call of this function registers the message
-    // filter in the OS. The window handle is used as the owner
-    // of message boxes. You may exchange the window handle
-    // by calling Register again.
+    Message(const Message&) = delete;
+    Message& operator=(const Message&) = delete;
 
-    void Unregister();
-    // After calling Register, call Unregister before OleUninitialize.
-    // It's allowed to call Unregister without a previous call to
-    // Register.
+    d1::UINT GetMsgId() const { return itsMessage; }
+    d1::WPARAM GetWParam() const { return itsWParam; }
+    d1::LPARAM GetLParam() const { return itsLParam; }
+    d1::LRESULT GetLResult() const { return itsLResult; }
 
-    ~MessageFilter();
+    void SetResult(d1::LRESULT result);
+    // Sets the result that will be returned to the system, when
+    // this message has been executed.
+    // If this function is not called, GetLResult will return 0.
+    // PRE: EnableOS has not been called
+    //      SetDefProcCalled has not been called
 
-    class PostponeIncomingCalls
-    {
-    public:
-        PostponeIncomingCalls() { Instance().IncPostponeIncomingCalls(); }
-        ~PostponeIncomingCalls() { Instance().DecPostponeIncomingCalls(); }
-    };
+    bool ResultSet() const { return itsSetResultCalled; }
+    // Returns true if SetResult was called.
+
+    void EnableOS();
+    // Permits the OS to process the message (Default = disabled)
+    // When this message has been executed, the executer will
+    // call the corresponding DefProc for this message.
+    // PRE: SetResult has not been called.
+    //      SetDefProcCalled has not been called.
+
+    bool OSisEnabled() const { return itsOSisEnabledFlag; }
+    // Returns true, if EnableOS has been called
+
+    void DefProcCalled(d1::LRESULT result);
+    // This function is called by WinUtil::CallDefProcNow, when the
+    // DefProc for this message has been called.
+    // PRE: DefProcCalled has not been called.
+
+    bool DefProcCalled() const { return itsDefProcCalled; }
+    // Returns true, if SetDefProcCalled has been called.
+
+    class Wrapper;
 
 private:
-    class Impl;
-    const std::unique_ptr<Impl> itsImpl;
-
-    MessageFilter();
-
-    friend class PostponeIncomingCalls;
-    void IncPostponeIncomingCalls();
-    void DecPostponeIncomingCalls();
-
-    MessageFilter(const MessageFilter&) = delete;
-    MessageFilter& operator=(const MessageFilter&) = delete;
+    bool itsOSisEnabledFlag = false;
+    d1::UINT itsMessage = {};
+    d1::WPARAM itsWParam = {};
+    d1::LPARAM itsLParam = {};
+    d1::LRESULT itsLResult = 0;
+    bool itsSetResultCalled = false;
+    bool itsDefProcCalled = false;
 };
 
 
-export class MessageLoop
+
+inline Message::Message(d1::UINT message, d1::WPARAM wParam, d1::LPARAM lParam):
+    itsMessage{ message },
+    itsWParam{ wParam },
+    itsLParam{ lParam }
+{
+}
+
+inline void Message::SetResult(d1::LRESULT result)
+{
+    D1_ASSERT(!itsOSisEnabledFlag);
+    D1_ASSERT(!itsDefProcCalled);
+    itsLResult = result;
+    itsSetResultCalled = true;
+}
+
+inline void Message::EnableOS()
+{
+    D1_ASSERT(!itsSetResultCalled);
+    D1_ASSERT(!itsDefProcCalled);
+    itsOSisEnabledFlag = true;
+}
+
+inline void Message::DefProcCalled(d1::LRESULT result)
+{
+    D1_ASSERT(!itsDefProcCalled);
+    itsLResult = result;
+    itsDefProcCalled = true;
+}
+
+
+export class Message::Wrapper
 {
 public:
-    class IPreProc
+    void EnableOS() const
     {
-        MessageLoop* itsMessageLoop = nullptr;
+        itsMsg.EnableOS();
+    }
 
-    public:
-        IPreProc();
-        void Register(MessageLoop&);
-        void Unregister();
-        virtual bool PreProcess(d1::MSG&) = 0 { return true; }
-        // Return true to stop processing of the message
-
-    protected:
-        ~IPreProc() { Unregister(); }
-    };
-
-    class IOneTimePostProc
+    bool OSisEnabled() const
     {
-        MessageLoop* itsMessageLoop = nullptr;
+        return itsMsg.OSisEnabled();
+    }
 
-    public:
-        IOneTimePostProc();
-        void Register(MessageLoop&);
-        void Unregister();
-        virtual void PostProcess() = 0
-        { /*intentionally*/
-        }
-
-    protected:
-        ~IOneTimePostProc() { Unregister(); }
-    };
-
-    class IIdleProc
+    void SetResult(d1::LRESULT result) const
     {
-        MessageLoop* itsMessageLoop = nullptr;
-
-    public:
-        IIdleProc();
-        void Register(MessageLoop&);
-        void Unregister();
-        virtual void IdleProcess() = 0
-        { /*intentionally*/
-        }
-
-    protected:
-        ~IIdleProc() { Unregister(); }
-    };
+        itsMsg.SetResult(result);
+    }
 
 
-    MessageLoop();
+    d1::WPARAM GetWParam() const { return itsMsg.GetWParam(); }
+    d1::LPARAM GetLParam() const { return itsMsg.GetLParam(); }
 
-    MessageLoop(const MessageLoop&) = delete;
-    MessageLoop& operator=(const MessageLoop&) = delete;
-
-    ~MessageLoop(); // intentionally not virtual
-
-    int DoLoop();
-    // Stays in loop that processes messages as long as you do not
-    // call ExitLoop or post a WM_QUIT message.
-
-    void ExitLoop();
-
-    void ProcessMessages();
-    // Processes all messages in the message queue and returns.
-    // Functions that consume a lot of processing time should repeatedly
-    // call this function if they do not want to block the message
-    // processing.
-    // Example:
-    // The "print abort" function is repeatedly called from printing functions
-    // like "EndDoc". The "print abort" function calls "ProcessMessages"
-    // which allows the user to press the cancel button of the
-    // "print progress dialog".
-
-private:
-    std::vector<IPreProc*> itsPreProc;
-    std::vector<IOneTimePostProc*> itsOneTimePostProc;
-    std::vector<IIdleProc*> itsIdleProc;
-
-    std::vector<IPreProc*> itsWaitForInsertPreProc;
-    std::vector<IOneTimePostProc*> itsWaitForInsertOneTimePostProc;
-    std::vector<IIdleProc*> itsWaitForInsertIdleProc;
-
-    friend class IPreProc;
-    friend class IOneTimePostProc;
-    friend class IIdleProc;
-
-    void Register(IPreProc&);
-    void Register(IOneTimePostProc&);
-    void Register(IIdleProc&);
-
-    void Unregister(IPreProc&);
-    void Unregister(IOneTimePostProc&);
-    void Unregister(IIdleProc&);
-
-    bool CallPreProc(MSG&);
-    void CallOneTimePostProc();
-    void CallIdleProc();
-
-    std::pair<bool, int> LoopImpl();
-};
-
-
-/*
-The class PrivateMessage allows the registration of an application local
-window message.
-
-With this class, you do not need to maintain a global header file that contains
-all user defined messages which creates unwanted dependencies between unrelated
-packages.
-
-PrivateMessage uses message numbers in the range (WM_USER+0x200)...(WM_APP-1).
-
-Note the difference to the operating system function RegisterWindowMessage,
-which creates message numbers that are unique among all applications.
-*/
-export class PrivateMessage
-{
-public:
-    static PrivateMessage& Instance();
-
-    virtual unsigned int Register() = 0;
-    // returns a message number that is unique within the application
+    Message& GetWinMsg() { return itsMsg; }
 
 protected:
-    ~PrivateMessage() = default;
+    Wrapper(Message& msg, d1::UINT check):
+        itsMsg{ msg }
+    {
+        D1_ASSERT(msg.GetMsgId() == check);
+    }
+
+private:
+    Message& itsMsg;
+
+    // uses compiler generated copy ctor and assignment operator
 };
 
 
-export class SuspendQuit
-// Temporarily removes in its ctor a WM_QUIT message from the
-// message loop and reposts it in its dtor.
+// Parent class for all message wrappers with a message id known
+// at compile time (all message wrappers for predefined
+// windows messages).
+
+export template <d1::UINT MsgId>
+class StaticWinMsgWrapper: public Message::Wrapper
 {
 public:
-    SuspendQuit();
+    static d1::UINT GetMsgId() { return MsgId; }
 
-    SuspendQuit(const SuspendQuit&) = delete;
-    SuspendQuit& operator=(const SuspendQuit&) = delete;
-
-    ~SuspendQuit(); // intentionally not virtual
-
-private:
-    bool itRemovedQuitMessage = false;
-    int itsExitCode = -1;
+protected:
+    StaticWinMsgWrapper(Message& msg):
+        Message::Wrapper{ msg, MsgId }
+    {
+    }
 };
 
 }

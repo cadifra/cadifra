@@ -2,13 +2,9 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-module;
+export module WinUtil.UniqueHandle;
 
-#include "d1/d1verify.h"
-
-#include <Windows.h>
-
-export module WinUtil:UniqueHandle;
+import d1.wintypes;
 
 import std;
 
@@ -18,45 +14,39 @@ export namespace WinUtil
 
 struct CloseHandleOp
 {
-    using pointer = HANDLE;
+    using pointer = d1::HANDLE;
 
-    void operator()(HANDLE h)
-    {
-        D1_VERIFY(::CloseHandle(h));
-    }
+    void operator()(d1::HANDLE h);
 };
 
-using UniqueHandle = std::unique_ptr<HANDLE, CloseHandleOp>;
+using UniqueHandle = std::unique_ptr<d1::HANDLE, CloseHandleOp>;
 
 
 struct DestroyMenuOp
 {
-    using pointer = HMENU;
+    using pointer = d1::HMENU;
 
-    void operator()(HMENU m)
-    {
-        D1_VERIFY(::DestroyMenu(m));
-    }
+    void operator()(d1::HMENU m);
 };
 
-using UniqueMenuHandle = std::unique_ptr<HMENU, DestroyMenuOp>;
+using UniqueMenuHandle = std::unique_ptr<d1::HMENU, DestroyMenuOp>;
 
 
 export class FileHandleWrapper
 {
-    HANDLE itsH = INVALID_HANDLE_VALUE;
+    d1::HANDLE itsH = d1::invalid_handle_value;
 
 public:
-    FileHandleWrapper(HANDLE h):
+    FileHandleWrapper(d1::HANDLE h):
         itsH{ h } {}
 
     FileHandleWrapper() {}
 
     FileHandleWrapper(std::nullptr_t) {}
 
-    explicit operator bool() const { return itsH != INVALID_HANDLE_VALUE; }
+    explicit operator bool() const { return itsH != d1::invalid_handle_value; }
 
-    bool operator==(std::nullptr_t) const { return itsH == INVALID_HANDLE_VALUE; }
+    bool operator==(std::nullptr_t) const { return itsH == d1::invalid_handle_value; }
 
     operator HANDLE() const { return itsH; }
 

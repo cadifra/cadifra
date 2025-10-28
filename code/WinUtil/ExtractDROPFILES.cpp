@@ -7,7 +7,7 @@ module;
 #include <Windows.h>
 #include <shlobj.h>
 
-module WinUtil;
+module WinUtil.ExtractDROPFILES;
 
 import d1.stringConvert;
 

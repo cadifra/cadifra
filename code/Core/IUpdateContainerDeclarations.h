@@ -10,4 +10,4 @@
 //                              * * *
 //
 
-void UpdateContainerImpl(Env&, Core::UpdateContainerParam&) override;
+void UpdateContainerImpl(Env&, Core::IUpdateContainer::Param&) override;

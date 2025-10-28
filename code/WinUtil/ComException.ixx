@@ -2,15 +2,12 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-module;
-
-#include <Windows.h>
-
-export module WinUtil:ComException;
+export module WinUtil.ComException;
 
 import std;
 
 import d1.Exception;
+import d1.wintypes;
 
 
 namespace WinUtil
@@ -27,18 +24,14 @@ public:
 
     //--
 
-    static void Check(HRESULT r)
-    {
-        if (FAILED(r))
-            throw ComException{ r };
-    }
+    static void Check(d1::HRESULT r);
 
-    ComException(HRESULT r):
+    ComException(d1::HRESULT r):
         itsHRESULT{ r }
     {
     }
 
-    HRESULT GetHRESULT() const { return itsHRESULT; }
+    d1::HRESULT GetHRESULT() const { return itsHRESULT; }
 
     std::string GetHRESULT_string(
         bool hex = true, bool with_prefix = true, bool in_parens = true) const;
@@ -46,7 +39,7 @@ public:
     // uses compiler generated copy ctor and assignment operator
 
 private:
-    HRESULT itsHRESULT;
+    d1::HRESULT itsHRESULT;
 
     static std::string lastWhat;
     static std::string lastMessage;

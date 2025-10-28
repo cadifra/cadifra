@@ -8,9 +8,9 @@ module;
 
 module Core;
 
-import GraphUtil;
-
 import d1.isEqual;
+
+import GraphUtil.Shapes;
 
 
 namespace Core

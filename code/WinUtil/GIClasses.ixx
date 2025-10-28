@@ -6,9 +6,9 @@ module;
 
 #include <Windows.h>
 
-export module WinUtil:GIClasses;
+export module WinUtil.GIClasses;
 
-import :GuardedFunctionCall;
+import WinUtil.GuardedFunctionCall;
 
 
 namespace WinUtil

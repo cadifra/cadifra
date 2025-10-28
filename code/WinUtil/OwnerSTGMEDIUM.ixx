@@ -8,7 +8,7 @@ module;
 
 #include <Windows.h>
 
-export module WinUtil:OwnerSTGMEDIUM;
+export module WinUtil.OwnerSTGMEDIUM;
 
 
 namespace WinUtil
@@ -233,4 +233,4 @@ inline OwnerSTGMEDIUM::~OwnerSTGMEDIUM()
 }
 
 
-};
+}

@@ -2,7 +2,7 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module WinUtil:IReadOnlyObserver;
+export module WinUtil.IReadOnlyObserver;
 
 
 namespace WinUtil

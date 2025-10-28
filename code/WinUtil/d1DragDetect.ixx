@@ -2,7 +2,7 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module WinUtil:d1DragDetect;
+export module WinUtil.d1DragDetect;
 
 import d1.MouseButton;
 import d1.wintypes;

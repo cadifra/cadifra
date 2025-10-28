@@ -8,7 +8,11 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.Window;
+
+import WinUtil.CursorManager;
+import WinUtil.GuardedFunctionCall;
+import WinUtil.IWindow;
 
 
 namespace WinUtil
@@ -36,7 +40,7 @@ C::~Window()
 }
 
 
-void C::ProcessMsg(WinMsg& msg) const
+void C::ProcessMsg(Message& msg) const
 {
     class WaitCursorSwitcher: public WinUtil::IPrePostDispatchObserver
     {
@@ -60,13 +64,13 @@ void C::ProcessMsg(WinMsg& msg) const
 }
 
 
-auto C::GetMsgDispatcher() const -> IWinMsgDispatcher&
+auto C::GetMsgDispatcher() const -> IMessageDispatcher&
 {
     return itsDispatcher;
 }
 
 
-void C::CallDefProcNow(WinMsg& msg) const
+void C::CallDefProcNow(Message& msg) const
 {
     msg.DefProcCalled(::CallWindowProc(itsDefaultWindowProc,
         itsWindowHandle, msg.GetMsgId(), msg.GetWParam(), msg.GetLParam()));
@@ -106,7 +110,7 @@ LRESULT C::WindowProc(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
     else if (uMsg == WM_NCDESTROY)
         itsRemover.reset();
 
-    auto msg = WinMsg{ uMsg, wp, lp };
+    auto msg = Message{ uMsg, wp, lp };
 
     ProcessMsg(msg);
 

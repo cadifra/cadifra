@@ -31,7 +31,7 @@ C::Transaction(IDiagram& d, IView* v):
 C::~Transaction() = default;
 
 
-auto C::Close(SelectionTracker& sc, const IGrid& g) -> UndoerRef
+auto C::Close(Selection::Tracker& sc, const IGrid& g) -> UndoerRef
 {
     class UndoOnDelete
     {
@@ -39,14 +39,14 @@ auto C::Close(SelectionTracker& sc, const IGrid& g) -> UndoerRef
         UndoerRef itsUndoer;
 
     public:
-        UndoOnDelete(Transaction& t, SelectionTracker& sc, const IGrid& g):
+        UndoOnDelete(Transaction& t, Selection::Tracker& sc, const IGrid& g):
             itsEnv{ t, sc, g }
         {
         }
 
         ~UndoOnDelete()
         {
-            UndoerParam up{ itsEnv.Diagram(), itsEnv.sel_tracker };
+            auto up = Undoer::Param{ itsEnv.Diagram(), itsEnv.sel_tracker };
             itsUndoer.Undo(up);
         }
 
@@ -94,7 +94,7 @@ auto C::Close(SelectionTracker& sc, const IGrid& g) -> UndoerRef
 }
 
 
-auto C::SubTransactionClose(SelectionTracker& sc, const IGrid& g) -> UndoerRef
+auto C::SubTransactionClose(Selection::Tracker& sc, const IGrid& g) -> UndoerRef
 {
     if (!itsImp)
         return {};
@@ -106,7 +106,7 @@ auto C::SubTransactionClose(SelectionTracker& sc, const IGrid& g) -> UndoerRef
     if (finalize_successful)
         return res;
 
-    auto up = UndoerParam{ itsDiagram, sc };
+    auto up = Undoer::Param{ itsDiagram, sc };
     res.Undo(up);
 
     class E: public d1::Exception
@@ -135,7 +135,7 @@ void C::Abort()
 void C::MakeNew()
 {
     if (!itsImp)
-        itsImp = std::make_unique<TransactionImp>(itsDiagram, itsWorkingView, *this);
+        itsImp = std::make_unique<Imp>(itsDiagram, itsWorkingView, *this);
 }
 
 
@@ -147,7 +147,7 @@ void C::AddTouched(IElement& me, bool update_view)
 }
 
 
-void C::PutIntoTrash(SelectionTracker& sc, const IElementPtr& me)
+void C::PutIntoTrash(Selection::Tracker& sc, const IElementRef& me)
 {
     MakeNew();
     D1_ASSERT(itsImp.get());
@@ -155,7 +155,7 @@ void C::PutIntoTrash(SelectionTracker& sc, const IElementPtr& me)
 }
 
 
-void C::AddNewlyCreated(IElementPtr me)
+void C::AddNewlyCreated(IElementRef me)
 {
     MakeNew();
     D1_ASSERT(itsImp.get());

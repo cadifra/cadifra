@@ -12,15 +12,13 @@ module;
 
 #include <stdlib.h> // abs
 
-module WinUtil;
+module WinUtil.d1DragDetect;
+
+import WinUtil.Debug;
 
 import d1.ScopeGuard;
 
 import std;
-
-#ifdef _DEBUG
-import :Debug;
-#endif
 
 
 #ifdef _DEBUG
@@ -387,8 +385,8 @@ void Imp::Work()
 
 
 bool d1DragDetect(
-    HWND hwnd,      // handle to window
-    POINT init_pos, // initial position, in screen coordinates
+    d1::HWND hwnd,      // handle to window
+    d1::POINT init_pos, // initial position, in screen coordinates
     d1::MouseButton mb)
 {
     bool res = Imp(hwnd, init_pos, mb).Result();

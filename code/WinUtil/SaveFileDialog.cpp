@@ -9,7 +9,10 @@ module;
 #include <Windows.h>
 #include <commdlg.h>
 
-module WinUtil;
+module WinUtil.SaveFileDialog;
+
+import WinUtil.CursorManager;
+import WinUtil.Window;
 
 import d1.buffer;
 

@@ -9,7 +9,9 @@ module;
 #include <Windows.h>
 #include <commctrl.h>
 
-module WinUtil;
+module WinUtil.ExceptionBox;
+
+import WinUtil.UniqueHandle;
 
 import std;
 
@@ -47,9 +49,9 @@ class BoxHandler
     Buf itsBuffer;
     Buf itsDummyBuffer;
     std::string itsTitle;
-    WinUtil::UniqueHandle itsShowEvent;
-    WinUtil::UniqueHandle itsStopEvent;
-    WinUtil::UniqueHandle itsThread;
+    UniqueHandle itsShowEvent;
+    UniqueHandle itsStopEvent;
+    UniqueHandle itsThread;
     static BoxHandler Singleton;
 
     BoxHandler();

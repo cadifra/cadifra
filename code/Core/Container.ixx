@@ -12,27 +12,28 @@ namespace Core
 {
 
 export class IContainer;
-export class UpdateContainerParam;
 
 
 export class IUpdateContainer: public virtual IShiftable
 {
 public:
-    void UpdateContainer(Env&, UpdateContainerParam& p);
+    class Param;
+
+    void UpdateContainer(Env&, Param& p);
 
 private:
-    virtual void UpdateContainerImpl(Core::Env&, UpdateContainerParam& p) = 0;
+    virtual void UpdateContainerImpl(Core::Env&, Param& p) = 0;
 };
 
 
-export class UpdateContainerParam
+class IUpdateContainer::Param
 {
     std::set<const IUpdateContainer*> itsSet;
 
 public:
-    UpdateContainerParam() {}
-    UpdateContainerParam(const UpdateContainerParam&) = delete;
-    UpdateContainerParam& operator=(const UpdateContainerParam&) = delete;
+    Param() {}
+    Param(const Param&) = delete;
+    Param& operator=(const Param&) = delete;
 
     bool Add(const IUpdateContainer* c) { return (itsSet.insert(c)).second; }
 };

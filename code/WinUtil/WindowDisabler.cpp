@@ -6,7 +6,10 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.Window;
+
+import WinUtil.GuardedFunctionCall;
+import WinUtil.MessageLoop;
 
 import d1.ScopeGuard;
 import d1.VectorMap;

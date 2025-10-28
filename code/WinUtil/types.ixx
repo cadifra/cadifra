@@ -3,7 +3,7 @@ module;
 #include <Windows.h>
 #include <unknwn.h>
 
-export module WinUtil:types;
+export module WinUtil.types;
 
 export namespace WinUtil
 {

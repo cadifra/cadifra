@@ -14,11 +14,11 @@ namespace Core
 
 namespace
 {
-using C = SelectionVisibilityServerImp;
+using C = Selection::VisibilityServer;
 }
 
 
-void C::AddServer(IView& v)
+void C::Imp::AddServer(IView& v)
 {
     if (!itsView)
         itsView = &v;
@@ -27,14 +27,14 @@ void C::AddServer(IView& v)
 }
 
 
-void C::ReleaseServer()
+void C::Imp::ReleaseServer()
 {
     if (--itsNumOfServers == 0)
         itsView = nullptr;
 }
 
 
-void C::AddHider()
+void C::Imp::AddHider()
 {
     if (itsNumOfHiders++ == 0)
         if (itsNumOfServers && itsView)
@@ -42,7 +42,7 @@ void C::AddHider()
 }
 
 
-void C::RemoveHider()
+void C::Imp::RemoveHider()
 {
     if (--itsNumOfHiders == 0)
         if (itsNumOfServers)
@@ -50,18 +50,18 @@ void C::RemoveHider()
 }
 
 
-SelectionVisibilityServer::~SelectionVisibilityServer()
+C::~VisibilityServer()
 {
     if (itsImp)
         itsImp->ReleaseServer();
 }
 
 
-auto SelectionVisibilityServer::HideSelection() -> SelectionHider
+auto C::HideSelection() -> Hider
 {
     if (!itsImp)
     {
-        itsImp = std::make_shared<SelectionVisibilityServerImp>();
+        itsImp = std::make_shared<VisibilityServer::Imp>();
         itsImp->AddServer(itsView);
     }
     return { itsImp };

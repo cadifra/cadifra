@@ -16,25 +16,25 @@ namespace Core
 
 namespace
 {
-using C = SelectionObserverDock;
+using C = ISelectionObserver;
 }
 
 
-void C::Attach(ISelectionObserver& obs)
+void C::Dock::Attach(ISelectionObserver& obs)
 {
     itsObservers.push_back(&obs);
     obs.SetDock(this);
 }
 
 
-void C::Detach(ISelectionObserver& obs)
+void C::Dock::Detach(ISelectionObserver& obs)
 {
     d1::erase_first(itsObservers, &obs);
     obs.SetDock(0);
 }
 
 
-void C::Notify() const
+void C::Dock::Notify() const
 {
     for (auto* obs : itsObservers)
     {

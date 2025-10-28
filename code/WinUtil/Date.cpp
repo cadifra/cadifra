@@ -6,7 +6,7 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.Date;
 
 
 namespace WinUtil::Date

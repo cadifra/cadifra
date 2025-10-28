@@ -8,7 +8,7 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.Clipboard;
 
 
 namespace WinUtil

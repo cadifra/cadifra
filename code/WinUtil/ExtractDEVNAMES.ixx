@@ -3,7 +3,7 @@
  */
 
 
-export module WinUtil:ExtractDEVNAMES;
+export module WinUtil.ExtractDEVNAMES;
 
 import d1.wintypes;
 

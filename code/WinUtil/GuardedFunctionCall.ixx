@@ -6,9 +6,9 @@ module;
 
 #include <Windows.h>
 
-export module WinUtil:GuardedFunctionCall;
+export module WinUtil.GuardedFunctionCall;
 
-import :ComException;
+import WinUtil.ComException;
 
 import std;
 
@@ -73,7 +73,7 @@ private:
 };
 
 
-namespace GuardedComFunctionCall
+export namespace GuardedComFunctionCall
 {
 
 // helper class:

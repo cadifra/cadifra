@@ -12,7 +12,7 @@ import std;
 namespace d1
 {
 
-export inline std::ostream& operator<<(std::ostream& s, const nRect& r)
+export inline auto& operator<<(std::ostream& s, const nRect& r)
 {
     s << "(L=" << r.Left()
       << ",T=" << r.Top()

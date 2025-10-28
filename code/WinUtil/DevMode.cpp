@@ -8,7 +8,9 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.DevMode;
+
+import WinUtil.Global;
 
 
 namespace WinUtil

@@ -13,9 +13,9 @@ namespace d1
 {
 
 export template <class I, class Ptr, class T>
-class CastIteratorImp: public d1::IIteratorImp<T>
+class CastIteratorImp: public d1::Iterator<T>::Imp
 {
-    using Base = CastIteratorImp::IIteratorImp;
+    using Base = d1::Iterator<T>::Imp;
 
     I itsIter;
 

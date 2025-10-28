@@ -6,7 +6,7 @@ module;
 
 #include <Windows.h>
 
-export module WinUtil:ISaveObserver;
+export module WinUtil.ISaveObserver;
 
 
 

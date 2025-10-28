@@ -2,11 +2,11 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module WinUtil:ListenerWindow;
+export module WinUtil.ListenerWindow;
 
 import d1.wintypes;
 
-import :ProcRegistrar;
+import WinUtil.ProcRegistrar;
 
 
 namespace WinUtil
@@ -24,7 +24,7 @@ export class ListenerWindow
     static Impl& Instance();
 
 public:
-    auto GetMsgDispatcher() const -> IWinMsgDispatcher&; // (1)
+    auto GetMsgDispatcher() const -> IMessageDispatcher&; // (1)
 
     d1::HWND GetWindowHandle() const; // (1)
 };

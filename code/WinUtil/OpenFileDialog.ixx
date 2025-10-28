@@ -2,7 +2,7 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module WinUtil:OpenFileDialog;
+export module WinUtil.OpenFileDialog;
 
 import d1.wintypes;
 
@@ -22,9 +22,8 @@ public:
     bool isOk = false;
 
 
-    class Flags
+    struct Flags
     {
-    public:
         bool AllowMultiselect = true;
         bool HideReadOnly = false;
     };

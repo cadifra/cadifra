@@ -6,7 +6,9 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.ExtractDEVNAMES;
+
+import WinUtil.Global;
 
 
 namespace WinUtil

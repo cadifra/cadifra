@@ -27,7 +27,7 @@ void C::Insert(bool needsUpdate)
 }
 
 
-void C::SetSelectionState(SelectionTracker& st, bool newstate)
+void C::SetSelectionState(Selection::Tracker& st, bool newstate)
 {
     bool change = itIsSelected != newstate;
 

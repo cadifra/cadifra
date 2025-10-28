@@ -3,8 +3,9 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
+import WinUtil.Debug;
+
 import Core;
-import WinUtil;
 
 
 #ifdef _DEBUG

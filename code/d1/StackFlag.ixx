@@ -18,7 +18,6 @@ public:
     class Ref;
 
 private:
-    friend class Ref;
     Ref* itsRef;
 
 public:

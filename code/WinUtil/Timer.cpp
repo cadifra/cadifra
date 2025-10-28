@@ -8,7 +8,13 @@ module;
 
 #include "d1/d1verify.h"
 
-module WinUtil;
+module WinUtil.Timer;
+
+import WinUtil.IWindow;
+import WinUtil.MessageLoop;
+import WinUtil.Message;
+import WinUtil.Messages;
+import WinUtil.Window;
 
 import std;
 
@@ -19,11 +25,11 @@ namespace WinUtil
 namespace
 {
 
-class DeallocIdMsg: public WinMsgWrapper
+class DeallocIdMsg: public Message::Wrapper
 {
 public:
-    DeallocIdMsg(WinMsg& m):
-        WinMsgWrapper{ m, GetMsgId() }
+    DeallocIdMsg(Message& m):
+        Wrapper{ m, GetMsgId() }
     {
     }
 
@@ -63,14 +69,14 @@ class C::Impl: private WinUtil::Window
     Ids itsUnusedIds;
     unsigned int itsMaxId = 0;
 
-    using IdMap = std::map<unsigned int, WinUtil::ITimerClient*>;
+    using IdMap = std::map<unsigned int, Client*>;
     IdMap itsIdMap;
 
 public:
     Impl();
 
     unsigned int SetTimer(
-        WinUtil::ITimerClient*, unsigned int milliseconds); // returns id
+        Client*, unsigned int milliseconds); // returns id
 
     void KillTimer(unsigned int& id);
     // Kills the timer and sets id = 0
@@ -140,7 +146,7 @@ void C::Impl::KillTimer(unsigned int& id)
 }
 
 
-unsigned int C::Impl::SetTimer(ITimerClient* c, unsigned int milliseconds)
+unsigned int C::Impl::SetTimer(Client* c, unsigned int milliseconds)
 {
     D1_ASSERT(c);
     unsigned int id = 0;
@@ -175,13 +181,13 @@ auto C::Instance() -> Impl&
 }
 
 
-C::Timer(ITimerClient& c):
+C::Timer(Client& c):
     itsClient{ c }
 {
 }
 
 
-C::Timer(ITimerClient& c, unsigned int milliseconds):
+C::Timer(Client& c, unsigned int milliseconds):
     itsClient{ c }
 {
     Start(milliseconds);

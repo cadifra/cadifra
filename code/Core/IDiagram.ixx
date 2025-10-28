@@ -20,13 +20,10 @@ namespace Core
 export class IGrid;
 
 export class PosUndoer;
-export class UndoerParam;
 
 
 export class Undoer // note: use UndoerRef wherever possible (see below)
 {
-    friend class UndoerRef;
-
 public:
     virtual ~Undoer() = default;
 
@@ -35,12 +32,14 @@ public:
     // A NullUndoer does not do anything, if it's Undo or Redo member functions
     // are called. To create a NullUndoer, use UndoerRef::MakeNullUndoer().
 
-    void Undo(UndoerParam&);
-    void Redo(UndoerParam&);
+	class Param;
+
+    void Undo(Param&);
+    void Redo(Param&);
 
 private:
-    virtual void UndoImp(UndoerParam&) = 0;
-    virtual void RedoImp(UndoerParam&) = 0;
+    virtual void UndoImp(Param&) = 0;
+    virtual void RedoImp(Param&) = 0;
 
 public:
     virtual bool Merge(Undoer& u) = 0;
@@ -101,12 +100,12 @@ public:
 
     static auto MakeNullUndoer() -> UndoerRef;
 
-    void Undo(UndoerParam& p) const
+    void Undo(Undoer::Param& p) const
     {
         itsUndoer->Undo(p);
     }
 
-    void Redo(UndoerParam& p) const
+    void Redo(Undoer::Param& p) const
     {
         itsUndoer->Redo(p);
     }
@@ -133,43 +132,43 @@ export class Env
 {
 public:
     Transaction& transaction;
-    SelectionTracker& sel_tracker;
+    Selection::Tracker& sel_tracker;
     const IGrid& grid;
 
     auto Diagram() const -> IDiagram&;
     auto WorkingView() const -> IView*;
 
-    void AddNewlyCreated(IElementPtr me);
+    void AddNewlyCreated(IElementRef me);
     void AddTouched(IElement& me, bool update_view);
 
     auto Close() -> UndoerRef;
 };
 
 
-export class UndoerParam
+class Undoer::Param
 {
-    using MESet = std::set<IElementPtr>;
+    using MESet = std::set<IElementRef>;
 
     MESet itsAddToDiagram;
     MESet itsRemoveFromDiagram;
     MESet itsUpdateViews;
 
     IDiagram& itsDiagram;
-    SelectionTracker& itsSelectionTracker; // to be removed
+    Selection::Tracker& itsSelectionTracker; // to be removed
 
 public:
-    UndoerParam(IDiagram& d, SelectionTracker& sc);
+    Param(IDiagram& d, Selection::Tracker& sc);
 
-    UndoerParam(const UndoerParam&) = delete;
-    UndoerParam& operator=(const UndoerParam&) = delete;
+    Param(const Param&) = delete;
+    Param& operator=(const Param&) = delete;
 
-    ~UndoerParam(); // calls Finish
+    ~Param(); // calls Finish
 
     void Finish(); // may be called several times
 
-    void AddToDiagram(const IElementPtr&);
-    void RemoveFromDiagram(const IElementPtr&);
-    void UpdateViews(const IElementPtr&);
+    void AddToDiagram(const IElementRef&);
+    void RemoveFromDiagram(const IElementRef&);
+    void UpdateViews(const IElementRef&);
 
     auto Diagram() -> IDiagram& { return itsDiagram; }
 };
@@ -190,8 +189,8 @@ export class PosUndoer: public Undoer
 public:
     //-- Core::Undoer
 
-    void UndoImp(UndoerParam&) override;
-    void RedoImp(UndoerParam&) override;
+    void UndoImp(Param&) override;
+    void RedoImp(Param&) override;
     bool Merge(Undoer& u) override;
     PosUndoer* GetPosUndoer() override { return this; }
     void Remove(IElement&) override;
@@ -219,8 +218,8 @@ export class PosUndoerGroup: public Undoer
 public:
     //-- Core::Undoer
 
-    void UndoImp(UndoerParam&) override;
-    void RedoImp(UndoerParam&) override;
+    void UndoImp(Param&) override;
+    void RedoImp(Param&) override;
     bool Merge(Undoer& u) override;
     void Remove(IElement&) override;
     bool IsNull() const override;
@@ -245,8 +244,8 @@ export class SequenceUndoer: public Undoer
 
     //-- Undoer
 
-    void UndoImp(UndoerParam&) override;
-    void RedoImp(UndoerParam&) override;
+    void UndoImp(Param&) override;
+    void RedoImp(Param&) override;
     bool IsNull() const override;
     bool Merge(Undoer& u) override;
     void Remove(IElement&) override;
@@ -276,7 +275,7 @@ export auto Combine(UndoerRef first, UndoerRef second) -> UndoerRef;
 
 export class TransactionUndoer: public Undoer
 {
-    using MESet = std::vector<IElementPtr>;
+    using MESet = std::vector<IElementRef>;
 
     UndoerRef itsTouchedUndoers;
     MESet itsNewlyCreatedElements;
@@ -288,8 +287,8 @@ export class TransactionUndoer: public Undoer
 public:
     //-- Undoer
 
-    void UndoImp(UndoerParam&) override;
-    void RedoImp(UndoerParam&) override;
+    void UndoImp(Param&) override;
+    void RedoImp(Param&) override;
     bool IsNull() const override;
     bool Merge(Undoer& u) override;
     void Remove(IElement&) override;
@@ -372,7 +371,7 @@ public:
 
 
     virtual void AddUndoer(
-        UndoerRef u, ISelectionRestorerRef pre, ISelectionRestorerRef post,
+        UndoerRef u, Selection::IRestorerRef pre, Selection::IRestorerRef post,
         bool merge = false) = 0;
     // Add an Undoer to this UndoHandler. This UndoHandler becomes the owner of
     // the added undoer. The added Undoer is deleted, when this UndoHandler is
@@ -389,8 +388,8 @@ public:
     // the Undoer on the top of the undo stack.
 
 
-    virtual void Undo(IView& activeView, SelectionTracker&, int numOfUndos) = 0;
-    virtual void Redo(IView& activeView, SelectionTracker&, int numOfRedos) = 0;
+    virtual void Undo(IView& activeView, Selection::Tracker&, int numOfUndos) = 0;
+    virtual void Redo(IView& activeView, Selection::Tracker&, int numOfRedos) = 0;
 
     virtual int UndoCount() const = 0;
     virtual int RedoCount() const = 0;
@@ -469,7 +468,7 @@ public:
 
     virtual auto GetNamedElement(const std::wstring& name) const -> IElement* = 0;
 
-    virtual void Insert(IElementPtr) = 0;
+    virtual void Insert(IElementRef) = 0;
     virtual void Remove(IElement&) = 0;
 
     virtual void AssignIDs() = 0;
@@ -477,7 +476,7 @@ public:
 
     virtual void CreateViewElements(IElement&, bool update_views = true) = 0;
 
-    virtual void DestroyViewElements(IElement&, SelectionTracker&, IView* active_v = 0) = 0;
+    virtual void DestroyViewElements(IElement&, Selection::Tracker&, IView* active_v = 0) = 0;
 
     virtual void UpdateViews() = 0;
 
@@ -522,13 +521,11 @@ public:
 export class TransferSet: public IClub
 {
 public:
-    class Copier; // defined below
+    class Copier;
 
-    using MeSet = std::vector<IElementPtr>;
+    using MeSet = std::vector<IElementRef>;
 
 private:
-    friend class Copier;
-
     MeSet itsElements;
     IElement* itsFocus = nullptr; // one of itsElements. ref only
     Copier* itsCopier = nullptr;  // ref only. May be zero
@@ -550,7 +547,7 @@ public:
 
     virtual ~TransferSet();
 
-    void Add(IElementPtr);
+    void Add(IElementRef);
     void Remove(IElement&);
     void SetFocus(ObjectID);
 
@@ -593,43 +590,44 @@ public:
 
 private:
     void Clear();
+};
+
+
+class TransferSet::Copier
+{
+    friend class TransferSet;
+
+    TransferSet& itsTransferSet;
+    std::unique_ptr<CopyRegistry> itsCopyRegistry; // ownership
 
 public:
-    class Copier
-    {
-        friend class TransferSet;
+    Copier(const Copier&) = delete;
+    Copier& operator=(const Copier&) = delete;
 
-        TransferSet& itsTransferSet;
-        std::unique_ptr<CopyRegistry> itsCopyRegistry; // ownership
+    auto AddCopy(IElement& m) -> IElement&;
+    // Adds a copy of m to the TransferSet which this inserter is bound to.
+    // The client must call Complete after the last element has been added.
+    // Returns ref to copy
 
-    public:
-        Copier(const Copier&) = delete;
-        Copier& operator=(const Copier&) = delete;
+    void AddFocusCopy(IElement& focus);
+    // Same as AddCopy, but this element is designated as the focus.
+    // The TransferSet will be able to say which element is the focus
+    // element on a later paste. The focus element is just one specially
+    // marked element - nothing more. Focus elements are used by some tasks.
 
-        auto AddCopy(IElement& m) -> IElement&;
-        // Adds a copy of m to the TransferSet which this inserter is bound to.
-        // The client must call Complete after the last element has been added.
-        // Returns ref to copy
+    void Complete();
+    // Must be called after the last element has been added. This
+    // completes a copy operation. After Complete has been called, no more
+    // elements may be added with AddCopy or AddFocusCopy.
+    // The copier may safely be destructed without calling Complete, but
+    // this should only happen in an error case as with an exception.
+    // If the copier is destructed without a prior call to Complete,
+    // the whole copy operation is aborted and the TransferSet is emptied.
+    // Complete may be safely called multiple times.
 
-        void AddFocusCopy(IElement& focus);
-        // Same as AddCopy, but this element is designated as the focus.
-        // The TransferSet will be able to say which element is the focus
-        // element on a later paste. The focus element is just one specially
-        // marked element - nothing more. Focus elements are used by some tasks.
-
-        void Complete();
-        // Must be called after the last element has been added. This
-        // completes a copy operation. After Complete has been called, no more
-        // elements may be added with AddCopy or AddFocusCopy.
-        // The copier may safely be destructed without calling Complete, but
-        // this should only happen in an error case as with an exception.
-        // If the copier is destructed without a prior call to Complete,
-        // the whole copy operation is aborted and the TransferSet is emptied.
-        // Complete may be safely called multiple times.
-
-    private:
-        Copier(TransferSet& c);
-    };
+private:
+    Copier(TransferSet& c);
 };
+
 
 }

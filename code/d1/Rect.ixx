@@ -129,13 +129,13 @@ public:
         return (l == x.l) && (t == x.t) && (r == x.r) && (b == x.b);
     }
 
-    Rect& Translate(const Vector& v)
+    auto& Translate(const Vector& v)
     {
         B::Translate(v);
         return *this;
     }
 
-    friend Rect Translate(const Rect& r, const Vector& v)
+    friend auto Translate(const Rect& r, const Vector& v)
     {
         auto res = r;
         return res.Translate(v);
@@ -243,7 +243,6 @@ public:
     {
         Normalize();
     }
-
 };
 
 
@@ -324,13 +323,13 @@ public:
         return { r - l, t - b };
     }
 
-    nRect& Translate(const Vector& v)
+    auto& Translate(const Vector& v)
     {
         B::Translate(v);
         return *this;
     }
 
-    nRect& Enlarge(value_type d)
+    auto& Enlarge(value_type d)
     {
         B::Enlarge(d);
         return *this;
@@ -428,13 +427,13 @@ public:
 
     fnRect& operator+=(const fnRect& rect);
 
-    fnRect& Translate(const fVector& v)
+    auto& Translate(const fVector& v)
     {
         B::Translate(v);
         return *this;
     }
 
-    fnRect& Enlarge(value_type d)
+    auto& Enlarge(value_type d)
     {
         B::Enlarge(d);
         return *this;
@@ -458,7 +457,7 @@ public:
                isEqual(b, rhs.b);
     }
 
-    friend nRect round(const fnRect& r)
+    friend auto round(const fnRect& r)
     {
         return nRect{ round(r.l), round(r.t), round(r.r), round(r.b) };
     }
@@ -513,57 +512,69 @@ inline fnRect& fnRect::operator+=(const fnRect& rect)
 
 export {
 
-nRect nrect(const Point& p, const Size& s)
+auto nrect(const Point& p, const Size& s)
 {
-    return { p, s };
+    return nRect{ p, s };
 }
 
 
-fnRect nrect(const fPoint& p, const fSize& s)
+auto nrect(const fPoint& p, const fSize& s)
 {
-    return { p, s };
+    return fnRect{ p, s };
 }
 
 
-fnRect nrect(const fPoint& p, const Size& s)
+auto nrect(const fPoint& p, const Size& s)
 {
-    return { p, s };
+    return fnRect{ p, s };
 }
 
 
-nRect nrect(const Point& p, int32 width, int32 height)
+auto nrect(const Point& p, int32 width, int32 height)
 {
-    return { p, width, height };
+    return nRect{ p, width, height };
 }
 
 
-fnRect nrect(const fPoint& p, float64 width, float64 height)
+auto nrect(const fPoint& p, float64 width, float64 height)
 {
-    return { p, width, height };
+    return fnRect{ p, width, height };
 }
 
 
-nRect nrect(const Point& p1, const Point& p2)
+auto nrect(const Point& p1, const Point& p2)
 {
-    return { p1, p2 };
+    return nRect{ p1, p2 };
 }
 
 
-fnRect nrect(const fPoint& p1, const fPoint& p2)
+auto nrect(const fPoint& p1, const fPoint& p2)
 {
-    return { p1, p2 };
+    return fnRect{ p1, p2 };
 }
 
 
-nRect copy(const nRect& r)
+auto copy(const nRect& r)
 {
     return r;
 }
 
 
-fnRect copy(const fnRect& r)
+auto copy(const fnRect& r)
 {
     return r;
+}
+
+
+auto pos(const nRect& r)
+{
+    return r.TopLeft();
+}
+
+
+auto pos(const fnRect& r)
+{
+    return r.TopLeft();
 }
 }
 

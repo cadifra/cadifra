@@ -6,7 +6,7 @@ module;
 
 #include <Windows.h>
 
-export module WinUtil:WinOstream;
+export module WinUtil.WinOstream;
 
 import std;
 

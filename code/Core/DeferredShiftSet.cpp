@@ -110,8 +110,7 @@ bool C::IsDeferredShifting(const IShiftable& s) const
 void C::Print(std::ostream& os) const
 {
 #ifdef _DEBUG
-    Core::PrintSortedIDs(os, itsDeferredShiftables.begin(),
-        itsDeferredShiftables.end());
+    Core::PrintSortedIDs(os, itsDeferredShiftables);
 #endif
 }
 

@@ -220,88 +220,88 @@ inline Point& Point::Move(const Vector& v)
 
 export {
 
-inline Point point(int32 x, int32 y)
+inline auto point(int32 x, int32 y)
 {
-    return { x, y };
+    return Point{ x, y };
 }
 
-inline fPoint point(float64 x, float64 y)
+inline auto point(float64 x, float64 y)
 {
-    return { x, y };
-}
-
-
-inline Vector vector(int32 dx, int32 dy)
-{
-    return { dx, dy };
-}
-
-inline fVector vector(float64 dx, float64 dy)
-{
-    return { dx, dy };
+    return fPoint{ x, y };
 }
 
 
-inline Point operator+(const Point& a, const Vector& b)
+inline auto vector(int32 dx, int32 dy)
 {
-    return { a.x + b.dx, a.y + b.dy };
+    return Vector{ dx, dy };
 }
 
-inline fPoint operator+(const fPoint& a, const fVector& b)
+inline auto vector(float64 dx, float64 dy)
 {
-    return { a.x + b.dx, a.y + b.dy };
-}
-
-inline Point operator+(const Vector& a, const Point& b)
-{
-    return { a.dx + b.x, a.dy + b.y };
-}
-
-inline fPoint operator+(const fVector& a, const fPoint& b)
-{
-    return { a.dx + b.x, a.dy + b.y };
-}
-
-inline Vector operator+(const Vector& a, const Vector& b)
-{
-    return { a.dx + b.dx, a.dy + b.dy };
-}
-
-inline fVector operator+(const fVector& a, const fVector& b)
-{
-    return { a.dx + b.dx, a.dy + b.dy };
-}
-
-inline fPoint operator+(const Origin&, const fVector& b)
-{
-    return { b.dx, b.dy };
+    return fVector{ dx, dy };
 }
 
 
-
-inline Vector operator-(const Point& a, const Point& b)
+inline auto operator+(const Point& a, const Vector& b)
 {
-    return { a.x - b.x, a.y - b.y };
+    return Point{ a.x + b.dx, a.y + b.dy };
 }
 
-inline fVector operator-(const fPoint& a, const fPoint& b)
+inline auto operator+(const fPoint& a, const fVector& b)
 {
-    return { a.x - b.x, a.y - b.y };
+    return fPoint{ a.x + b.dx, a.y + b.dy };
 }
 
-inline fPoint operator-(const fPoint& a, const fVector& b)
+inline auto operator+(const Vector& a, const Point& b)
 {
-    return { a.x - b.dx, a.y - b.dy };
+    return Point{ a.dx + b.x, a.dy + b.y };
 }
 
-inline Vector operator-(const Vector& a, const Vector& b)
+inline auto operator+(const fVector& a, const fPoint& b)
 {
-    return { a.dx - b.dx, a.dy - b.dy };
+    return fPoint{ a.dx + b.x, a.dy + b.y };
 }
 
-inline fVector operator-(const fVector& a, const fVector& b)
+inline auto operator+(const Vector& a, const Vector& b)
 {
-    return { a.dx - b.dx, a.dy - b.dy };
+    return Vector{ a.dx + b.dx, a.dy + b.dy };
+}
+
+inline auto operator+(const fVector& a, const fVector& b)
+{
+    return fVector{ a.dx + b.dx, a.dy + b.dy };
+}
+
+inline auto operator+(const Origin&, const fVector& b)
+{
+    return fPoint{ b.dx, b.dy };
+}
+
+
+
+inline auto operator-(const Point& a, const Point& b)
+{
+    return Vector{ a.x - b.x, a.y - b.y };
+}
+
+inline auto operator-(const fPoint& a, const fPoint& b)
+{
+    return fVector{ a.x - b.x, a.y - b.y };
+}
+
+inline auto operator-(const fPoint& a, const fVector& b)
+{
+    return fPoint{ a.x - b.dx, a.y - b.dy };
+}
+
+inline auto operator-(const Vector& a, const Vector& b)
+{
+    return Vector{ a.dx - b.dx, a.dy - b.dy };
+}
+
+inline auto operator-(const fVector& a, const fVector& b)
+{
+    return fVector{ a.dx - b.dx, a.dy - b.dy };
 }
 
 inline Vector operator-(const Point& a, const Origin&)
@@ -309,29 +309,29 @@ inline Vector operator-(const Point& a, const Origin&)
     return { a.x, a.y };
 }
 
-inline Vector operator-(const Origin&, const Point& b)
+inline auto operator-(const Origin&, const Point& b)
 {
-    return { -b.x, -b.y };
+    return Vector{ -b.x, -b.y };
 }
 
-inline Point operator-(const Origin&, const Vector& b)
+inline auto operator-(const Origin&, const Vector& b)
 {
-    return { -b.dx, -b.dy };
+    return Point{ -b.dx, -b.dy };
 }
 
-inline fVector operator-(const fPoint& a, const Origin&)
+inline auto operator-(const fPoint& a, const Origin&)
 {
-    return { a.x, a.y };
+    return fVector{ a.x, a.y };
 }
 
-inline fVector operator-(const Origin&, const fPoint& b)
+inline auto operator-(const Origin&, const fPoint& b)
 {
-    return { -b.x, -b.y };
+    return fVector{ -b.x, -b.y };
 }
 
-inline fPoint operator-(const Origin&, const fVector& b)
+inline auto operator-(const Origin&, const fVector& b)
 {
-    return { -b.dx, -b.dy };
+    return fPoint{ -b.dx, -b.dy };
 }
 
 
@@ -349,7 +349,7 @@ inline float64 Distance(const fPoint& p1, const fPoint& p2)
 }
 
 
-inline Point round(const fPoint& p)
+inline auto round(const fPoint& p)
 {
     return Point{ round(p.x), round(p.y) };
 }
@@ -361,9 +361,9 @@ inline auto Length(const fVector& v)
 }
 
 
-inline fPoint Swap(const fPoint& p)
+inline auto Swap(const fPoint& p)
 {
-    return { p.y, p.x };
+    return fPoint{ p.y, p.x };
 }
 
 }

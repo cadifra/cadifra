@@ -34,14 +34,14 @@ inline size_t strnlen(const wchar_t* p, size_t max)
 }
 
 
-inline std::string Cstring2string(const char* p, size_t max)
+inline auto Cstring2string(const char* p, size_t max)
 {
     const auto res = std::string(p, strnlen(p, max));
     return res;
 }
 
 
-inline std::wstring Cstring2string(const wchar_t* p, size_t max)
+inline auto Cstring2string(const wchar_t* p, size_t max)
 {
     const auto res = std::wstring(p, strnlen(p, max));
     return res;

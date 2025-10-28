@@ -20,7 +20,7 @@ using C = PosUndoerGroup;
 }
 
 
-void C::UndoImp(UndoerParam& p)
+void C::UndoImp(Param& p)
 {
     const auto delta = d1::Vector{ -itsOffset.dx, -itsOffset.dy };
 
@@ -32,7 +32,7 @@ void C::UndoImp(UndoerParam& p)
 }
 
 
-void C::RedoImp(UndoerParam& p)
+void C::RedoImp(Param& p)
 {
     for (auto o : itsObjects)
     {

@@ -10,7 +10,10 @@ module;
 #include <Windows.h>
 #include <oledlg.h>
 
-module WinUtil;
+module WinUtil.MessageLoop;
+
+import WinUtil.Debug;
+import WinUtil.WinOstream;
 
 
 D1_TRACE_DEFINE_FLAG(OLE, WinUtil::MessageFilter)

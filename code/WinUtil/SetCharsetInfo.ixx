@@ -6,7 +6,7 @@ module;
 
 #include <Windows.h>
 
-export module WinUtil:SetCharsetInfo;
+export module WinUtil.SetCharsetInfo;
 
 
 export namespace WinUtil

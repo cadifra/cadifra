@@ -11,12 +11,12 @@ namespace Core
 namespace
 {
 
-class Imp: public FinalizerDock
+class Imp: public Finalizer::Dock
 {
     std::vector<std::unique_ptr<Finalizer>> v_;
 
 public:
-    //-- FinalizerDock
+    //-- Finalizer::Dock
 
     void Add(std::unique_ptr<Finalizer>) final;
     void ExecuteAll(Env&) final;
@@ -27,7 +27,7 @@ public:
 }
 
 
-auto FinalizerDock::Get() -> FinalizerDock&
+auto Finalizer::GetDock() -> Dock&
 {
     static Imp imp;
     return imp;

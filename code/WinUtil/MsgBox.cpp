@@ -6,7 +6,9 @@ module;
 
 #include <Windows.h>
  
-module WinUtil;
+module WinUtil.MsgBox;
+
+import WinUtil.CursorManager;
 
 
 namespace WinUtil::MsgBox

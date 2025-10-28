@@ -8,7 +8,7 @@
     public Superclass<MsgId>\
   {\
   public:\
-    ClassName(WinMsg& msg):\
+    ClassName(Message& msg):\
       Superclass<MsgId>(msg) {}\
 
 #define D1_WINMESSAGE_WRAPPER_SUBCLASS_END\

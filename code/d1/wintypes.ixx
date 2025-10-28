@@ -34,6 +34,10 @@ using ::HDROP;
 using ::HGLOBAL;
 using ::HCURSOR;
 
+const HANDLE invalid_handle_value = INVALID_HANDLE_VALUE;
+
 using ::LCID;
+
+using ::HRESULT;
 
 }

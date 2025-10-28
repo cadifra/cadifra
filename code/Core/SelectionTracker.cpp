@@ -8,7 +8,7 @@ module Core;
 namespace Core
 {
 
-SelectionTracker::~SelectionTracker()
+Selection::Tracker::~Tracker()
 {
     if (itsView && itsSelectionChanged)
         itsView->NotifySelectionObservers();

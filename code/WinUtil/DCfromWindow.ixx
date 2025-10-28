@@ -2,7 +2,7 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module WinUtil:DCfromWindow;
+export module WinUtil.DCfromWindow;
 
 import d1.wintypes;
 
@@ -16,7 +16,7 @@ export class DCfromWindow
     d1::HDC itsDC;
 
 public:
-    DCfromWindow(HWND w);
+    DCfromWindow(d1::HWND w);
     ~DCfromWindow();
 
     operator const d1::HDC() const { return itsDC; }

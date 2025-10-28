@@ -11,7 +11,8 @@ module Core;
 import d1.algorithm;
 import d1.Point;
 
-import WinUtil;
+import WinUtil.Debug;
+import WinUtil.GuardedFunctionCall;
 
 
 namespace Core
@@ -36,8 +37,12 @@ namespace
 d1::uint32 GlobalTransactionCounter = 0;
 }
 
+namespace
+{
+using C = Transaction;
+}
 
-TransactionImp::TransactionImp(
+C::Imp::Imp(
     IDiagram& d, IView* working_view, Transaction& trans):
 
     itsTransaction{ trans },
@@ -57,13 +62,7 @@ TransactionImp::TransactionImp(
 }
 
 
-namespace
-{
-using C = TransactionImp;
-}
-
-
-void C::Destruct()
+void C::Imp::Destruct()
 {
     itsDiagram.UnregisterTransaction(itsTransaction);
 
@@ -94,21 +93,21 @@ void C::Destruct()
 }
 
 
-C::~TransactionImp()
+C::Imp::~Imp()
 {
     WinUtil::GuardedCallHelpers::call(
-        "Core::TransactionImp::~TransactionImp", *this, &TransactionImp::Destruct);
+        "Core::TransactionImp::~TransactionImp", *this, &Imp::Destruct);
 }
 
 
-bool C::Finalize(SelectionTracker& sc, const IGrid& g)
+bool C::Imp::Finalize(Selection::Tracker& sc, const IGrid& g)
 {
     auto e = Env{ itsTransaction, sc, g };
     // warning: *this may be changed through e
 
     unsigned int maxrepeat = 100000;
 
-    FinalizerDock::Get().ExecuteAll(e);
+    Finalizer::GetDock().ExecuteAll(e);
 
     while (!itsFinalizeCandidates.empty())
     {
@@ -129,7 +128,7 @@ bool C::Finalize(SelectionTracker& sc, const IGrid& g)
 }
 
 
-auto C::Close(SelectionTracker& sc, const IGrid& g) -> UndoerRef
+auto C::Imp::Close(Selection::Tracker& sc, const IGrid& g) -> UndoerRef
 {
     D1_ASSERT(itsFinalizeCandidates.empty());
 
@@ -164,7 +163,7 @@ auto C::Close(SelectionTracker& sc, const IGrid& g) -> UndoerRef
 }
 
 
-auto C::NonNullClose(SelectionTracker& sc, const IGrid& g) -> UndoerRef
+auto C::Imp::NonNullClose(Selection::Tracker& sc, const IGrid& g) -> UndoerRef
 {
     auto res = CloseAllTouched();
 
@@ -253,7 +252,7 @@ void ConvertPosUndoers::GetResult(SequenceUndoer& su)
 }
 
 
-auto C::CloseAllTouched() -> UndoerRef
+auto C::Imp::CloseAllTouched() -> UndoerRef
 {
     class UColl: public IUndoerCollector
     {
@@ -297,7 +296,7 @@ auto C::CloseAllTouched() -> UndoerRef
 }
 
 
-void C::DisconnectAllTouched()
+void C::Imp::DisconnectAllTouched()
 {
     for (auto im : itsTouchedElements)
     {
@@ -308,7 +307,7 @@ void C::DisconnectAllTouched()
 }
 
 
-void C::DisconnectAllTrashed(SelectionTracker& sc)
+void C::Imp::DisconnectAllTrashed(Selection::Tracker& sc)
 {
     for (auto im : itsTrashedElements)
     {
@@ -319,7 +318,7 @@ void C::DisconnectAllTrashed(SelectionTracker& sc)
 }
 
 
-void C::DisconnectAllNewlyCreated()
+void C::Imp::DisconnectAllNewlyCreated()
 {
     for (auto im : itsNewlyCreatedElements)
     {
@@ -333,22 +332,22 @@ void C::DisconnectAllNewlyCreated()
 }
 
 
-void C::Abort()
+void C::Imp::Abort()
 {
     itsFinalizeCandidates.clear();
-    auto sc = SelectionTracker{ itsWorkingView };
+    auto sc = Selection::Tracker{ itsWorkingView };
 
     for_each(itsTouchedElements,
-        [](const IElementPtr& me) {
-            IElementPrivateAccess::TransactionAborted(*me.get());
+        [](const IElementRef& me) {
+            IElement::PrivateAccess::TransactionAborted(*me.get());
         });
 
     AbortAllTrashed();
 
     AbortAllNewlyCreated(sc);
 
-    auto duv = [&](const IElementPtr& me) {
-        IElementPrivateAccess::DisconnectTransaction(*me.get());
+    auto duv = [&](const IElementRef& me) {
+        IElement::PrivateAccess::DisconnectTransaction(*me.get());
         me->ViewsNeedUpdate(itsDiagram);
     };
 
@@ -363,7 +362,7 @@ void C::Abort()
 }
 
 
-void C::AbortAllNewlyCreated(SelectionTracker& sc)
+void C::Imp::AbortAllNewlyCreated(Selection::Tracker& sc)
 {
     for (auto im : itsNewlyCreatedElements)
     {
@@ -375,7 +374,7 @@ void C::AbortAllNewlyCreated(SelectionTracker& sc)
 }
 
 
-void C::AbortAllTrashed()
+void C::Imp::AbortAllTrashed()
 {
     for (const auto& im : itsTrashedElements)
     {
@@ -408,7 +407,7 @@ bool Contains_(const C& cont, const IElement* ele)
 }
 
 
-void C::AddTouched(IElement& me, bool update_view)
+void C::Imp::AddTouched(IElement& me, bool update_view)
 {
     // some checks first
 
@@ -464,7 +463,7 @@ void C::AddTouched(IElement& me, bool update_view)
 }
 
 
-void C::PutIntoTrash(SelectionTracker& sc, const IElementPtr& me)
+void C::Imp::PutIntoTrash(Selection::Tracker& sc, const IElementRef& me)
 {
     D1_ASSERT(!itIsClosed);
 
@@ -501,7 +500,7 @@ void C::PutIntoTrash(SelectionTracker& sc, const IElementPtr& me)
 }
 
 
-void C::AddNewlyCreated(IElementPtr me)
+void C::Imp::AddNewlyCreated(IElementRef me)
 {
     D1_ASSERT(!itIsClosed);
 
@@ -532,7 +531,7 @@ void C::AddNewlyCreated(IElementPtr me)
 }
 
 
-bool C::HasNewlyCreated(const IElement& me) const
+bool C::Imp::HasNewlyCreated(const IElement& me) const
 {
     D1_ASSERT(!itIsClosed);
     return !NotContains_(itsNewlyCreatedElements, &me);

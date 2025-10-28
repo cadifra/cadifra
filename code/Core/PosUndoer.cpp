@@ -14,7 +14,7 @@ using C = PosUndoer;
 }
 
 
-void C::UndoImp(UndoerParam& p)
+void C::UndoImp(Param& p)
 {
     if (!itsObject)
         return;
@@ -23,7 +23,7 @@ void C::UndoImp(UndoerParam& p)
 }
 
 
-void C::RedoImp(UndoerParam& p)
+void C::RedoImp(Param& p)
 {
     if (!itsObject)
         return;

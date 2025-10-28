@@ -8,7 +8,7 @@ module Core;
 namespace Core
 {
 
-auto ITerminalReshapeInfo::GetNewAttachmentPos(
+auto ITerminal::ReshapeInfo::GetNewAttachmentPos(
     const d1::fPoint& oldPos, const d1::fPoint& farPos,
     const DeferredShiftSet& dss) const -> d1::fPoint
 {

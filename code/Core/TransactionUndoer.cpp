@@ -10,7 +10,7 @@ module Core;
 
 import d1.algorithm;
 
-import WinUtil;
+import WinUtil.Debug;
 
 
 namespace Core
@@ -47,7 +47,7 @@ C::TransactionUndoer(
 }
 
 
-void C::UndoImp(UndoerParam& p)
+void C::UndoImp(Param& p)
 {
     for (auto me : itsTrashedElements)
     {
@@ -63,7 +63,7 @@ void C::UndoImp(UndoerParam& p)
 
     while (!itsNewlyCreatedElements.empty())
     {
-        IElementPtr me = itsNewlyCreatedElements.back();
+        IElementRef me = itsNewlyCreatedElements.back();
         D1_ASSERT(me);
         itsNewlyCreatedElements.pop_back();
         itsUncreatedClients.Insert(*me.get());
@@ -80,7 +80,7 @@ void C::UndoImp(UndoerParam& p)
 }
 
 
-void C::RedoImp(UndoerParam& p)
+void C::RedoImp(Param& p)
 {
     for (auto me : itsUncreatedClients)
     {

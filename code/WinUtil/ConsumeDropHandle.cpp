@@ -8,9 +8,7 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
-
-import :ConsumeDropHandle;
+module WinUtil.ConsumeDropHandle;
 
 
 namespace WinUtil

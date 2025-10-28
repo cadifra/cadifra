@@ -8,7 +8,7 @@ module;
 
 #include "d1/d1assert.h"
 
-module WinUtil;
+module WinUtil.Clipboard;
 
 
 namespace WinUtil::CommonClipboardFormats

@@ -8,7 +8,7 @@ module;
 
 #include <Windows.h>
 
-export module WinUtil:OleString;
+export module WinUtil.OleString;
 
 
 namespace WinUtil

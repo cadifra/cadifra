@@ -7,10 +7,11 @@ module;
 #include <Windows.h>
 #include <malloc.h>
 
-module WinUtil;
+module WinUtil.GuardedFunctionCall;
 
-import :SEHTranslator;
-import :CException;
+import WinUtil.CException;
+import WinUtil.ExceptionBox;
+import WinUtil.SEHTranslator;
 
 import d1.Exception;
 

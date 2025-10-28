@@ -8,7 +8,7 @@ module;
 
 #include <Windows.h>
 
-module WinUtil;
+module WinUtil.IWindow;
 
 import d1.Rect;
 

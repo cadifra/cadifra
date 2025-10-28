@@ -6,7 +6,7 @@
   Below you will find a call to the horrible ::GetOpenFileName(),
   which is a still a real pain to use.
 
-  GetOpenFileName() has the following bug [1]:
+  GetOpenFileName() has the following bug:
 
   If the user selects multiple files, the state of the "readonly" checkbox
   flag OFN_READONLY is always not set, no matter whether the user checked
@@ -14,12 +14,6 @@
 
   To solve this, we provide a hook function to check for the nasty
   readonly checkbox ourselves.
-
-  Thanks to the folks at Microsoft for the still lousy GetOpenFileName()!
-
-  Adrian Buehlmann.
-
-  [1] Bug still exists on Windows XP Professional SP1
 */
 
 module;
@@ -29,9 +23,14 @@ module;
 #include <Windows.h>
 #include <dlgs.h>
 
-module WinUtil;
+module WinUtil.OpenFileDialog;
+
+import WinUtil.CursorManager;
+import WinUtil.ExceptionBox;
+import WinUtil.Window;
 
 import d1.buffer;
+
 
 import std;
 

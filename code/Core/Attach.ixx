@@ -36,10 +36,12 @@ public:
         bool horizontal) const -> NearestRes = 0;
 
     d1::fPoint Nearest(const d1::fPoint& p) const;
+
+    class ReshapeInfo;
 };
 
 
-export class ITerminalReshapeInfo
+class ITerminal::ReshapeInfo
 {
 public:
     auto GetNewAttachmentPos(const d1::fPoint& oldPos,
@@ -54,7 +56,7 @@ public:
     virtual auto GetReshapedTerminal() const -> const ITerminal& = 0;
 
 protected:
-    ~ITerminalReshapeInfo() = default;
+    ~ReshapeInfo() = default;
 };
 
 
@@ -68,7 +70,7 @@ public:
     virtual void Forget(Env&, ITerminal&, bool isDeleteRequest) = 0;
 
     virtual void TerminalReshaped(Env&,
-        const ITerminalReshapeInfo&, const DeferredShiftSet&) = 0;
+        const ReshapeInfo&, const DeferredShiftSet&) = 0;
 };
 
 

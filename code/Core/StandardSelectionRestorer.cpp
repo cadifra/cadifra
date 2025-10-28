@@ -13,11 +13,11 @@ namespace Core
 {
 
 auto MakeStandardSelectionRestorer(const ElementSet& selection)
-    -> ISelectionRestorerRef
+    -> Selection::IRestorerRef
 {
-    class SSR: public ISelectionRestorer
+    class SSR: public Selection::IRestorer
     {
-        using Cont = std::vector<IElementPtr>;
+        using Cont = std::vector<IElementRef>;
 
         Cont itsSelection;
 
@@ -31,9 +31,9 @@ auto MakeStandardSelectionRestorer(const ElementSet& selection)
                     itsSelection.push_back(m);
         }
 
-        //-- ISelectionRestorer
+        //-- Selection::IRestorer
 
-        void Restore(SelectionTracker& sc, IView& v) final
+        void Restore(Selection::Tracker& sc, IView& v) final
         {
             const auto t = ElementSet{ begin(itsSelection), end(itsSelection) };
             v.SetSelection(sc, t);
@@ -41,19 +41,19 @@ auto MakeStandardSelectionRestorer(const ElementSet& selection)
     };
 
 
-    class OneSR: public ISelectionRestorer
+    class OneSR: public Selection::IRestorer
     {
-        IElementPtr itsSelectedElement;
+        IElementRef itsSelectedElement;
 
     public:
-        OneSR(const IElementPtr& me):
+        OneSR(const IElementRef& me):
             itsSelectedElement{ me }
         {
         }
 
-        //-- ISelectionRestorer
+        //-- Selection::IRestorer
 
-        void Restore(SelectionTracker& sc, IView& v) final
+        void Restore(Selection::Tracker& sc, IView& v) final
         {
             auto t = ElementSet{};
             t.Insert(*itsSelectedElement.get());
