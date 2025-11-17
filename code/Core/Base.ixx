@@ -6,8 +6,9 @@ module;
 
 #include "d1/d1assert.h"
 
-export module Core:IElement;
+export module Core:Base;
 
+import d1.Iterator;
 import d1.ListSet;
 import d1.Rect;
 import d1.round;
@@ -20,16 +21,15 @@ namespace Core
 {
 
 export {
-class Env;
-class IClub;
 class IDiagram;
 class IView;
 class IViewElement;
 class Transaction;
-class UndoerRef;
 }
 
 export class IElement;
+export class IPosOwner;
+export class PosUndoer;
 export class IShiftable;
 
 
@@ -392,6 +392,178 @@ public:
 };
 
 
+export class Undoer // note: use UndoerRef wherever possible (see below)
+{
+public:
+    virtual ~Undoer() = default;
+
+    virtual bool IsNull() const { return false; }
+    // returns true, if this Undoer is a NullUndoer.
+    // A NullUndoer does not do anything, if it's Undo or Redo member functions
+    // are called. To create a NullUndoer, use UndoerRef::MakeNullUndoer().
+
+    class Param;
+
+    void Undo(Param&);
+    void Redo(Param&);
+
+private:
+    virtual void UndoImp(Param&) = 0;
+    virtual void RedoImp(Param&) = 0;
+
+public:
+    virtual bool Merge(Undoer& u) = 0;
+    // If possible, Merge retrieves all undo information from u, merges it
+    // into this Undoer and returns true.
+    // If merging is impossible, Merge makes nothing and returns false.
+    // If Merge returns true, the caller may safely delete u without loosing
+    // any information.
+    //
+    // Precondition: This Undoer is older than u
+    //
+    // Example:
+    // You have to Undoers a (older) and b (younger).
+    // The following two sequences are identical if Merge returns true:
+    //
+    //          a.Undo(...)          a.Merge(b)
+    //          b.Undo(...)          a.Undo(...)
+    //          b.Redo(...)          a.Redo(...)
+    //          a.Redo(...)
+
+    virtual PosUndoer* GetPosUndoer() { return 0; }
+
+    virtual void Remove(IElement&) = 0;
+
+protected:
+    Undoer()
+    {
+    }
+
+    Undoer(const Undoer&) = delete;
+    Undoer& operator=(const Undoer& rhs) = delete;
+};
+
+
+class Undoer::Param
+{
+    using MESet = std::set<IElementRef>;
+
+    MESet itsAddToDiagram;
+    MESet itsRemoveFromDiagram;
+    MESet itsUpdateViews;
+
+    IDiagram& itsDiagram;
+    Selection::Tracker& itsSelectionTracker; // to be removed
+
+public:
+    Param(IDiagram& d, Selection::Tracker& sc);
+
+    Param(const Param&) = delete;
+    Param& operator=(const Param&) = delete;
+
+    ~Param(); // calls Finish
+
+    void Finish(); // may be called several times
+
+    void AddToDiagram(const IElementRef&);
+    void RemoveFromDiagram(const IElementRef&);
+    void UpdateViews(const IElementRef&);
+
+    auto Diagram() -> IDiagram& { return itsDiagram; }
+};
+
+
+export class PosUndoer: public Undoer
+{
+    std::shared_ptr<IPosOwner> itsObject;
+    const d1::Vector itsOffset;
+
+public:
+    //-- Undoer
+
+    void UndoImp(Param&) override;
+    void RedoImp(Param&) override;
+    bool Merge(Undoer& u) override;
+    PosUndoer* GetPosUndoer() override { return this; }
+    void Remove(IElement&) override;
+    bool IsNull() const override;
+
+    //--
+
+    PosUndoer(IPosOwner& theObject, const d1::Vector& offset);
+
+    PosUndoer(const PosUndoer&) = delete;
+    PosUndoer& operator=(const PosUndoer&) = delete;
+
+    IPosOwner& Object() const { return *itsObject; }
+    const d1::Vector& Offset() const { return itsOffset; }
+};
+
+
+export class UndoerRef
+{
+    std::shared_ptr<Undoer> itsUndoer;
+
+public:
+    UndoerRef()
+    {
+        UndoerRef null = MakeNullUndoer();
+        itsUndoer = null.itsUndoer;
+    }
+
+    UndoerRef(const std::shared_ptr<Undoer>& rhs):
+        itsUndoer{ rhs }
+    {
+    }
+
+    UndoerRef(const UndoerRef& rhs) = default;
+    UndoerRef& operator=(const UndoerRef& rhs) = default;
+
+    bool IsNull() const
+    {
+        return itsUndoer->IsNull();
+    }
+
+    static auto MakeNullUndoer() -> UndoerRef;
+
+    void Undo(Undoer::Param& p) const
+    {
+        itsUndoer->Undo(p);
+    }
+
+    void Redo(Undoer::Param& p) const
+    {
+        itsUndoer->Redo(p);
+    }
+
+    auto get() const -> Undoer* { return itsUndoer.get(); }
+
+    bool Merge(UndoerRef u)
+    {
+        return itsUndoer->Merge(*(u.itsUndoer.get()));
+    }
+    // If possible, Merge retrieves all undo information from the Undoer referenced
+    // by u, merges it into the Undoer referenced by this UndoerRef and returns
+    // true.
+    // If a merge is impossible, Merge has no effect and returns false.
+
+    void Remove(IElement& me)
+    {
+        itsUndoer->Remove(me);
+    }
+};
+
+
+export auto Combine(UndoerRef first, UndoerRef second) -> UndoerRef;
+//
+// Creates an single Undoer from a ordered pair of Undoers.
+// In contrast to Under::Merge(), Combine() is always successful.
+// first and second can be any Undoer, including NullUndoers.
+//
+// PRE: first and second must have been created from
+// consecutive transactions.
+
+
 export class IUndoerCollector
 {
 public:
@@ -399,6 +571,71 @@ public:
 
 protected:
     ~IUndoerCollector() = default;
+};
+
+
+export class IGrid
+{
+public:
+    virtual d1::Point ToGrid(const d1::Point& p) const = 0;
+    // find nearest position on grid to.
+
+    // enlarge to grid functions
+
+    virtual d1::int32 Enlarge(d1::int32 d) const = 0;
+
+    virtual d1::Vector Enlarge(const d1::Vector& v) const = 0;
+    // if the coordinates of v are not in even grid spaces, enlarge them
+    // to next multiple.
+
+    virtual d1::Size Enlarge(const d1::Size& p) const = 0;
+
+    virtual d1::nRect Enlarge(const d1::nRect&) const = 0;
+
+protected:
+    ~IGrid() = default;
+};
+
+
+export struct Env
+{
+    Transaction& transaction;
+    Selection::Tracker& sel_tracker;
+    const IGrid& grid;
+
+    auto Diagram() const -> IDiagram&;
+    auto WorkingView() const -> IView*;
+
+    void AddNewlyCreated(IElementRef me);
+    void AddTouched(IElement& me, bool update_view);
+
+    auto Close() -> UndoerRef;
+};
+
+
+// An IClub contains a set of model elements that may be visible
+// in a view. A club is closed, this means that all references
+// to elements of all elements in the club refer only to elements
+// inside the club.
+//
+export class IClub
+{
+public:
+    virtual auto begin() const -> d1::Iterator<IElement*> = 0;
+    virtual auto end() const -> d1::Iterator<IElement*> = 0;
+
+    friend auto begin(const IClub& c)
+    {
+        return c.begin();
+    }
+
+    friend auto end(const IClub& c)
+    {
+        return c.end();
+    }
+
+protected:
+    ~IClub() = default;
 };
 
 
@@ -411,10 +648,6 @@ export class IElement: public ObjectWithID
 
 public:
     class PrivateAccess;
-
-    // Make famous type Env available for derived classes in other
-    // packages without namespace qualification (only for convenience).
-    using Env = Env;
 
     virtual ~IElement();
 
@@ -447,7 +680,7 @@ public:
     // Calls NeedsUpdate of all its view elements and calls
     // ExtendViewsNeedUpdate of itself.
 
-    void DeleteViewElement(IViewElement&);
+    void Delete(IViewElement&);
     // Delete and forget the IViewElement.
 
     void DeleteViewElements(Selection::Tracker&, IView* v);
@@ -665,6 +898,13 @@ public:
 };
 
 
+export class IPosOwner: public virtual IElement
+{
+public:
+    virtual void Move(const d1::Vector& offset) = 0;
+};
+
+
 export inline bool IdentCheck(const ObjectWithID* a, const ObjectWithID* b)
 {
     return a == b;
@@ -856,7 +1096,7 @@ inline d1::Point ShiftVector::GetNewPos(
 }
 
 
-export class DeferredShiftSet
+export class ShiftSet
 {
     using Shiftables = d1::ListSet<IShiftable*>;
     using Dependents = d1::ListSet<std::pair<
@@ -871,12 +1111,12 @@ export class DeferredShiftSet
     Dependents itsDependents;
 
 public:
-    DeferredShiftSet();
-    DeferredShiftSet(const ElementSet& selection, IDiagram&,
+    ShiftSet();
+    ShiftSet(const ElementSet& selection, IDiagram&,
         IShiftable* theMasterMover = 0);
 
-    DeferredShiftSet(const DeferredShiftSet&) = delete;
-    DeferredShiftSet& operator=(const DeferredShiftSet&) = delete;
+    ShiftSet(const ShiftSet&) = delete;
+    ShiftSet& operator=(const ShiftSet&) = delete;
 
 
     void DeferredShift(Env&, const ShiftVector&, const d1::fPoint& mouse_pos);
@@ -885,30 +1125,30 @@ public:
     auto GetDeferredShift() const -> const ShiftVector&;
 
 
-    void AddDeferredShiftingElement(IShiftable&);
+    void AddNormal(IShiftable&);
 
     auto GetMasterMover() const -> IShiftable* { return itsMasterMover; }
 
 
-    void AddDeferredShiftingElements(const auto& container)
+    void AddNormalSet(const auto& container)
     {
         for (auto* s : container)
-            AddDeferredShiftingElement(*s);
+            AddNormal(*s);
     }
 
-    void AddDeferredShiftDependent(IShiftable&);
+    void AddDependent(IShiftable&);
 
-    void AddDeferredShiftDependents(const auto& container)
+    void AddDependentSet(const auto& container)
     {
         for (auto* s : container)
-            AddDeferredShiftDependent(*s);
+            AddDependent(*s);
     }
 
     template <class Iter>
-    void AddDeferredShiftDependents(Iter a, Iter b)
+    void AddDependentSet(Iter a, Iter b)
     {
         for (; a != b; ++a)
-            AddDeferredShiftDependent(**a);
+            AddDependent(**a);
     }
 
     bool IsDeferredShifting(const IShiftable&) const;
@@ -918,7 +1158,7 @@ public:
 
     void Print(std::ostream&) const; // for debugging
 
-    friend std::ostream& operator<<(std::ostream& s, const DeferredShiftSet& d)
+    friend std::ostream& operator<<(std::ostream& s, const ShiftSet& d)
     {
         d.Print(s);
         return s;
@@ -934,25 +1174,23 @@ public:
 
     IShiftable& operator=(const IShiftable&) = delete;
 
-    void Shift(Core::Env&,
+    void Shift(Env&,
         IElement* sender,
         const ShiftVector&,
-        const DeferredShiftSet&,
+        const ShiftSet&,
         bool shallow);
 
-    virtual void ShiftImpl(Core::Env&,
+    virtual void ShiftImpl(Env&,
         IElement* sender,
         const ShiftVector&,
-        const DeferredShiftSet&,
+        const ShiftSet&,
         bool shallow) = 0;
 
-    virtual void AddDeferredShiftingElements(
-        DeferredShiftSet&, const ElementSet& selection) = 0;
+    virtual void AddNormal(ShiftSet&, const ElementSet& selection) = 0;
+    virtual void AddDependents(ShiftSet&) = 0;
 
-    virtual void AddDeferredShiftDependents(DeferredShiftSet&) = 0;
-
-    virtual void DetachFromSource(Core::Env&,
-        const DeferredShiftSet&, const ElementSet& selection);
+    virtual void DetachFromSource(Env&,
+        const ShiftSet&, const ElementSet& selection);
 
     virtual void ExtendSelection(
         const ElementSet& selection,
@@ -962,17 +1200,17 @@ public:
 
 export class ActorAddDeferredShiftDependent
 {
-    DeferredShiftSet& dss;
+    ShiftSet& dss;
 
 public:
-    ActorAddDeferredShiftDependent(DeferredShiftSet& dss):
+    ActorAddDeferredShiftDependent(ShiftSet& dss):
         dss{ dss }
     {
     }
 
     void operator()(IShiftable* t)
     {
-        dss.AddDeferredShiftDependent(*t);
+        dss.AddDependent(*t);
     }
 };
 

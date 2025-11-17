@@ -243,7 +243,7 @@
     <ClCompile Include="CException.cpp" />
     <ClCompile Include="CException.ixx" />
     <ClCompile Include="ChildWindowVisitor.cpp" />
-    <ClCompile Include="ClipboardHelpers.cpp" />
+    <ClCompile Include="Clipboard.cpp" />
     <ClCompile Include="Clipboard.ixx" />
     <ClCompile Include="CLSID.cpp" />
     <ClCompile Include="CLSID.ixx">
@@ -349,13 +349,13 @@
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="IReadOnlyObserver.ixx">
+    <ClCompile Include="IReadOnlyStateChange.ixx">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="ISaveObserver.ixx">
+    <ClCompile Include="ISavedChange.ixx">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -368,7 +368,6 @@
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="IMessagePlug.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Keyboard.ixx" />
     <ClCompile Include="ListenerWindow.cpp" />
@@ -393,7 +392,7 @@
     <ClCompile Include="ProcRegistrar.cpp" />
     <ClCompile Include="ProcRegistrar.ixx" />
     <ClCompile Include="Message.ixx" />
-    <ClCompile Include="MessageDispatcher.cpp" />
+    <ClCompile Include="Dispatcher.cpp" />
     <ClCompile Include="MsgBox.cpp" />
     <ClCompile Include="MsgBox.ixx" />
     <ClCompile Include="MsiLib.cpp" />

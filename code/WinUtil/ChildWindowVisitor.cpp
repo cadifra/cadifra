@@ -18,9 +18,7 @@ namespace
 
 BOOL CALLBACK EnumChildProcForVisitor(HWND hwnd, LPARAM lParam)
 {
-    return reinterpret_cast<ChildWindowVisitor*>(
-        lParam)
-        ->Visit(hwnd);
+    return reinterpret_cast<ChildWindowVisitor*>(lParam)->Visit(hwnd);
 }
 
 }

@@ -17,7 +17,7 @@ using C = IShiftable;
 void C::Shift(Env& e,
     IElement* sender,
     const ShiftVector& sv,
-    const DeferredShiftSet& dss,
+    const ShiftSet& dss,
     bool shallow)
 {
     if (IsInTrash())
@@ -31,7 +31,7 @@ void C::Shift(Env& e,
 
 
 void C::DetachFromSource(Env&,
-    const DeferredShiftSet&, const ElementSet& selection)
+    const ShiftSet&, const ElementSet& selection)
 {
     // default: nothing to detach
 }

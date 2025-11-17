@@ -46,7 +46,7 @@ void C::Insert(bool needsUpdate)
 void C::ViewDeleted()
 {
     auto& e = Element();
-    e.DeleteViewElement(*this);
+    e.Delete(*this);
 }
 
 

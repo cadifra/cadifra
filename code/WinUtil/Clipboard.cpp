@@ -15,7 +15,7 @@ import d1.AutoComPtr;
 import std;
 
 
-namespace WinUtil::ClipboardHelpers
+namespace WinUtil::Clipboard
 {
 
 HRESULT copy(const void* from, size_t from_size,

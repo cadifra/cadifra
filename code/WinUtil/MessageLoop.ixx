@@ -54,6 +54,8 @@ public:
 };
 
 
+using std::vector;
+
 export class MessageLoop
 {
 public:
@@ -86,13 +88,13 @@ public:
     // "print progress dialog".
 
 private:
-    std::vector<IPreProc*> itsPreProc;
-    std::vector<IOneTimePostProc*> itsOneTimePostProc;
-    std::vector<IIdleProc*> itsIdleProc;
+    vector<IPreProc*> itsPreProc;
+    vector<IOneTimePostProc*> itsOneTimePostProc;
+    vector<IIdleProc*> itsIdleProc;
 
-    std::vector<IPreProc*> itsWaitForInsertPreProc;
-    std::vector<IOneTimePostProc*> itsWaitForInsertOneTimePostProc;
-    std::vector<IIdleProc*> itsWaitForInsertIdleProc;
+    vector<IPreProc*> itsWaitForInsertPreProc;
+    vector<IOneTimePostProc*> itsWaitForInsertOneTimePostProc;
+    vector<IIdleProc*> itsWaitForInsertIdleProc;
 
     void Register(IPreProc&);
     void Register(IOneTimePostProc&);

@@ -8,6 +8,8 @@ module;
 
 module Core;
 
+import :Undoer;
+
 import d1.algorithm;
 
 

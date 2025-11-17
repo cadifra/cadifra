@@ -24,7 +24,7 @@ export class ListenerWindow
     static Impl& Instance();
 
 public:
-    auto GetMsgDispatcher() const -> IMessageDispatcher&; // (1)
+    auto GetDispatcher() const -> IDispatcher&; // (1)
 
     d1::HWND GetWindowHandle() const; // (1)
 };

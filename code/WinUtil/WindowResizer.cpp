@@ -27,7 +27,7 @@ using C = WindowResizer;
 
 C::WindowResizer(IWindow& theWindow):
     itsWindow{ theWindow },
-    itsProcReg{ theWindow.GetMsgDispatcher(), 0 }
+    itsProcReg{ theWindow.GetDispatcher(), 0 }
 {
     auto ph = itsProcReg.Helper(*this);
 

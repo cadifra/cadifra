@@ -14,7 +14,7 @@ using C = ITerminal;
 }
 
 
-auto C::FindNearestPoint(const DeferredShiftSet& dss,
+auto C::FindNearestPoint(const ShiftSet& dss,
     const d1::fPoint& p, bool horizontal) const -> NearestRes
 {
     if (!dss.IsDeferredShifting(*this))

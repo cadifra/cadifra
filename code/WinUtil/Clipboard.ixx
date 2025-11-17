@@ -16,7 +16,7 @@ typedef tagSTGMEDIUM STGMEDIUM;
 namespace WinUtil
 {
 
-export namespace ClipboardHelpers
+export namespace Clipboard
 {
 
 HRESULT copy(const void* from, size_t from_size,

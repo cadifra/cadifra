@@ -7,13 +7,13 @@
     <ClCompile Include="Exceptions.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
-    <ClCompile Include="IDiagram.ixx">
+    <ClCompile Include="Diagram.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
-    <ClCompile Include="IElement.ixx">
+    <ClCompile Include="Base.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
-    <ClCompile Include="IView.ixx">
+    <ClCompile Include="View.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
     <ClCompile Include="_Module.ixx">
@@ -115,7 +115,7 @@
     <ClCompile Include="CopyExtendSelection.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
-    <ClCompile Include="DeferredShiftSet.cpp">
+    <ClCompile Include="ShiftSet.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
     <ClCompile Include="IDumpable.cpp">
@@ -141,6 +141,9 @@
     </ClCompile>
     <ClCompile Include="TransferSet.cpp">
       <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="Undoer.ixx.cpp">
+      <Filter>_ixx</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

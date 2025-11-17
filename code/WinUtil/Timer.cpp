@@ -12,7 +12,6 @@ module WinUtil.Timer;
 
 import WinUtil.IWindow;
 import WinUtil.MessageLoop;
-import WinUtil.Message;
 import WinUtil.Messages;
 import WinUtil.Window;
 
@@ -84,7 +83,7 @@ public:
 
 
 C::Impl::Impl():
-    itsProcReg{ GetMsgDispatcher(), 0 }
+    itsProcReg{ GetDispatcher(), 0 }
 {
     auto ph = itsProcReg.Helper(*this);
 

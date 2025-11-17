@@ -4,7 +4,7 @@
 
 export module Core:Transaction;
 
-import :IElement;
+import :Base;
 
 import d1.Rect;
 import d1.Shared;
@@ -56,27 +56,6 @@ public:
         if (itsJob)
             itsJob->DoFollowUpJob(e);
     }
-};
-
-
-export class IGrid
-{
-public:
-    virtual d1::Point ToGrid(const d1::Point& p) const = 0;
-    // find nearest position on grid to.
-
-    virtual d1::int32 EnlargeToGrid(d1::int32 d) const = 0;
-
-    virtual d1::Vector EnlargeToGrid(const d1::Vector& v) const = 0;
-    // if the coordinates of v are not in even grid spaces, enlarge them
-    // to next multiple.
-
-    virtual d1::Size EnlargeToGrid(const d1::Size& p) const = 0;
-
-    virtual d1::nRect EnlargeToGrid(const d1::nRect&) const = 0;
-
-protected:
-    ~IGrid() = default;
 };
 
 

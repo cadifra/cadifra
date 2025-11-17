@@ -14,18 +14,18 @@ namespace Core
 
 namespace
 {
-using C = DeferredShiftSet;
+using C = ShiftSet;
 }
 
 
-C::DeferredShiftSet()
+C::ShiftSet()
 {
     itsActualShiftVector.shiftX = false;
     itsActualShiftVector.shiftY = false;
 }
 
 
-C::DeferredShiftSet(
+C::ShiftSet(
     const ElementSet& selection,
     IDiagram& d,
     IShiftable* theMasterMover):
@@ -39,13 +39,13 @@ C::DeferredShiftSet(
     {
         D1_ASSERT(me);
         if (auto s = dynamic_cast<IShiftable*>(me))
-            s->AddDeferredShiftingElements(*this, selection);
+            s->AddNormal(*this, selection);
     }
 
     for (auto ds : itsDeferredShiftables)
     {
         itsActualSender = ds;
-        itsActualSender->AddDeferredShiftDependents(*this);
+        itsActualSender->AddDependents(*this);
     }
 
     for (auto me : selection)
@@ -87,13 +87,13 @@ auto C::GetDeferredShift() const -> const ShiftVector&
 }
 
 
-void C::AddDeferredShiftingElement(IShiftable& s)
+void C::AddNormal(IShiftable& s)
 {
     itsDeferredShiftables.insert(&s);
 }
 
 
-void C::AddDeferredShiftDependent(IShiftable& s)
+void C::AddDependent(IShiftable& s)
 {
     D1_ASSERT(&s);
     if (!IsDeferredShifting(s))

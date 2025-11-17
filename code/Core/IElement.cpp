@@ -135,7 +135,7 @@ auto C::MakeViewElement(IView& v) -> IViewElement*
 }
 
 
-void C::DeleteViewElement(IViewElement& e)
+void C::Delete(IViewElement& e)
 {
     D1_VERIFY(d1::erase_first_with_get(itsRep->itsViewElements, e));
 }

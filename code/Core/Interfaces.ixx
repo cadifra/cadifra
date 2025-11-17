@@ -6,7 +6,7 @@ export module Core:Interfaces;
 
 import d1.Rect;
 
-import :IElement;
+import :Base;
 
 import std;
 

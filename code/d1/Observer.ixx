@@ -15,25 +15,17 @@ namespace d1::Observer
 {
 
 export template <class O>
-class IPlug
-{
-public:
-    virtual void Add(O&) = 0;
-    virtual void Forget(O&) = 0;
-
-protected:
-    ~IPlug() = default;
-};
+class List;
 
 
 export template <class O>
 class Connector
 {
-    IPlug<O>* itsPlug = nullptr;
+    List<O>* itsList = nullptr;
     O* itsObserver = nullptr;
 
 public:
-    Connector(IPlug<O>* = 0);
+    Connector(List<O>* = 0);
     ~Connector(); // intentionally NOT virtual
 
     Connector(const Connector&);
@@ -48,15 +40,12 @@ using C = Connector<O>;
 
 
 export template <class O>
-class List:
-    private IPlug<O>
+class List
 {
     std::vector<O*> itsList; // ref only pointers
 
 public:
-    //-- IPlug
-
-    void Add(O& obs) override
+    void Add(O& obs) 
     // Adds obs to its internal list. Don't use during a "Notify"-call!
     {
         auto i = std::ranges::find(itsList, nullptr);
@@ -67,7 +56,7 @@ public:
             itsList.push_back(&obs);
     }
 
-    void Forget(O& obs) override
+    void Forget(O& obs)
     // Removes the first occurrence of obs from its internal list.
     {
         auto i = std::ranges::find(itsList, &obs);
@@ -75,8 +64,6 @@ public:
         if (i != end(itsList))
             *i = nullptr;
     }
-
-    //--
 
     auto GetConnector()
     {
@@ -100,8 +87,8 @@ using L = List<O>;
 
 
 template <class O>
-inline Connector<O>::Connector(IPlug<O>* plug):
-    itsPlug{ plug }
+inline Connector<O>::Connector(List<O>* list):
+    itsList{ list }
 {
 }
 
@@ -117,8 +104,8 @@ template <class O>
 inline void Connector<O>::Connect(O& obs)
 {
     D1_ASSERT(itsObserver == 0);
-    D1_ASSERT(itsPlug);
-    itsPlug->Add(obs);
+    D1_ASSERT(itsList);
+    itsList->Add(obs);
     itsObserver = &obs;
 }
 
@@ -126,15 +113,15 @@ inline void Connector<O>::Connect(O& obs)
 template <class O>
 inline void Connector<O>::Disconnect()
 {
-    if (itsObserver && itsPlug)
-        itsPlug->Forget(*itsObserver);
+    if (itsObserver && itsList)
+        itsList->Forget(*itsObserver);
     itsObserver = 0;
 }
 
 
 template <class O>
 inline Connector<O>::Connector(const Connector& rhs):
-    itsPlug{ rhs.itsPlug },
+    itsList{ rhs.itsList },
     itsObserver{}
 {
 }
@@ -146,7 +133,7 @@ inline auto Connector<O>::operator=(const Connector& rhs) -> Connector&
     if (this != &rhs)
     {
         Disconnect();
-        itsPlug = rhs.itsPlug;
+        itsList = rhs.itsList;
         itsObserver = 0;
     }
     return *this;

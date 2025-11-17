@@ -8,6 +8,8 @@ module;
 
 module Core;
 
+import :Undoer;
+
 import d1.algorithm;
 import d1.Point;
 
@@ -58,13 +60,13 @@ C::Imp::Imp(
             << GlobalTransactionCounter << std::endl;
 #endif
 
-    itsDiagram.RegisterTransaction(itsTransaction);
+    itsDiagram.Register(itsTransaction);
 }
 
 
 void C::Imp::Destruct()
 {
-    itsDiagram.UnregisterTransaction(itsTransaction);
+    itsDiagram.Unregister(itsTransaction);
 
     class DiagramUpdater
     {

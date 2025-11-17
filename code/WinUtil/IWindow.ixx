@@ -8,7 +8,6 @@ module;
 
 export module WinUtil.IWindow;
 
-import WinUtil.Message;
 import WinUtil.Messages;
 import WinUtil.ProcRegistrar;
 
@@ -21,53 +20,12 @@ import std;
 namespace WinUtil
 {
 
-export class IPrePostDispatchObserver
-{
-public:
-    virtual void PreDispatchNotification() = 0;
-    // PreDispatchNotification is called before any function registered
-    // for the dispatched message is called.
-
-    virtual void PostDispatchNotification() = 0;
-    // PostDispatchNotification is called after the last function registered
-    // for the dispatched message has called.
-    // PostDispatchNotification is never called if not PreDispatchNotification
-    // has been called before.
-    // PostDispatchNotification is guaranteed to be called if
-    // PreDispatchNotification has been called before (also if an exception
-    // occurs).
-
-protected:
-    ~IPrePostDispatchObserver() = default;
-};
-
-
-export class MessageDispatcher
-{
-public:
-    MessageDispatcher();
-
-    MessageDispatcher(const MessageDispatcher&) = delete;
-    MessageDispatcher& operator=(const MessageDispatcher&) = delete;
-
-    ~MessageDispatcher(); // intentionally not virtual
-
-    operator IMessageDispatcher&() const;
-
-    void Dispatch(Message&, IPrePostDispatchObserver&) const;
-
-private:
-    class Impl;
-    std::shared_ptr<Impl> itsImpl;
-};
-
-
 export class IWindow
 {
 public:
     virtual d1::HWND GetWindowHandle() const = 0;
 
-    virtual IMessageDispatcher& GetMsgDispatcher() const = 0;
+    virtual auto GetDispatcher() const -> IDispatcher& = 0;
 
     bool GetRect(d1::Rect& r) const;
     // Writes the window rect in screen coordinates to r and returns true.
@@ -143,7 +101,7 @@ public:
 
     //-- IWindow
 
-    auto GetMsgDispatcher() const -> IMessageDispatcher& override;
+    auto GetDispatcher() const -> IDispatcher& override;
     d1::HWND GetWindowHandle() const override { return itsWindowHandle; }
 
     //--
@@ -166,7 +124,7 @@ public:
 private:
     d1::HWND itsWindowHandle = {};
     bool itsWindowIsDestroyed = false;
-    MessageDispatcher itsDispatcher;
+    Dispatcher itsDispatcher;
     WNDPROC itsDefaultWindowProc = {};
     WindowHandleTable<Window>::Remover itsRemover;
 

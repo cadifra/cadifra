@@ -232,7 +232,7 @@
   <ItemGroup>
     <ClCompile Include="Container.ixx" />
     <ClCompile Include="CopyExtendSelection.cpp" />
-    <ClCompile Include="DeferredShiftSet.cpp" />
+    <ClCompile Include="ShiftSet.cpp" />
     <ClCompile Include="ElementSet.cpp" />
     <ClCompile Include="Attach.ixx" />
     <ClCompile Include="IDumpable.cpp" />
@@ -244,6 +244,10 @@
     <ClCompile Include="IUpdateContainer.cpp" />
     <ClCompile Include="StandardSelectionRestorer.cpp" />
     <ClCompile Include="TransferSet.cpp" />
+    <ClCompile Include="Undoer.ixx.cpp">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsCppModuleInternalPartition</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsCppModuleInternalPartition</CompileAs>
+    </ClCompile>
     <ClCompile Include="_Module.ixx" />
     <ClInclude Include="Check.h" />
     <ClInclude Include="d1debug.h" />
@@ -263,12 +267,12 @@
     <ClCompile Include="Env.cpp" />
     <ClCompile Include="ExtendSelectionParam.cpp" />
     <ClCompile Include="FinalizerDock.cpp" />
-    <ClCompile Include="IDiagram.ixx" />
+    <ClCompile Include="Diagram.ixx" />
     <ClCompile Include="IElement.cpp" />
-    <ClCompile Include="IElement.ixx" />
+    <ClCompile Include="Base.ixx" />
     <ClCompile Include="ISelectionObserver.cpp" />
     <ClCompile Include="IView.cpp" />
-    <ClCompile Include="IView.ixx" />
+    <ClCompile Include="View.ixx" />
     <ClCompile Include="IViewElement.cpp" />
     <ClCompile Include="Namespace.cpp" />
     <ClCompile Include="ObjectRegistry.cpp" />

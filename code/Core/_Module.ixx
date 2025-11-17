@@ -1,9 +1,9 @@
 export module Core;
 
 export import :Attach;
+export import :Base;
 export import :Container;
-export import :IDiagram;
-export import :IElement;
+export import :Diagram;
 export import :Interfaces;
-export import :IView;
 export import :Transaction;
+export import :View;

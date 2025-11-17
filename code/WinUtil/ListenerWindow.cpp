@@ -29,9 +29,9 @@ public:
 
     HWND GetWindowHandle() const { return itsWindow.GetWindowHandle(); }
 
-    auto GetDispatcher() -> IMessageDispatcher&
+    auto GetDispatcher() -> IDispatcher&
     {
-        return itsWindow.GetMsgDispatcher();
+        return itsWindow.GetDispatcher();
     }
 
 private:
@@ -63,7 +63,7 @@ C::Impl::Impl()
 }
 
 
-auto C::GetMsgDispatcher() const -> IMessageDispatcher&
+auto C::GetDispatcher() const -> IDispatcher&
 {
     return Instance().GetDispatcher();
 }

@@ -10,7 +10,7 @@ namespace Core
 
 auto ITerminal::ReshapeInfo::GetNewAttachmentPos(
     const d1::fPoint& oldPos, const d1::fPoint& farPos,
-    const DeferredShiftSet& dss) const -> d1::fPoint
+    const ShiftSet& dss) const -> d1::fPoint
 {
     auto res = GetNewAttachmentPosImpl(oldPos, farPos);
 

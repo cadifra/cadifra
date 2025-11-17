@@ -10,5 +10,5 @@
 //                              * * *
 //
 
-void SetContainer(Env&, Core::IContainer*) override;
+void SetContainer(Core::Env&, Core::IContainer*) override;
 Core::IContainer* GetContainer() const override;

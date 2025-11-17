@@ -4,9 +4,9 @@
 
 export module Core:Attach;
 
-import :IElement;
-import :IView;
+import :Base;
 import :Interfaces;
+import :View;
 
 import d1.Point;
 
@@ -25,7 +25,7 @@ public:
         d1::fPoint,   // nearest point on envelope
         d1::fVector>; // perpendicular to envelope, in outside direction
 
-    auto FindNearestPoint(const DeferredShiftSet&, const d1::fPoint& p,
+    auto FindNearestPoint(const ShiftSet&, const d1::fPoint& p,
         bool horizontal) const -> NearestRes;
     // Finds the nearest intersection of the terminal's boundary with a
     // horizontal (or vertical if "horizontal == false) line through p.
@@ -45,7 +45,7 @@ class ITerminal::ReshapeInfo
 {
 public:
     auto GetNewAttachmentPos(const d1::fPoint& oldPos,
-        const d1::fPoint& farPos, const DeferredShiftSet&) const -> d1::fPoint;
+        const d1::fPoint& farPos, const ShiftSet&) const -> d1::fPoint;
     // calls GetNewAttachmentPosImpl
 
 private:
@@ -70,7 +70,7 @@ public:
     virtual void Forget(Env&, ITerminal&, bool isDeleteRequest) = 0;
 
     virtual void TerminalReshaped(Env&,
-        const ReshapeInfo&, const DeferredShiftSet&) = 0;
+        const ReshapeInfo&, const ShiftSet&) = 0;
 };
 
 
@@ -114,12 +114,10 @@ public:
     // PRE: the Position of end must already be on the boundary of this
     //      element (graphically).
     {
-        if (TestAttach(&end))
-        {
-            AttachImp(e, end);
-            return true;
-        }
-        return false;
+        if (!TestAttach(&end))
+            return false;
+        AttachImp(e, end);
+        return true;
     }
 
 private:

@@ -4,8 +4,8 @@
 
 export module Core:Container;
 
+import :Base;
 import :Interfaces;
-import :IElement;
 
 
 namespace Core
@@ -22,7 +22,7 @@ public:
     void UpdateContainer(Env&, Param& p);
 
 private:
-    virtual void UpdateContainerImpl(Core::Env&, Param& p) = 0;
+    virtual void UpdateContainerImpl(Env&, Param& p) = 0;
 };
 
 

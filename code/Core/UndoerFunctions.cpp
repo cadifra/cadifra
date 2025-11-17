@@ -4,6 +4,8 @@
 
 module Core;
 
+import :Undoer;
+
 
 namespace Core
 {

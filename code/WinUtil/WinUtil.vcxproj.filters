@@ -43,7 +43,7 @@
     <ClCompile Include="ChildWindowVisitor.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
-    <ClCompile Include="ClipboardHelpers.cpp">
+    <ClCompile Include="Clipboard.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
     <ClCompile Include="CLSID.cpp">
@@ -172,10 +172,10 @@
     <ClCompile Include="Mouse.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
-    <ClCompile Include="IReadOnlyObserver.ixx">
+    <ClCompile Include="IReadOnlyStateChange.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
-    <ClCompile Include="ISaveObserver.ixx">
+    <ClCompile Include="ISavedChange.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
     <ClCompile Include="IWindow.ixx">
@@ -313,9 +313,6 @@
     <ClCompile Include="Message.ixx">
       <Filter>_ixx</Filter>
     </ClCompile>
-    <ClCompile Include="IMessagePlug.cpp">
-      <Filter>cpp</Filter>
-    </ClCompile>
     <ClCompile Include="MenuMsg.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
@@ -325,7 +322,7 @@
     <ClCompile Include="ProcRegistrar.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
-    <ClCompile Include="MessageDispatcher.cpp">
+    <ClCompile Include="Dispatcher.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
     <ClCompile Include="ProcRegistrar.ixx">

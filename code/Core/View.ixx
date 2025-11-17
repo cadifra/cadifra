@@ -2,9 +2,9 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module Core:IView;
+export module Core:View;
 
-import :IElement;
+import :Base;
 
 import d1.ListSet;
 import d1.Rect;
@@ -93,7 +93,6 @@ public:
 
     virtual ~IView() = 0; // this DTOR has an implementation
 
-public:
     auto Club() const -> IClub& { return itsClub; }
 
     virtual void Update() = 0;
@@ -144,12 +143,12 @@ public:
 
     bool SelectionIsVisible() const { return itsSelectionVisible; }
 
-    void AttachSelectionObserver(ISelectionObserver& so)
+    void Attach(ISelectionObserver& so)
     {
         itsSelectionObserverDock.Attach(so);
     }
 
-    void DetachSelectionObserver(ISelectionObserver& so)
+    void Detach(ISelectionObserver& so)
     {
         itsSelectionObserverDock.Detach(so);
     }

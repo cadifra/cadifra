@@ -64,7 +64,7 @@ void C::ProcessMsg(Message& msg) const
 }
 
 
-auto C::GetMsgDispatcher() const -> IMessageDispatcher&
+auto C::GetDispatcher() const -> IDispatcher&
 {
     return itsDispatcher;
 }

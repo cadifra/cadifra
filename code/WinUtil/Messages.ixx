@@ -10,7 +10,7 @@ module;
 
 export module WinUtil.Messages;
 
-import WinUtil.Message;
+export import WinUtil.Message;
 
 import d1.MouseButton;
 import d1.Point;
