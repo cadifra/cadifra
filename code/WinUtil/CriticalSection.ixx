@@ -24,7 +24,7 @@ How to use:
 
   Add an additional attribute to your class:
 
-    CriticalSection::Object itsCSO;
+    CriticalSection::Object CSO_;
 
   (You don't need to worry about it in your constructor/destructor or assignment
   operator.)
@@ -32,7 +32,7 @@ How to use:
   In the member function you want to protect, add the following expression at
   the beginning of the function.
 
-    CriticalSection criticalSection(itsCSO);
+    CriticalSection criticalSection(CSO_);
 
   (the similarity with java is intended)
 
@@ -60,7 +60,7 @@ public:
     CriticalSection& operator=(const CriticalSection&) = delete;
 
 private:
-    Object& itsCSObject;
+    Object& CSObject_;
 };
 
 
@@ -69,17 +69,17 @@ class CriticalSection::Object
 public:
     Object()
     {
-        ::InitializeCriticalSection(&itsCriticalSection);
+        ::InitializeCriticalSection(&criticalSection_);
     }
 
     ~Object()
     {
-        ::DeleteCriticalSection(&itsCriticalSection);
+        ::DeleteCriticalSection(&criticalSection_);
     }
 
     Object(const Object&)
     {
-        ::InitializeCriticalSection(&itsCriticalSection);
+        ::InitializeCriticalSection(&criticalSection_);
         // the duplicate has nothing in common with the copy.
     }
 
@@ -91,20 +91,20 @@ public:
 
 private:
     friend class CriticalSection;
-    CRITICAL_SECTION itsCriticalSection;
+    CRITICAL_SECTION criticalSection_;
 };
 
 
 CriticalSection::CriticalSection(Object& cso):
-    itsCSObject{ cso }
+    CSObject_{ cso }
 {
-    ::EnterCriticalSection(&itsCSObject.itsCriticalSection);
+    ::EnterCriticalSection(&CSObject_.criticalSection_);
 }
 
 
 CriticalSection::~CriticalSection()
 {
-    ::LeaveCriticalSection(&itsCSObject.itsCriticalSection);
+    ::LeaveCriticalSection(&CSObject_.criticalSection_);
 }
 
 }

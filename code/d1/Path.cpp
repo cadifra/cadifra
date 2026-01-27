@@ -18,14 +18,14 @@ namespace Path
 {
 
 
-size_type FindExtension(const wstring& path)
+size_type findExtension(const wstring& path)
 {
     for (auto p = path.size(); p > 0; --p)
     {
         auto c = path[p - 1];
         if (c == L'\0')
             continue;
-        if (c == L'\\' || c == L'/' || c == L':')
+        if (c == L'\\' or c == L'/' or c == L':')
             return npos;
         if (c == L'.')
             return p - 1;
@@ -37,7 +37,7 @@ size_type FindExtension(const wstring& path)
 
 bool hasExtension(const wstring& s, const wstring& e)
 {
-    D1_ASSERT(!e.empty());
+    D1_ASSERT(not e.empty());
     D1_ASSERT(*begin(e) != L'.');
 
     if (s.size() < (1 + e.size()))
@@ -59,12 +59,12 @@ bool hasExtension(const wstring& s, const wstring& e)
 }
 
 
-wstring RemoveExtension(const wstring& path, bool* removed_res)
+wstring removeExtension(const wstring& path, bool* removed_res)
 {
     auto res = path;
     bool removed = false;
 
-    auto pos = FindExtension(res);
+    auto pos = findExtension(res);
 
     if (pos != npos)
     {
@@ -79,7 +79,7 @@ wstring RemoveExtension(const wstring& path, bool* removed_res)
 }
 
 
-wstring RemoveFileSpec(const wstring& path, bool* removed_res)
+wstring removeFileSpec(const wstring& path, bool* removed_res)
 {
     auto res = path;
     bool removed = false;
@@ -104,7 +104,7 @@ exit:
 
 
 // Removes the path portion of a fully qualified path and file.
-wstring RemovePath(const wstring& path, bool* removed_res)
+wstring removePath(const wstring& path, bool* removed_res)
 {
     auto res = path;
     bool removed = false;

@@ -160,9 +160,6 @@
     <ClCompile Include="PrivateMessage.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
-    <ClCompile Include="ProductVersion.cpp">
-      <Filter>cpp</Filter>
-    </ClCompile>
     <ClCompile Include="Registry.cpp">
       <Filter>cpp</Filter>
     </ClCompile>

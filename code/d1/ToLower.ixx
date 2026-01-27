@@ -15,25 +15,25 @@ class ToLower
 {
     using Facet = std::ctype<Char>;
 
-    const std::locale itsLoc;
-    const Facet& itsFacet;
+    const std::locale loc_;
+    const Facet& facet_;
 
 public:
     ToLower(const std::locale& l = std::locale{}):
-        itsLoc{ l },
-        itsFacet{ std::use_facet<Facet>(itsLoc) }
+        loc_{ l },
+        facet_{ std::use_facet<Facet>(loc_) }
     {
     }
 
     ToLower(const ToLower& rhs):
-        itsLoc{ rhs.itsLoc },
-        itsFacet{ std::use_facet<Facet>(itsLoc) }
+        loc_{ rhs.loc_ },
+        facet_{ std::use_facet<Facet>(loc_) }
     {
     }
 
     Char operator()(Char c) const
     {
-        return itsFacet.tolower(c);
+        return facet_.tolower(c);
     }
 
     ToLower& operator=(const ToLower&) = delete;
@@ -44,24 +44,24 @@ public:
 export template <typename String = std::wstring>
 class ToLowerString
 {
-    ToLower<typename String::value_type> itsToLower;
+    ToLower<typename String::value_type> toLower_;
 
 public:
     ToLowerString(const std::locale& l = std::locale{}):
-        itsToLower{ l }
+        toLower_{ l }
     {
     }
 
     String operator()(const String& s) const
     {
         auto res = s;
-        std::transform(begin(res), end(res), begin(res), itsToLower);
+        std::transform(begin(res), end(res), begin(res), toLower_);
         return res;
     }
 
-    void Convert(String& s) const
+    void convert(String& s) const
     {
-        std::transform(begin(s), end(s), begin(s), itsToLower);
+        std::transform(begin(s), end(s), begin(s), toLower_);
     }
 };
 

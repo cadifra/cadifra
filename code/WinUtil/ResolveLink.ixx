@@ -12,7 +12,7 @@ import std;
 namespace WinUtil
 {
 
-export std::wstring ResolveLink(const std::wstring& path, d1::HWND, bool fast = false);
+export std::wstring resolveLink(const std::wstring& path, d1::HWND, bool fast = false);
 /*
 Returns path if path is not a shell-shortcut or returns the resolved path.
 Updates an outdated shell-shortcut if possible (shows a dialog box, if needed).

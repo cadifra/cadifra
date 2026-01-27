@@ -14,7 +14,7 @@ import WinUtil.Global;
 namespace WinUtil
 {
 
-HGLOBAL CreateObjectDescriptor(
+HGLOBAL createObjectDescriptor(
     CLSID clsid,
     DWORD dwAspect,
     const d1::Size size,
@@ -43,12 +43,12 @@ HGLOBAL CreateObjectDescriptor(
 
     HGLOBAL glob = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_SHARE, memsize);
 
-    if (!glob)
+    if (not glob)
         return 0;
 
     auto od = WinUtil::GlobalLocker<OBJECTDESCRIPTOR>{ glob };
 
-    if (!od)
+    if (not od)
         return 0;
 
     od->cbSize = static_cast<ULONG>(memsize);
@@ -63,12 +63,12 @@ HGLOBAL CreateObjectDescriptor(
     od->dwSrcOfCopy = static_cast<DWORD>(objectSourceSize ? objectSourceOffset : 0);
 
     ::memcpy(
-        reinterpret_cast<BYTE*>(od.GetPtr()) + objectNameOffset,
+        reinterpret_cast<BYTE*>(od.getPtr()) + objectNameOffset,
         objectName.c_str(),
         objectNameSize);
 
     ::memcpy(
-        reinterpret_cast<BYTE*>(od.GetPtr()) + objectSourceOffset,
+        reinterpret_cast<BYTE*>(od.getPtr()) + objectSourceOffset,
         objectSource.c_str(),
         objectSourceSize);
 

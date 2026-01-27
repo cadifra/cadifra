@@ -10,9 +10,8 @@ import d1.types;
 namespace WinUtil
 {
 
-export class ProductVersion
+export struct ProductVersion
 {
-public:
     d1::uint16 first = 0, second = 0, third = 0;
 
     static const wchar_t separator = L'.';
@@ -24,7 +23,7 @@ public:
 
     ProductVersion() {}
 
-    bool operator>(const ProductVersion& rhs) const;
+    auto operator<=>(const ProductVersion& rhs) const = default;
 };
 
 }

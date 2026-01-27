@@ -25,17 +25,17 @@ public:
         d1::fPoint,   // nearest point on envelope
         d1::fVector>; // perpendicular to envelope, in outside direction
 
-    auto FindNearestPoint(const ShiftSet&, const d1::fPoint& p,
+    auto findNearestPoint(const ShiftSet&, const d1::fPoint& p,
         bool horizontal) const -> NearestRes;
     // Finds the nearest intersection of the terminal's boundary with a
     // horizontal (or vertical if "horizontal == false) line through p.
     // If no such intersection exists, FindNearestPoint returns the nearest
     // point on the boundary.
 
-    virtual auto FindNearestPointImpl(const d1::fPoint& p,
+    virtual auto findNearestPointImpl(const d1::fPoint& p,
         bool horizontal) const -> NearestRes = 0;
 
-    d1::fPoint Nearest(const d1::fPoint& p) const;
+    d1::fPoint nearest(const d1::fPoint& p) const;
 
     class ReshapeInfo;
 };
@@ -44,16 +44,16 @@ public:
 class ITerminal::ReshapeInfo
 {
 public:
-    auto GetNewAttachmentPos(const d1::fPoint& oldPos,
+    auto getNewAttachmentPos(const d1::fPoint& oldPos,
         const d1::fPoint& farPos, const ShiftSet&) const -> d1::fPoint;
     // calls GetNewAttachmentPosImpl
 
 private:
-    virtual auto GetNewAttachmentPosImpl(const d1::fPoint& oldPos,
+    virtual auto getNewAttachmentPosImpl(const d1::fPoint& oldPos,
         const d1::fPoint& farPos) const -> d1::fPoint = 0;
 
 public:
-    virtual auto GetReshapedTerminal() const -> const ITerminal& = 0;
+    virtual auto getReshapedTerminal() const -> const ITerminal& = 0;
 
 protected:
     ~ReshapeInfo() = default;
@@ -63,13 +63,13 @@ protected:
 export class IAttachment: public virtual ITerminal
 {
 public:
-    bool IsBound() const { return GetTerminal() != 0; }
+    bool isBound() const { return getTerminal() != 0; }
 
-    virtual auto GetTerminal() const -> ITerminal* = 0; // may return 0
+    virtual auto getTerminal() const -> ITerminal* = 0; // may return 0
 
-    virtual void Forget(Env&, ITerminal&, bool isDeleteRequest) = 0;
+    virtual void forget(Env&, ITerminal&, bool isDeleteRequest) = 0;
 
-    virtual void TerminalReshaped(Env&,
+    virtual void terminalReshaped(Env&,
         const ReshapeInfo&, const ShiftSet&) = 0;
 };
 
@@ -84,7 +84,7 @@ export class IPointAttachment:
 public:
     //-- ITerminal
 
-    auto FindNearestPointImpl(const d1::fPoint& p, bool horizontal) const
+    auto findNearestPointImpl(const d1::fPoint& p, bool horizontal) const
         -> NearestRes override;
 
     //--
@@ -103,47 +103,47 @@ class IAttach: public virtual IElement
 //
 {
 public:
-    virtual bool TestAttach(const E* end) const = 0;
+    virtual bool testAttach(const E* end) const = 0;
     // returns true, if this objects currently accepts attaching the given
     // end. end may be zero. If end is zero, the called object is asked,
     // whether it currently accepts attaching elements of types E.
 
-    bool Attach(Core::Env& e, E& end)
+    bool attach(Core::Env& e, E& end)
     // Attach end to this object if TestAttach returns true and return
     // result of TestAttach.
     // PRE: the Position of end must already be on the boundary of this
     //      element (graphically).
     {
-        if (!TestAttach(&end))
+        if (not testAttach(&end))
             return false;
-        AttachImp(e, end);
+        attachImp(e, end);
         return true;
     }
 
 private:
-    virtual void AttachImp(Core::Env&, E& end) = 0;
+    virtual void attachImp(Core::Env&, E& end) = 0;
 };
 
 
 export template <class END>
 class AttachFilter: public IFilter
 {
-    const END* itsEnd;
+    const END* end_;
 
 public:
     AttachFilter(const END* end = 0):
-        itsEnd{ end }
+        end_{ end }
     {
     }
 
-    bool Pass(const VIPointable& p) const override
+    bool pass(const VIPointable& p) const override
     {
         const auto ve = dynamic_cast<const IViewElement*>(&p);
         if (ve)
         {
-            const auto& me = ve->Element();
+            const auto& me = ve->element();
             const auto att = dynamic_cast<const IAttach<END>*>(&me);
-            if (att && att->TestAttach(itsEnd))
+            if (att and att->testAttach(end_))
                 return true;
         }
         return false;

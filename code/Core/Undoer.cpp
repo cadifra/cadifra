@@ -8,16 +8,16 @@ module Core;
 namespace Core
 {
 
-auto UndoerRef::MakeNullUndoer() -> UndoerRef
+auto UndoerRef::makeNullUndoer() -> UndoerRef
 {
     class NullUndoer: public Undoer
     {
     public:
-        virtual bool IsNull() const final { return true; }
-        virtual void UndoImp(Param&) final {}
-        virtual void RedoImp(Param&) final {}
-        virtual bool Merge(Undoer& u) final { return u.IsNull(); }
-        virtual void Remove(IElement&) final {}
+        virtual bool isNull() const final { return true; }
+        virtual void undoImp(Param&) final {}
+        virtual void redoImp(Param&) final {}
+        virtual bool merge(Undoer& u) final { return u.isNull(); }
+        virtual void remove(IElement&) final {}
     };
 
     static std::shared_ptr<Undoer> res = std::make_shared<NullUndoer>();
@@ -37,27 +37,27 @@ public:
         u_{ u },
         d_{ d }
     {
-        d_.BeginUndoRedo(u_);
+        d_.beginUndoRedo(u_);
     }
     ~UndoRedoReporter()
     {
-        d_.EndUndoRedo(u_);
+        d_.endUndoRedo(u_);
     }
 };
 }
 
 
-void Undoer::Undo(Param& p)
+void Undoer::undo(Param& p)
 {
-    auto r = UndoRedoReporter{ *this, p.Diagram() };
-    UndoImp(p);
+    auto r = UndoRedoReporter{ *this, p.diagram() };
+    undoImp(p);
 }
 
 
-void Undoer::Redo(Param& p)
+void Undoer::redo(Param& p)
 {
-    auto r = UndoRedoReporter{ *this, p.Diagram() };
-    RedoImp(p);
+    auto r = UndoRedoReporter{ *this, p.diagram() };
+    redoImp(p);
 }
 
 }

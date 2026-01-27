@@ -24,7 +24,7 @@ import std;
 namespace
 {
 const bool CheckInMessageLoop =
-    0 != WinUtil::DebugEnv::Inst().GetInt("Heap", "CheckInMessageLoop");
+    0 != WinUtil::DebugEnv::inst().getInt("Heap", "CheckInMessageLoop");
 }
 #endif
 
@@ -44,20 +44,20 @@ C::IPreProc::IPreProc()
 }
 
 
-void C::IPreProc::Register(MessageLoop& ml)
+void C::IPreProc::set(MessageLoop& ml)
 {
-    if (itsMessageLoop)
+    if (messageLoop_)
         return;
-    ml.Register(*this);
-    itsMessageLoop = &ml;
+    ml.add(*this);
+    messageLoop_ = &ml;
 }
 
 
-void C::IPreProc::Unregister()
+void C::IPreProc::clear()
 {
-    if (itsMessageLoop)
-        itsMessageLoop->Unregister(*this);
-    itsMessageLoop = 0;
+    if (messageLoop_)
+        messageLoop_->forget(*this);
+    messageLoop_ = 0;
 }
 
 
@@ -66,20 +66,20 @@ C::IOneTimePostProc::IOneTimePostProc()
 }
 
 
-void C::IOneTimePostProc::Register(MessageLoop& ml)
+void C::IOneTimePostProc::set(MessageLoop& ml)
 {
-    if (itsMessageLoop)
+    if (messageLoop_)
         return;
-    ml.Register(*this);
-    itsMessageLoop = &ml;
+    ml.add(*this);
+    messageLoop_ = &ml;
 }
 
 
-void C::IOneTimePostProc::Unregister()
+void C::IOneTimePostProc::clear()
 {
-    if (itsMessageLoop)
-        itsMessageLoop->Unregister(*this);
-    itsMessageLoop = 0;
+    if (messageLoop_)
+        messageLoop_->forget(*this);
+    messageLoop_ = 0;
 }
 
 
@@ -88,20 +88,20 @@ C::IIdleProc::IIdleProc()
 }
 
 
-void C::IIdleProc::Register(MessageLoop& ml)
+void C::IIdleProc::set(MessageLoop& ml)
 {
-    if (itsMessageLoop)
+    if (messageLoop_)
         return;
-    ml.Register(*this);
-    itsMessageLoop = &ml;
+    ml.add(*this);
+    messageLoop_ = &ml;
 }
 
 
-void C::IIdleProc::Unregister()
+void C::IIdleProc::clear()
 {
-    if (itsMessageLoop)
-        itsMessageLoop->Unregister(*this);
-    itsMessageLoop = 0;
+    if (messageLoop_)
+        messageLoop_->forget(*this);
+    messageLoop_ = 0;
 }
 
 
@@ -117,7 +117,7 @@ void unregisterAll(auto& v)
     for (auto* e : v)
     {
         if (e)
-            e->Unregister();
+            e->clear();
     }
 }
 }
@@ -125,9 +125,9 @@ void unregisterAll(auto& v)
 
 C::~MessageLoop()
 {
-    unregisterAll(itsPreProc);
-    unregisterAll(itsOneTimePostProc);
-    unregisterAll(itsIdleProc);
+    unregisterAll(preProc_);
+    unregisterAll(oneTimePostProc_);
+    unregisterAll(idleProc_);
 }
 
 
@@ -144,21 +144,21 @@ void doRegister(V& set, V& waitSet, typename V::value_type p)
 }
 
 
-void C::Register(IPreProc& p)
+void C::add(IPreProc& p)
 {
-    doRegister(itsPreProc, itsWaitForInsertPreProc, &p);
+    doRegister(preProc_, waitForInsertPreProc_, &p);
 }
 
 
-void C::Register(IOneTimePostProc& p)
+void C::add(IOneTimePostProc& p)
 {
-    doRegister(itsOneTimePostProc, itsWaitForInsertOneTimePostProc, &p);
+    doRegister(oneTimePostProc_, waitForInsertOneTimePostProc_, &p);
 }
 
 
-void C::Register(IIdleProc& p)
+void C::add(IIdleProc& p)
 {
-    doRegister(itsIdleProc, itsWaitForInsertIdleProc, &p);
+    doRegister(idleProc_, waitForInsertIdleProc_, &p);
 }
 
 
@@ -180,21 +180,21 @@ void doUnregister(V& set, V& waitSet, typename V::value_type p)
 }
 
 
-void C::Unregister(IPreProc& p)
+void C::forget(IPreProc& p)
 {
-    doUnregister(itsPreProc, itsWaitForInsertPreProc, &p);
+    doUnregister(preProc_, waitForInsertPreProc_, &p);
 }
 
 
-void C::Unregister(IOneTimePostProc& p)
+void C::forget(IOneTimePostProc& p)
 {
-    doUnregister(itsOneTimePostProc, itsWaitForInsertOneTimePostProc, &p);
+    doUnregister(oneTimePostProc_, waitForInsertOneTimePostProc_, &p);
 }
 
 
-void C::Unregister(IIdleProc& p)
+void C::forget(IIdleProc& p)
 {
-    doUnregister(itsIdleProc, itsWaitForInsertIdleProc, &p);
+    doUnregister(idleProc_, waitForInsertIdleProc_, &p);
 }
 
 
@@ -211,60 +211,60 @@ void join(V& set, V& waitSet)
 }
 
 
-bool C::CallPreProc(MSG& m)
+bool C::callPreProc(MSG& m)
 {
-    join(itsPreProc, itsWaitForInsertPreProc);
+    join(preProc_, waitForInsertPreProc_);
 
-    for (auto i = begin(itsPreProc); i != end(itsPreProc); /* no ++i */)
+    for (auto i = begin(preProc_); i != end(preProc_); /* no ++i */)
     {
         if (*i)
         {
-            if ((*i)->PreProcess(m))
+            if ((*i)->preProcess(m))
                 return true;
             ++i;
         }
         else
-            i = itsPreProc.erase(i);
+            i = preProc_.erase(i);
     }
     return false;
 }
 
 
-void C::CallOneTimePostProc()
+void C::callOneTimePostProc()
 {
-    join(itsOneTimePostProc, itsWaitForInsertOneTimePostProc);
+    join(oneTimePostProc_, waitForInsertOneTimePostProc_);
 
-    for (auto i = begin(itsOneTimePostProc); i != end(itsOneTimePostProc); /* no ++i */)
+    for (auto i = begin(oneTimePostProc_); i != end(oneTimePostProc_); /* no ++i */)
     {
         if (*i)
         {
             IOneTimePostProc* p = *i;
-            p->Unregister(); // *i becomes 0
-            p->PostProcess();
+            p->clear(); // *i becomes 0
+            p->postProcess();
         }
-        i = itsOneTimePostProc.erase(i);
+        i = oneTimePostProc_.erase(i);
     }
 }
 
 
-void C::CallIdleProc()
+void C::callIdleProc()
 {
-    join(itsIdleProc, itsWaitForInsertIdleProc);
+    join(idleProc_, waitForInsertIdleProc_);
 
-    for (auto i = begin(itsIdleProc); i != end(itsIdleProc); /* no ++i */)
+    for (auto i = begin(idleProc_); i != end(idleProc_); /* no ++i */)
     {
         if (*i)
         {
-            (*i)->IdleProcess();
+            (*i)->idleProcess();
             ++i;
         }
         else
-            i = itsIdleProc.erase(i);
+            i = idleProc_.erase(i);
     }
 }
 
 
-int C::DoLoop()
+int C::doLoop()
 {
     const std::pair<bool, int> defRes(false, 0);
     // continue loop in case of an exception
@@ -272,7 +272,7 @@ int C::DoLoop()
     for (;;)
     {
         auto res = GuardedCallHelpers::call(
-            "WinUtil::MessageLoop", *this, &MessageLoop::LoopImpl, defRes);
+            "WinUtil::MessageLoop", *this, &MessageLoop::loopImpl, defRes);
 
         if (res.first)
             return res.second;
@@ -281,7 +281,7 @@ int C::DoLoop()
 }
 
 
-auto C::LoopImpl() -> std::pair<bool, int>
+auto C::loopImpl() -> std::pair<bool, int>
 // returns (true, exitCode) to stop the loop or (false, 0) to continue the loop
 {
 #ifdef _DEBUG
@@ -291,11 +291,11 @@ auto C::LoopImpl() -> std::pair<bool, int>
 
     auto msg = MSG{};
 
-    while (!itsIdleProc.empty() || !itsWaitForInsertIdleProc.empty())
+    while (not idleProc_.empty() or not waitForInsertIdleProc_.empty())
     {
         if (::PeekMessage(&msg, 0, 0, 0, PM_NOREMOVE))
             break;
-        CallIdleProc();
+        callIdleProc();
     }
 
     BOOL res{ ::GetMessage(&msg, 0, 0, 0) };
@@ -306,19 +306,19 @@ auto C::LoopImpl() -> std::pair<bool, int>
     if (res == 0)
         return { true, static_cast<int>(msg.wParam) }; // WM_QUIT, exit
 
-    if (CallPreProc(msg))
+    if (callPreProc(msg))
         return { false, 0 }; // discard this msg
 
     ::TranslateMessage(&msg);
     ::DispatchMessage(&msg);
 
-    CallOneTimePostProc();
+    callOneTimePostProc();
 
     return { false, 0 };
 }
 
 
-void C::ProcessMessages()
+void C::processMessages()
 {
     auto msg = MSG{};
     while (::PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
@@ -329,13 +329,13 @@ void C::ProcessMessages()
             return;
         }
 
-        if (CallPreProc(msg))
+        if (callPreProc(msg))
             continue;
 
         ::TranslateMessage(&msg);
         ::DispatchMessage(&msg);
 
-        CallOneTimePostProc();
+        callOneTimePostProc();
     }
 }
 

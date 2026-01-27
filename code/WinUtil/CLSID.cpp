@@ -14,7 +14,7 @@ import WinUtil.ComException;
 namespace WinUtil
 {
 
-CLSID ConvertToCLSID(const wchar_t* s)
+CLSID convertToCLSID(const wchar_t* s)
 {
     auto out = CLSID{};
 
@@ -25,7 +25,7 @@ CLSID ConvertToCLSID(const wchar_t* s)
         /*   [out] Pointer to the CLSID on return */
     );
 
-    ComException::Check(res);
+    ComException::check(res);
 
     return out;
 }

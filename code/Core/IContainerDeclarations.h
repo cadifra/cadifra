@@ -10,7 +10,7 @@
 //                              * * *
 //
 
-void Add(Core::Env&, Core::IContainable&) override;
-void Forget(Core::Env&, const Core::IContainable&) override;
-bool Has(const Core::IContainable&) const override;
-void InitialAdd(Core::Env&, Core::IContainable&) override;
+void add(Core::Env&, Core::IContainable&) override;
+void forget(Core::Env&, const Core::IContainable&) override;
+bool has(const Core::IContainable&) const override;
+void initialAdd(Core::Env&, Core::IContainable&) override;

@@ -8,10 +8,10 @@ module Core;
 namespace Core
 {
 
-auto IPointAttachment::FindNearestPointImpl(const d1::fPoint&, bool) const
+auto IPointAttachment::findNearestPointImpl(const d1::fPoint&, bool) const
     -> NearestRes
 {
-    return { Pos(), {} };
+    return { pos(), {} };
 }
 
 }

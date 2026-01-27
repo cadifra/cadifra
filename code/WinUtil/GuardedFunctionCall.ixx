@@ -18,7 +18,7 @@ namespace WinUtil
 
 export class GuardedFunctionCall
 {
-    const char* itsCaller;
+    const char* caller_;
 
 public:
     enum class Result
@@ -28,48 +28,48 @@ public:
     };
 
     GuardedFunctionCall(const char* caller) throw():
-        itsCaller{ caller }
+        caller_{ caller }
     {
     }
     virtual ~GuardedFunctionCall() throw() = default;
 
-    virtual Result Execute() throw(); // calls this->ImplementCall()
+    virtual Result execute() throw(); // calls this->implementCall()
 
 private:
-    virtual void ImplementCall() = 0; /* may throw any exception */
-    Result CallL2();
-    Result CallL3();
+    virtual void implementCall() = 0; /* may throw any exception */
+    Result callL2();
+    Result callL3();
 
-    void ShowErrorBox(const std::exception& e) const;
+    void showErrorBox(const std::exception& e) const;
 };
 
 
 export template <class T>
 class GuardedFunctionCallRet: public GuardedFunctionCall
 {
-    T itsRes;
-    T itsFailureRes;
+    T res_;
+    T failureRes_;
 
 public:
     GuardedFunctionCallRet(const char* caller, T failure_res) throw():
-        GuardedFunctionCall{ caller }, itsRes{ failure_res }, itsFailureRes{ failure_res }
+        GuardedFunctionCall{ caller }, res_{ failure_res }, failureRes_{ failure_res }
     {
     }
-    Result Execute() throw() override
+    Result execute() throw() override
     {
-        Result r = GuardedFunctionCall::Execute();
+        Result r = GuardedFunctionCall::execute();
         if (r != Result::ok)
-            itsRes = itsFailureRes; // exception occurred
+            res_ = failureRes_; // exception occurred
         return r;
     }
-    T Res() const throw() { return itsRes; }
+    T res() const throw() { return res_; }
 
 private:
-    void ImplementCall() override
+    void implementCall() override
     {
-        itsRes = ImplementCallRet(); /* may throw any exception */
+        res_ = implementCallRet(); /* may throw any exception */
     }
-    virtual T ImplementCallRet() = 0;
+    virtual T implementCallRet() = 0;
 };
 
 
@@ -81,8 +81,8 @@ export namespace GuardedComFunctionCall
 template <class R>
 class GFC: public GuardedFunctionCallRet<R>
 {
-    virtual R Call() = 0;
-    R ImplementCallRet() { return Call(); }
+    virtual R call() = 0;
+    R implementCallRet() { return call(); }
 
 public:
     GFC(const char* s, R e):
@@ -91,8 +91,8 @@ public:
     }
     R operator()()
     {
-        this->Execute();
-        return this->Res();
+        this->execute();
+        return this->res();
     }
 };
 
@@ -100,16 +100,16 @@ public:
 template <>
 class GFC<HRESULT>: public GuardedFunctionCallRet<HRESULT>
 {
-    virtual HRESULT Call() = 0;
-    HRESULT ImplementCallRet()
+    virtual HRESULT call() = 0;
+    HRESULT implementCallRet()
     {
         try
         {
-            return Call();
+            return call();
         }
         catch (ComException& e)
         {
-            return e.GetHRESULT();
+            return e.getHRESULT();
         }
     }
 
@@ -120,8 +120,8 @@ public:
     }
     HRESULT operator()()
     {
-        this->Execute();
-        return this->Res();
+        this->execute();
+        return this->res();
     }
 };
 
@@ -158,15 +158,15 @@ template <class T, class R>
 class GFC_0P: public GFC<R>
 {
     using PMF = R (STDMETHODCALLTYPE T::*)();
-    T& t;
-    PMF pmf;
+    T& t_;
+    PMF pmf_;
 
 public:
-    GFC_0P(const char* s, T& _t, R e, PMF _pmf):
-        GFC<R>{ s, e }, t{ _t }, pmf{ _pmf }
+    GFC_0P(const char* s, T& t, R e, PMF pmf):
+        GFC<R>{ s, e }, t_{ t }, pmf_{ pmf }
     {
     }
-    R Call() { return (t.*pmf)(); }
+    R call() { return (t_.*pmf_)(); }
 };
 
 
@@ -174,16 +174,16 @@ template <class T, class R, class P1>
 class GFC_1P: public GFC<R>
 {
     using PMF = R (STDMETHODCALLTYPE T::*)(P1);
-    T& t;
-    P1 p1;
-    PMF pmf;
+    T& t_;
+    P1 p1_;
+    PMF pmf_;
 
 public:
-    GFC_1P(const char* s, T& _t, P1 _p1, R e, PMF _pmf):
-        GFC<R>{ s, e }, t{ _t }, p1{ _p1 }, pmf{ _pmf }
+    GFC_1P(const char* s, T& t, P1 p1, R e, PMF pmf):
+        GFC<R>{ s, e }, t_{ t }, p1_{ p1 }, pmf_{ pmf }
     {
     }
-    R Call() { return (t.*pmf)(p1); }
+    R call() { return (t_.*pmf_)(p1_); }
 };
 
 
@@ -191,17 +191,17 @@ template <class T, class R, class P1, class P2>
 class GFC_2P: public GFC<R>
 {
     using PMF = R (STDMETHODCALLTYPE T::*)(P1, P2);
-    T& t;
-    P1 p1;
-    P2 p2;
-    PMF pmf;
+    T& t_;
+    P1 p1_;
+    P2 p2_;
+    PMF pmf_;
 
 public:
-    GFC_2P(const char* s, T& _t, P1 _p1, P2 _p2, R e, PMF _pmf):
-        GFC<R>{ s, e }, t{ _t }, p1{ _p1 }, p2{ _p2 }, pmf{ _pmf }
+    GFC_2P(const char* s, T& t, P1 p1, P2 p2, R e, PMF pmf):
+        GFC<R>{ s, e }, t_{ t }, p1_{ p1 }, p2_{ p2 }, pmf_{ pmf }
     {
     }
-    R Call() { return (t.*pmf)(p1, p2); }
+    R call() { return (t_.*pmf_)(p1_, p2_); }
 };
 
 
@@ -209,18 +209,18 @@ template <class T, class R, class P1, class P2, class P3>
 class GFC_3P: public GFC<R>
 {
     using PMF = R (STDMETHODCALLTYPE T::*)(P1, P2, P3);
-    T& t;
-    P1 p1;
-    P2 p2;
-    P3 p3;
-    PMF pmf;
+    T& t_;
+    P1 p1_;
+    P2 p2_;
+    P3 p3_;
+    PMF pmf_;
 
 public:
-    GFC_3P(const char* s, T& _t, P1 _p1, P2 _p2, P3 _p3, R e, PMF _pmf):
-        GFC<R>{ s, e }, t{ _t }, p1{ _p1 }, p2{ _p2 }, p3{ _p3 }, pmf{ _pmf }
+    GFC_3P(const char* s, T& t, P1 p1, P2 p2, P3 p3, R e, PMF pmf):
+        GFC<R>{ s, e }, t_{ t }, p1_{ p1 }, p2_{ p2 }, p3_{ p3 }, pmf_{ pmf }
     {
     }
-    R Call() { return (t.*pmf)(p1, p2, p3); }
+    R call() { return (t_.*pmf_)(p1_, p2_, p3_); }
 };
 
 
@@ -228,19 +228,19 @@ template <class T, class R, class P1, class P2, class P3, class P4>
 class GFC_4P: public GFC<R>
 {
     using PMF = R (STDMETHODCALLTYPE T::*)(P1, P2, P3, P4);
-    T& t;
-    P1 p1;
-    P2 p2;
-    P3 p3;
-    P4 p4;
-    PMF pmf;
+    T& t_;
+    P1 p1_;
+    P2 p2_;
+    P3 p3_;
+    P4 p4_;
+    PMF pmf_;
 
 public:
-    GFC_4P(const char* s, T& _t, P1 _p1, P2 _p2, P3 _p3, P4 _p4, R e, PMF _pmf):
-        GFC<R>{ s, e }, t{ _t }, p1{ _p1 }, p2{ _p2 }, p3{ _p3 }, p4{ _p4 }, pmf{ _pmf }
+    GFC_4P(const char* s, T& t, P1 p1, P2 p2, P3 p3, P4 p4, R e, PMF pmf):
+        GFC<R>{ s, e }, t_{ t }, p1_{ p1 }, p2_{ p2 }, p3_{ p3 }, p4_{ p4 }, pmf_{ pmf }
     {
     }
-    R Call() { return (t.*pmf)(p1, p2, p3, p4); }
+    R call() { return (t_.*pmf_)(p1_, p2_, p3_, p4_); }
 };
 
 
@@ -248,21 +248,21 @@ template <class T, class R, class P1, class P2, class P3, class P4, class P5>
 class GFC_5P: public GFC<R>
 {
     using PMF = R (STDMETHODCALLTYPE T::*)(P1, P2, P3, P4, P5);
-    T& t;
-    P1 p1;
-    P2 p2;
-    P3 p3;
-    P4 p4;
-    P5 p5;
-    PMF pmf;
+    T& t_;
+    P1 p1_;
+    P2 p2_;
+    P3 p3_;
+    P4 p4_;
+    P5 p5_;
+    PMF pmf_;
 
 public:
-    GFC_5P(const char* s, T& _t, P1 _p1, P2 _p2, P3 _p3, P4 _p4, P5 _p5, R e, PMF _pmf):
-        GFC<R>{ s, e }, t{ _t }, p1{ _p1 }, p2{ _p2 }, p3{ _p3 },
-        p4{ _p4 }, p5{ _p5 }, pmf{ _pmf }
+    GFC_5P(const char* s, T& t, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, R e, PMF pmf):
+        GFC<R>{ s, e }, t_{ t }, p1_{ p1 }, p2_{ p2 }, p3_{ p3 },
+        p4_{ p4 }, p5_{ p5 }, pmf_{ pmf }
     {
     }
-    R Call() { return (t.*pmf)(p1, p2, p3, p4, p5); }
+    R call() { return (t_.*pmf_)(p1_, p2_, p3_, p4_, p5_); }
 };
 
 
@@ -270,22 +270,22 @@ template <class T, class R, class P1, class P2, class P3, class P4, class P5, cl
 class GFC_6P: public GFC<R>
 {
     using PMF = R (STDMETHODCALLTYPE T::*)(P1, P2, P3, P4, P5, P6);
-    T& t;
-    P1 p1;
-    P2 p2;
-    P3 p3;
-    P4 p4;
-    P5 p5;
-    P6 p6;
-    PMF pmf;
+    T& t_;
+    P1 p1_;
+    P2 p2_;
+    P3 p3_;
+    P4 p4_;
+    P5 p5_;
+    P6 p6_;
+    PMF pmf_;
 
 public:
-    GFC_6P(const char* s, T& _t, P1 _p1, P2 _p2, P3 _p3, P4 _p4, P5 _p5, P6 _p6, R e, PMF _pmf):
-        GFC<R>{ s, e }, t{ _t }, p1{ _p1 }, p2{ _p2 }, p3{ _p3 }, p4{ _p4 },
-        p5{ _p5 }, p6{ _p6 }, pmf{ _pmf }
+    GFC_6P(const char* s, T& t, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, R e, PMF pmf):
+        GFC<R>{ s, e }, t_{ t }, p1_{ p1 }, p2_{ p2 }, p3_{ p3 }, p4_{ p4 },
+        p5_{ p5 }, p6_{ p6 }, pmf_{ pmf }
     {
     }
-    R Call() { return (t.*pmf)(p1, p2, p3, p4, p5, p6); }
+    R call() { return (t_.*pmf_)(p1_, p2_, p3_, p4_, p5_, p6_); }
 };
 
 
@@ -302,24 +302,24 @@ template <
 class MemFunCommon: private WinUtil::GuardedFunctionCall
 {
 public:
-    R Call()
+    R call()
     {
-        Execute();
-        return itsR;
+        execute();
+        return R_;
     }
 
 protected:
     MemFunCommon(const char* caller, Obj& obj, MF mf, R r):
         GuardedFunctionCall{ caller },
-        itsObj{ obj },
-        itsMF{ mf },
-        itsR{ r }
+        obj_{ obj },
+        MF_{ mf },
+        R_{ r }
     {
     }
 
-    Obj& itsObj;
-    MF itsMF;
-    R itsR;
+    Obj& obj_;
+    MF MF_;
+    R R_;
 };
 
 
@@ -329,21 +329,21 @@ template <
 class VoidMemFunCommon: private WinUtil::GuardedFunctionCall
 {
 public:
-    void Call()
+    void call()
     {
-        Execute();
+        execute();
     }
 
 protected:
     VoidMemFunCommon(const char* caller, Obj& obj, MF mf):
         GuardedFunctionCall{ caller },
-        itsObj{ obj },
-        itsMF{ mf }
+        obj_{ obj },
+        MF_{ mf }
     {
     }
 
-    Obj& itsObj;
-    MF itsMF;
+    Obj& obj_;
+    MF MF_;
 };
 
 
@@ -358,7 +358,7 @@ public:
     }
 
 protected:
-    void ImplementCall() { this->itsR = (this->itsObj.*this->itsMF)(); }
+    void implementCall() { this->R_ = (this->obj_.*this->MF_)(); }
 };
 
 
@@ -373,7 +373,7 @@ public:
     }
 
 protected:
-    void ImplementCall() { (this->itsObj.*this->itsMF)(); }
+    void implementCall() { (this->obj_.*this->MF_)(); }
 };
 
 
@@ -385,13 +385,13 @@ class MemFun1: public MemFunCommon<Obj, MF, R>
 public:
     MemFun1(const char* caller, Obj& obj, MF mf, P1 p1, R r):
         MemFunCommon<Obj, MF, R>{ caller, obj, mf, r },
-        itsP1{ p1 }
+        P1_{ p1 }
     {
     }
 
 protected:
-    void ImplementCall() { this->itsR = (this->itsObj.*this->itsMF)(itsP1); }
-    P1 itsP1;
+    void implementCall() { this->R_ = (this->obj_.*this->MF_)(P1_); }
+    P1 P1_;
 };
 
 
@@ -403,14 +403,14 @@ class MemFun2: public MemFunCommon<Obj, MF, R>
 public:
     MemFun2(const char* caller, Obj& obj, MF mf, P1 p1, P2 p2, R r):
         MemFunCommon<Obj, MF, R>{ caller, obj, mf, r },
-        itsP1{ p1 }, itsP2{ p2 }
+        P1_{ p1 }, P2_{ p2 }
     {
     }
 
 private:
-    void ImplementCall() { this->itsR = (this->itsObj.*this->itsMF)(itsP1, itsP2); }
-    P1 itsP1;
-    P2 itsP2;
+    void implementCall() { this->R_ = (this->obj_.*this->MF_)(P1_, P2_); }
+    P1 P1_;
+    P2 P2_;
 };
 
 
@@ -422,15 +422,15 @@ class MemFun3: public MemFunCommon<Obj, MF, R>
 public:
     MemFun3(const char* caller, Obj& obj, MF mf, P1 p1, P2 p2, P3 p3, R r):
         MemFunCommon<Obj, MF, R>{ caller, obj, mf, r },
-        itsP1{ p1 }, itsP2{ p2 }, itsP3{ p3 }
+        P1_{ p1 }, P2_{ p2 }, P3_{ p3 }
     {
     }
 
 private:
-    void ImplementCall() { this->itsR = (this->itsObj.*this->itsMF)(itsP1, itsP2, itsP3); }
-    P1 itsP1;
-    P2 itsP2;
-    P3 itsP3;
+    void implementCall() { this->R_ = (this->obj_.*this->MF_)(P1_, P2_, P3_); }
+    P1 P1_;
+    P2 P2_;
+    P3 P3_;
 };
 
 
@@ -442,16 +442,16 @@ class MemFun4: public MemFunCommon<Obj, MF, R>
 public:
     MemFun4(const char* caller, Obj& obj, MF mf, P1 p1, P2 p2, P3 p3, P4 p4, R r):
         MemFunCommon<Obj, MF, R>{ caller, obj, mf, r },
-        itsP1{ p1 }, itsP2{ p2 }, itsP3{ p3 }, itsP4{ p4 }
+        P1_{ p1 }, P2_{ p2 }, P3_{ p3 }, P4_{ p4 }
     {
     }
 
 private:
-    void ImplementCall() { this->itsR = (this->itsObj.*this->itsMF)(itsP1, itsP2, itsP3, itsP4); }
-    P1 itsP1;
-    P2 itsP2;
-    P3 itsP3;
-    P4 itsP4;
+    void implementCall() { this->R_ = (this->obj_.*this->MF_)(P1_, P2_, P3_, P4_); }
+    P1 P1_;
+    P2 P2_;
+    P3 P3_;
+    P4 P4_;
 };
 
 
@@ -461,22 +461,22 @@ template <
 class FunCommon: private WinUtil::GuardedFunctionCall
 {
 public:
-    R Call()
+    R call()
     {
-        Execute();
-        return itsR;
+        execute();
+        return R_;
     }
 
 protected:
     FunCommon(const char* caller, F f, R r):
         GuardedFunctionCall{ caller },
-        itsF{ f },
-        itsR{ r }
+        F_{ f },
+        R_{ r }
     {
     }
 
-    F itsF;
-    R itsR;
+    F F_;
+    R R_;
 };
 
 
@@ -491,7 +491,7 @@ public:
     }
 
 protected:
-    void ImplementCall() { this->itsR = (*this->itsF)(); }
+    void implementCall() { this->R_ = (*this->F_)(); }
 };
 
 
@@ -503,13 +503,13 @@ class Fun1: public FunCommon<F, R>
 public:
     Fun1(const char* caller, F f, P1 p1, R r):
         FunCommon<F, R>{ caller, f, r },
-        itsP1{ p1 }
+        P1_{ p1 }
     {
     }
 
 protected:
-    void ImplementCall() { this->itsR = (*this->itsF)(itsP1); }
-    P1 itsP1;
+    void implementCall() { this->R_ = (*this->F_)(P1_); }
+    P1 P1_;
 };
 
 
@@ -521,14 +521,14 @@ class Fun2: public FunCommon<F, R>
 public:
     Fun2(const char* caller, F f, P1 p1, P2 p2, R r):
         FunCommon<F, R>{ caller, f, r },
-        itsP1{ p1 }, itsP2{ p2 }
+        P1_{ p1 }, P2_{ p2 }
     {
     }
 
 protected:
-    void ImplementCall() { this->itsR = (*this->itsF)(itsP1, itsP2); }
-    P1 itsP1;
-    P2 itsP2;
+    void implementCall() { this->R_ = (*this->F_)(P1_, P2_); }
+    P1 P1_;
+    P2 P2_;
 };
 
 
@@ -540,15 +540,15 @@ class Fun3: public FunCommon<F, R>
 public:
     Fun3(const char* caller, F f, P1 p1, P2 p2, P3 p3, R r):
         FunCommon<F, R>{ caller, f, r },
-        itsP1{ p1 }, itsP2{ p2 }, itsP3{ p3 }
+        P1_{ p1 }, P2_{ p2 }, P3_{ p3 }
     {
     }
 
 protected:
-    void ImplementCall() { this->itsR = (*this->itsF)(itsP1, itsP2, itsP3); }
-    P1 itsP1;
-    P2 itsP2;
-    P3 itsP3;
+    void implementCall() { this->R_ = (*this->F_)(P1_, P2_, P3_); }
+    P1 P1_;
+    P2 P2_;
+    P3 P3_;
 };
 
 
@@ -560,16 +560,16 @@ class Fun4: public FunCommon<F, R>
 public:
     Fun4(const char* caller, F f, P1 p1, P2 p2, P3 p3, P4 p4, R r):
         FunCommon<F, R>{ caller, f, r },
-        itsP1{ p1 }, itsP2{ p2 }, itsP3{ p3 }, itsP4{ p4 }
+        P1_{ p1 }, P2_{ p2 }, P3_{ p3 }, P4_{ p4 }
     {
     }
 
 protected:
-    void ImplementCall() { this->itsR = (*this->itsF)(itsP1, itsP2, itsP3, itsP4); }
-    P1 itsP1;
-    P2 itsP2;
-    P3 itsP3;
-    P4 itsP4;
+    void implementCall() { this->R_ = (*this->F_)(P1_, P2_, P3_, P4_); }
+    P1 P1_;
+    P2 P2_;
+    P3 P3_;
+    P4 P4_;
 };
 
 }
@@ -582,7 +582,7 @@ template <
     class Obj>
 inline void call(const char* s, Obj& obj, void (Obj::*mf)())
 {
-    VoidMemFun0<Obj, void (Obj::*)()>(s, obj, mf).Call();
+    VoidMemFun0<Obj, void (Obj::*)()>(s, obj, mf).call();
 }
 
 
@@ -590,7 +590,7 @@ template <
     class Obj>
 inline void call(const char* s, const Obj& obj, void (Obj::*mf)() const)
 {
-    VoidMemFun0<const Obj, void (Obj::*)() const>(s, obj, mf).Call();
+    VoidMemFun0<const Obj, void (Obj::*)() const>(s, obj, mf).call();
 }
 
 
@@ -598,7 +598,7 @@ template <
     class Obj, typename R>
 inline R call(const char* s, Obj& obj, R (Obj::*mf)(), R defRes)
 {
-    return MemFun0<Obj, R (Obj::*)(), R>(s, obj, mf, defRes).Call();
+    return MemFun0<Obj, R (Obj::*)(), R>(s, obj, mf, defRes).call();
 }
 
 
@@ -606,7 +606,7 @@ template <
     class Obj, typename R>
 inline R call(const char* s, const Obj& obj, R (Obj::*mf)() const, R defRes)
 {
-    return MemFun0<const Obj, R (Obj::*)() const, R>(s, obj, mf, defRes).Call();
+    return MemFun0<const Obj, R (Obj::*)() const, R>(s, obj, mf, defRes).call();
 }
 
 
@@ -615,7 +615,7 @@ template <
     typename P1, typename P1_>
 inline R call(const char* s, Obj& obj, R (Obj::*mf)(P1), P1_ p1, R defRes)
 {
-    return MemFun1<Obj, R (Obj::*)(P1), R, P1_>(s, obj, mf, p1, defRes).Call();
+    return MemFun1<Obj, R (Obj::*)(P1), R, P1_>(s, obj, mf, p1, defRes).call();
 }
 
 
@@ -624,7 +624,7 @@ template <
     typename P1, typename P1_>
 inline R call(const char* s, const Obj& obj, R (Obj::*mf)(P1) const, P1_ p1, R defRes)
 {
-    return MemFun1<const Obj, R (Obj::*)(P1) const, R, P1_>(s, obj, mf, p1, defRes).Call();
+    return MemFun1<const Obj, R (Obj::*)(P1) const, R, P1_>(s, obj, mf, p1, defRes).call();
 }
 
 
@@ -637,7 +637,7 @@ inline R call(const char* s, Obj& obj, R (Obj::*mf)(P1, P2),
 {
     return MemFun2<Obj, R (Obj::*)(P1, P2), R, P1_, P2_>(
         s, obj, mf, p1, p2, defRes)
-        .Call();
+        .call();
 }
 
 template <
@@ -649,7 +649,7 @@ inline R call(const char* s, const Obj& obj, R (Obj::*mf)(P1, P2) const,
 {
     return MemFun2<const Obj, R (Obj::*)(P1, P2) const, R, P1_, P2_>(
         s, obj, mf, p1, p2, defRes)
-        .Call();
+        .call();
 }
 
 
@@ -663,7 +663,7 @@ inline R call(const char* s, Obj& obj, R (Obj::*mf)(P1, P2, P3),
 {
     return MemFun3<Obj, R (Obj::*)(P1, P2, P3), R, P1_, P2_, P3_>(
         s, obj, mf, p1, p2, p3, defRes)
-        .Call();
+        .call();
 }
 
 template <
@@ -676,7 +676,7 @@ inline R call(const char* s, const Obj& obj, R (Obj::*mf)(P1, P2, P3) const,
 {
     return MemFun3<const Obj, R (Obj::*)(P1, P2, P3) const, R, P1_, P2_, P3_>(
         s, obj, mf, p1, p2, p3, defRes)
-        .Call();
+        .call();
 }
 
 
@@ -691,7 +691,7 @@ inline R call(const char* s, Obj& obj, R (Obj::*mf)(P1, P2, P3, P4),
 {
     return MemFun4<Obj, R (Obj::*)(P1, P2, P3, P4), R, P1_, P2_, P3_, P4_>(
         s, obj, mf, p1, p2, p3, p4, defRes)
-        .Call();
+        .call();
 }
 
 template <
@@ -705,7 +705,7 @@ inline R call(const char* s, const Obj& obj, R (Obj::*mf)(P1, P2, P3, P4) const,
 {
     return MemFun4<const Obj, R (Obj::*)(P1, P2, P3, P4) const, R, P1_, P2_, P3_, P4_>(
         s, obj, mf, p1, p2, p3, p4, defRes)
-        .Call();
+        .call();
 }
 
 
@@ -713,7 +713,7 @@ template <
     typename R>
 inline R call(const char* s, R (*f)(), R defRes)
 {
-    return Fun0<R (*)(), R>(s, f, defRes).Call();
+    return Fun0<R (*)(), R>(s, f, defRes).call();
 }
 
 
@@ -722,7 +722,7 @@ template <
     typename P1, typename P1_>
 inline R call(const char* s, R (*f)(P1), P1_ p1, R defRes)
 {
-    return Fun1<R (*)(P1), R, P1_>(s, f, p1, defRes).Call();
+    return Fun1<R (*)(P1), R, P1_>(s, f, p1, defRes).call();
 }
 
 
@@ -732,7 +732,7 @@ template <
     typename P2, typename P2_>
 inline R call(const char* s, R (*f)(P1, P2), P1_ p1, P2_ p2, R defRes)
 {
-    return Fun2<R (*)(P1, P2), R, P1_, P2_>(s, f, p1, p2, defRes).Call();
+    return Fun2<R (*)(P1, P2), R, P1_, P2_>(s, f, p1, p2, defRes).call();
 }
 
 
@@ -743,7 +743,7 @@ template <
     typename P3, typename P3_>
 inline R call(const char* s, R (*f)(P1, P2, P3), P1_ p1, P2_ p2, P3_ p3, R defRes)
 {
-    return Fun3<R (*)(P1, P2, P3), R, P1_, P2_, P3_>(s, f, p1, p2, p3, defRes).Call();
+    return Fun3<R (*)(P1, P2, P3), R, P1_, P2_, P3_>(s, f, p1, p2, p3, defRes).call();
 }
 
 
@@ -755,7 +755,7 @@ template <
     typename P4, typename P4_>
 inline R call(const char* s, R (*f)(P1, P2, P3, P4), P1_ p1, P2_ p2, P3_ p3, P4_ p4, R defRes)
 {
-    return Fun4<R (*)(P1, P2, P3, P4), R, P1_, P2_, P3_, P4_>(s, f, p1, p2, p3, p4, defRes).Call();
+    return Fun4<R (*)(P1, P2, P3, P4), R, P1_, P2_, P3_, P4_>(s, f, p1, p2, p3, p4, defRes).call();
 }
 
 

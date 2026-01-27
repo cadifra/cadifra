@@ -14,19 +14,19 @@ module WinUtil.Mouse;
 namespace WinUtil
 {
 
-void MouseInputCapturer::Control::CaptureMouseInput()
+void MouseInputCapturer::Control::captureMouseInput()
 {
-    if (itsNumCapture++ == 0)
-        this->ImplSetCaptureMouseInput(true);
+    if (numCapture_++ == 0)
+        this->implSetCaptureMouseInput(true);
 }
 
 
-void MouseInputCapturer::Control::ReleaseMouseInput()
+void MouseInputCapturer::Control::releaseMouseInput()
 {
-    if (itsNumCapture > 0)
+    if (numCapture_ > 0)
     {
-        if (--itsNumCapture == 0)
-            this->ImplSetCaptureMouseInput(false);
+        if (--numCapture_ == 0)
+            this->implSetCaptureMouseInput(false);
     }
 }
 

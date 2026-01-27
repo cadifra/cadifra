@@ -16,7 +16,7 @@ namespace WinUtil
 export class ISavedChange
 {
 public:
-    virtual void LastSavedAt(const _FILETIME&) = 0;
+    virtual void lastSavedAt(const _FILETIME&) = 0;
 
 protected:
     ~ISavedChange() = default;

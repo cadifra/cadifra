@@ -34,21 +34,21 @@ using UniqueMenuHandle = std::unique_ptr<d1::HMENU, DestroyMenuOp>;
 
 export class FileHandleWrapper
 {
-    d1::HANDLE itsH = d1::invalid_handle_value;
+    d1::HANDLE h_ = d1::invalid_handle_value;
 
 public:
     FileHandleWrapper(d1::HANDLE h):
-        itsH{ h } {}
+        h_{ h } {}
 
     FileHandleWrapper() {}
 
     FileHandleWrapper(std::nullptr_t) {}
 
-    explicit operator bool() const { return itsH != d1::invalid_handle_value; }
+    explicit operator bool() const { return h_ != d1::invalid_handle_value; }
 
-    bool operator==(std::nullptr_t) const { return itsH == d1::invalid_handle_value; }
+    bool operator==(std::nullptr_t) const { return h_ == d1::invalid_handle_value; }
 
-    operator HANDLE() const { return itsH; }
+    operator HANDLE() const { return h_; }
 
     struct Del
     {

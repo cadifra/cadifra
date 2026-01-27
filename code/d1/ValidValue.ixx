@@ -15,20 +15,20 @@ namespace d1
 export template <class T>
 class ValidValue
 {
-    T itsT;
-    bool itIsValid = false;
+    T T_;
+    bool valid_ = false;
 
 public:
     ValidValue() {}
 
     ValidValue(const T& t):
-        itsT{ t }, itIsValid{ true }
+        T_{ t }, valid_{ true }
     {
     }
 
     auto& operator=(const T& t)
     {
-        itsT = t, itIsValid = true;
+        T_ = t, valid_ = true;
         return *this;
     }
 
@@ -36,15 +36,15 @@ public:
 
     ValidValue& operator=(const ValidValue&) = default;
 
-    const T& Val() const
+    const T& val() const
     {
-        D1_ASSERT(itIsValid);
-        return itsT;
+        D1_ASSERT(valid_);
+        return T_;
     }
 
-    bool IsValid() const { return itIsValid; }
+    bool isValid() const { return valid_; }
 
-    void Invalidate() { itIsValid = false; }
+    void invalidate() { valid_ = false; }
 };
 
 }

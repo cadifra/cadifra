@@ -27,18 +27,18 @@ C::WindowPlacementHandler()
 
 C::WindowPlacementHandler(HWND w)
 {
-    GetFrom(w);
+    getFrom(w);
 }
 
 
 C::WindowPlacementHandler(const WindowPlacement& wp):
-    imp{ std::make_unique<WindowPlacement>(wp) }
+    imp_{ std::make_unique<WindowPlacement>(wp) }
 {
 }
 
 
 C::WindowPlacementHandler(const C& rhs):
-    imp{ rhs.imp.get() ? std::make_unique<WindowPlacement>(*rhs.imp) : 0 }
+    imp_{ rhs.imp_.get() ? std::make_unique<WindowPlacement>(*rhs.imp_) : 0 }
 {
 }
 
@@ -48,7 +48,7 @@ auto C::operator=(const C& rhs) -> C&
     if (this == &rhs)
         return *this;
 
-    imp = rhs.imp.get() ? std::make_unique<WindowPlacement>(*rhs.imp) : 0;
+    imp_ = rhs.imp_.get() ? std::make_unique<WindowPlacement>(*rhs.imp_) : 0;
     return *this;
 }
 
@@ -56,63 +56,63 @@ auto C::operator=(const C& rhs) -> C&
 C::~WindowPlacementHandler() = default;
 
 
-void C::GetFrom(HWND w)
+void C::getFrom(HWND w)
 {
-    imp.reset();
+    imp_.reset();
     auto t = std::make_unique<WindowPlacement>();
 
-    if (!::GetWindowPlacement(w, t.get()))
+    if (not ::GetWindowPlacement(w, t.get()))
         return;
 
-    imp = std::move(t);
+    imp_ = std::move(t);
 }
 
 
-void C::SetTo(HWND w) const
+void C::setTo(HWND w) const
 {
-    if (!ok())
+    if (not ok())
         return;
 
-    const BOOL res = ::SetWindowPlacement(w, imp.get());
+    const BOOL res = ::SetWindowPlacement(w, imp_.get());
     D1_ASSERT(res);
 }
 
 
-void C::Read(const Registry::Key& k, const std::wstring& vn)
+void C::read(const Registry::Key& k, const std::wstring& vn)
 {
-    imp.reset();
+    imp_.reset();
     auto t = std::make_unique<WindowPlacement>();
 
     using WP = WINDOWPLACEMENT;
     WP* wp = t.get();
 
-    if (!Registry::Query(k, vn, reinterpret_cast<BYTE*>(wp), sizeof(WP)))
+    if (not Registry::query(k, vn, reinterpret_cast<BYTE*>(wp), sizeof(WP)))
         return;
 
     if (t->length != sizeof(WP))
         return;
 
-    imp = std::move(t);
+    imp_ = std::move(t);
 }
 
 
-void C::Write(const Registry::Key& k, const std::wstring& vn) const
+void C::write(const Registry::Key& k, const std::wstring& vn) const
 {
-    if (!ok())
+    if (not ok())
         return;
 
     using WP = WINDOWPLACEMENT;
-    WP* wp = imp.get();
+    WP* wp = imp_.get();
 
-    Registry::Set(k, vn, reinterpret_cast<const BYTE*>(wp), sizeof(WP));
+    Registry::set(k, vn, reinterpret_cast<const BYTE*>(wp), sizeof(WP));
 }
 
 
-void C::ChangeShowCmd(UINT showCmd)
+void C::changeShowCmd(UINT showCmd)
 {
-    if (!ok())
+    if (not ok())
         return;
-    imp->showCmd = showCmd;
+    imp_->showCmd = showCmd;
 }
 
 }

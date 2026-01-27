@@ -18,53 +18,53 @@ using C = Selection::VisibilityServer;
 }
 
 
-void C::Imp::AddServer(IView& v)
+void C::Imp::addServer(IView& v)
 {
-    if (!itsView)
-        itsView = &v;
-    D1_ASSERT(itsView == &v);
-    ++itsNumOfServers;
+    if (not view_)
+        view_ = &v;
+    D1_ASSERT(view_ == &v);
+    ++numOfServers_;
 }
 
 
-void C::Imp::ReleaseServer()
+void C::Imp::releaseServer()
 {
-    if (--itsNumOfServers == 0)
-        itsView = nullptr;
+    if (--numOfServers_ == 0)
+        view_ = nullptr;
 }
 
 
-void C::Imp::AddHider()
+void C::Imp::addHider()
 {
-    if (itsNumOfHiders++ == 0)
-        if (itsNumOfServers && itsView)
-            itsView->SetSelectionVisibility(false);
+    if (numOfHiders_++ == 0)
+        if (numOfServers_ and view_)
+            view_->setSelectionVisibility(false);
 }
 
 
-void C::Imp::RemoveHider()
+void C::Imp::removeHider()
 {
-    if (--itsNumOfHiders == 0)
-        if (itsNumOfServers)
-            itsView->SetSelectionVisibility(true);
+    if (--numOfHiders_ == 0)
+        if (numOfServers_)
+            view_->setSelectionVisibility(true);
 }
 
 
 C::~VisibilityServer()
 {
-    if (itsImp)
-        itsImp->ReleaseServer();
+    if (imp_)
+        imp_->releaseServer();
 }
 
 
-auto C::HideSelection() -> Hider
+auto C::hideSelection() -> Hider
 {
-    if (!itsImp)
+    if (not imp_)
     {
-        itsImp = std::make_shared<VisibilityServer::Imp>();
-        itsImp->AddServer(itsView);
+        imp_ = std::make_shared<VisibilityServer::Imp>();
+        imp_->addServer(view_);
     }
-    return { itsImp };
+    return { imp_ };
 }
 
 }

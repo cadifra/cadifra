@@ -8,33 +8,33 @@ module Core;
 namespace Core
 {
 
-auto Env::Diagram() const -> IDiagram&
+auto Env::diagram() const -> IDiagram&
 {
-    return transaction.Diagram();
+    return transaction.diagram();
 }
 
 
-auto Env::WorkingView() const -> IView*
+auto Env::workingView() const -> IView*
 {
-    return transaction.WorkingView();
+    return transaction.workingView();
 }
 
 
-void Env::AddNewlyCreated(IElementRef me)
+void Env::addNewlyCreated(IElementRef me)
 {
-    transaction.AddNewlyCreated(me);
+    transaction.addNewlyCreated(me);
 }
 
 
-void Env::AddTouched(IElement& me, bool update_view)
+void Env::addTouched(IElement& me, bool update_view)
 {
-    transaction.AddTouched(me, update_view);
+    transaction.addTouched(me, update_view);
 }
 
 
-auto Env::Close() -> UndoerRef
+auto Env::close() -> UndoerRef
 {
-    return transaction.Close(sel_tracker, grid);
+    return transaction.close(sel_tracker, grid);
 }
 
 }

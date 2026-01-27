@@ -13,21 +13,21 @@ namespace WinUtil
 export class CursorManager
 {
 public:
-    virtual void Set(d1::HCURSOR newCursor) = 0;
+    virtual void set(d1::HCURSOR newCursor) = 0;
     // Sets a new cursor. It's not allowed to call directly the
     // OS-function SetCursor !
 
-    virtual d1::HCURSOR GetCursor() const = 0;
+    virtual d1::HCURSOR getCursor() const = 0;
     // Returns the cursor used in the last "Set" call
 
-    virtual d1::HCURSOR GetWaitCursor() const = 0;
+    virtual d1::HCURSOR getWaitCursor() const = 0;
     // Returns the wait cursor handle
 
-    virtual void RestoreCursorState() = 0;
+    virtual void restoreCursorState() = 0;
     // Used to "correct" the cursor. This is needed if someone
     // has directly called the OS-function SetCursor
 
-    static CursorManager& Instance();
+    static CursorManager& instance();
 
     class LengthyOperation;
     class WaitCursorSwitch;
@@ -38,47 +38,47 @@ protected:
     ~CursorManager() {}
 
 private:
-    virtual bool Start() = 0; // Returns true if it was not running before.
-    virtual bool Stop() = 0;  // Returns true if it was running before.
+    virtual bool start() = 0; // Returns true if it was not running before.
+    virtual bool stop() = 0;  // Returns true if it was running before.
 };
 
 
 class CursorManager::WaitCursorSwitch
 {
-    bool itIsOn = false;
+    bool isOn_ = false;
 
 public:
     WaitCursorSwitch();
     ~WaitCursorSwitch(); // intentionally not virtual
-    void On();
-    void Off();
+    void on();
+    void off();
 };
 
 
 class CursorManager::InhibitWaitCursor
 {
-    bool itHasStopped{ Instance().Stop() };
+    bool hasStopped_{ instance().stop() };
 
 public:
     InhibitWaitCursor() {}
     ~InhibitWaitCursor()
     {
-        if (itHasStopped)
-            Instance().Start();
+        if (hasStopped_)
+            instance().start();
     }
 };
 
 
 class CursorManager::LengthyOperation
 {
-    bool itHasStarted{ Instance().Start() };
+    bool hasStarted_{ instance().start() };
 
 public:
     LengthyOperation() {}
     ~LengthyOperation()
     {
-        if (itHasStarted)
-            Instance().Stop();
+        if (hasStarted_)
+            instance().stop();
     }
 };
 
@@ -86,7 +86,7 @@ public:
 class CursorManager::ImmediateWaitCursor: private InhibitWaitCursor
 // Create an instance of this class before you show a dialog box.
 {
-    d1::HCURSOR itsOldCursor = {};
+    d1::HCURSOR oldCursor_ = {};
 
 public:
     ImmediateWaitCursor();

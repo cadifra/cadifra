@@ -25,7 +25,7 @@ constexpr int BufferSize = 1024;
 namespace WinUtil::SaveFileDialog
 {
 
-bool Show(HWND owner, const std::wstring& filter, int filterIndex,
+bool show(HWND owner, const std::wstring& filter, int filterIndex,
     const std::wstring& defaultExtension, std::wstring& fileName)
 {
     auto iwc = CursorManager::ImmediateWaitCursor{};
@@ -63,7 +63,7 @@ bool Show(HWND owner, const std::wstring& filter, int filterIndex,
     else
     {
         DWORD err = ::CommDlgExtendedError();
-        D1_ASSERT(!err);
+        D1_ASSERT(not err);
         return false;
     }
 }

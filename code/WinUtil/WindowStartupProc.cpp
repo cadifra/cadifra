@@ -14,9 +14,9 @@ import WinUtil.IWindow;
 namespace WinUtil
 {
 
-LRESULT CALLBACK WindowStartupProc(HWND h, UINT uMsg, WPARAM wp, LPARAM lp)
+LRESULT CALLBACK windowStartupProc(HWND h, UINT uMsg, WPARAM wp, LPARAM lp)
 {
-    if (uMsg == WM_CREATE && lp)
+    if (uMsg == WM_CREATE and lp)
     {
         WinUtil::Window* window =
             reinterpret_cast<WinUtil::Window*>(
@@ -24,8 +24,8 @@ LRESULT CALLBACK WindowStartupProc(HWND h, UINT uMsg, WPARAM wp, LPARAM lp)
 
         if (window)
         {
-            window->SubClassWindow(h);
-            window->SetDefaultWindowProc(&::DefWindowProc);
+            window->subClassWindow(h);
+            window->setDefaultWindowProc(&::DefWindowProc);
             return ::SendMessage(h, uMsg, wp, lp);
         }
     }

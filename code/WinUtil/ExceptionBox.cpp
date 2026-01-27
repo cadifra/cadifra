@@ -27,43 +27,43 @@ constexpr int BuffSize = 1024;
 
 class Buf: public std::streambuf
 {
-    std::vector<char_type> itsBuf;
-    void SetStreamBuf() { setp(itsBuf.data(), &itsBuf.back() - 1); }
+    std::vector<char_type> buf_;
+    void setStreamBuf() { setp(buf_.data(), &buf_.back() - 1); }
 
 public:
     Buf(size_t s = 1):
-        itsBuf(s) { SetStreamBuf(); }
+        buf_(s) { setStreamBuf(); }
 
-    void Reset()
+    void reset()
     {
-        memset(itsBuf.data(), 0, itsBuf.size());
-        SetStreamBuf();
+        memset(buf_.data(), 0, buf_.size());
+        setStreamBuf();
     }
 
-    const char_type* c_str() const { return itsBuf.data(); }
+    const char_type* c_str() const { return buf_.data(); }
 };
 
 
 class BoxHandler
 {
-    Buf itsBuffer;
-    Buf itsDummyBuffer;
-    std::string itsTitle;
-    UniqueHandle itsShowEvent;
-    UniqueHandle itsStopEvent;
-    UniqueHandle itsThread;
+    Buf buffer_;
+    Buf dummyBuffer_;
+    std::string title_;
+    UniqueHandle showEvent_;
+    UniqueHandle stopEvent_;
+    UniqueHandle thread_;
     static BoxHandler Singleton;
 
     BoxHandler();
     ~BoxHandler();
-    bool Showing() const;
-    static DWORD WINAPI ThreadProc(LPVOID p);
+    bool showing() const;
+    static DWORD WINAPI threadProc(LPVOID p);
 
 public:
-    static BoxHandler& Instance() { return Singleton; }
-    void SetTitle(const std::string& s) { itsTitle = s; }
-    void Show();
-    std::streambuf& Clear();
+    static BoxHandler& instance() { return Singleton; }
+    void setTitle(const std::string& s) { title_ = s; }
+    void show();
+    std::streambuf& clear();
 };
 
 
@@ -71,36 +71,36 @@ BoxHandler BoxHandler::Singleton;
 
 
 BoxHandler::BoxHandler():
-    itsBuffer{ BuffSize },
-    itsShowEvent{ CreateEvent(0, TRUE, FALSE, 0) }, // manual reset
-    itsStopEvent{ CreateEvent(0, TRUE, FALSE, 0) }  // manual reset
+    buffer_{ BuffSize },
+    showEvent_{ CreateEvent(0, TRUE, FALSE, 0) }, // manual reset
+    stopEvent_{ CreateEvent(0, TRUE, FALSE, 0) }  // manual reset
 {
-    itsThread.reset(CreateThread(0, 0, &ThreadProc, this, 0, 0));
+    thread_.reset(CreateThread(0, 0, &threadProc, this, 0, 0));
 }
 
 
 BoxHandler::~BoxHandler()
 {
-    SetEvent(itsStopEvent.get());
-    WaitForSingleObject(itsThread.get(), INFINITE);
+    SetEvent(stopEvent_.get());
+    WaitForSingleObject(thread_.get(), INFINITE);
 }
 
 
-bool BoxHandler::Showing() const
+bool BoxHandler::showing() const
 {
-    return WAIT_TIMEOUT != WaitForSingleObject(itsShowEvent.get(), 0);
+    return WAIT_TIMEOUT != WaitForSingleObject(showEvent_.get(), 0);
 }
 
 
-void BoxHandler::Show()
+void BoxHandler::show()
 {
-    if (Showing())
+    if (showing())
         return;
-    SetEvent(itsShowEvent.get());
+    SetEvent(showEvent_.get());
 }
 
 
-DWORD WINAPI BoxHandler::ThreadProc(LPVOID p)
+DWORD WINAPI BoxHandler::threadProc(LPVOID p)
 {
     BoxHandler* This = reinterpret_cast<BoxHandler*>(p);
 
@@ -109,12 +109,12 @@ DWORD WINAPI BoxHandler::ThreadProc(LPVOID p)
     icc.dwICC = ICC_TAB_CLASSES; // arbitrary value
     D1_VERIFY(InitCommonControlsEx(&icc));
 
-    const HANDLE h[2] = { This->itsShowEvent.get(), This->itsStopEvent.get() };
+    const HANDLE h[2] = { This->showEvent_.get(), This->stopEvent_.get() };
     for (;;)
     {
         if (WAIT_OBJECT_0 == WaitForMultipleObjects(2, h, FALSE, INFINITE))
         {
-            MessageBoxA(0, This->itsBuffer.c_str(), This->itsTitle.c_str(),
+            MessageBoxA(0, This->buffer_.c_str(), This->title_.c_str(),
                 MB_ICONHAND | MB_SYSTEMMODAL | MB_TOPMOST | MB_SETFOREGROUND);
             ResetEvent(h[0]);
         }
@@ -124,10 +124,10 @@ DWORD WINAPI BoxHandler::ThreadProc(LPVOID p)
 }
 
 
-auto BoxHandler::Clear() -> std::streambuf&
+auto BoxHandler::clear() -> std::streambuf&
 {
-    Buf& b = Showing() ? itsDummyBuffer : itsBuffer;
-    b.Reset();
+    Buf& b = showing() ? dummyBuffer_ : buffer_;
+    b.reset();
     return b;
 }
 
@@ -135,21 +135,21 @@ auto BoxHandler::Clear() -> std::streambuf&
 }
 
 
-void SetTitle(const std::string& s)
+void setTitle(const std::string& s)
 {
-    BoxHandler::Instance().SetTitle(s);
+    BoxHandler::instance().setTitle(s);
 }
 
 
-auto Clear() -> std::streambuf&
+auto clear() -> std::streambuf&
 {
-    return BoxHandler::Instance().Clear();
+    return BoxHandler::instance().clear();
 }
 
 
-void Show()
+void show()
 {
-    BoxHandler::Instance().Show();
+    BoxHandler::instance().show();
 }
 
 }

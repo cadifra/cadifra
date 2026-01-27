@@ -13,7 +13,7 @@ export struct ScopeGuard: std::function<void()>
 {
     ~ScopeGuard() noexcept
     {
-        if (!*this)
+        if (not *this)
             return;
         try
         {
@@ -24,7 +24,7 @@ export struct ScopeGuard: std::function<void()>
         }
     }
 
-    void Dismiss(this ScopeGuard& self)
+    void dismiss(this ScopeGuard& self)
     {
         self = ScopeGuard{};
     }

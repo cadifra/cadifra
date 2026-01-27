@@ -28,107 +28,107 @@ using C = Window;
 
 
 C::Window():
-    itsDefaultWindowProc{ &::DefWindowProc }
+    defaultWindowProc_{ &::DefWindowProc }
 {
 }
 
 
 C::~Window()
 {
-    if (itsWindowHandle && !itsWindowIsDestroyed)
-        ::DestroyWindow(itsWindowHandle);
+    if (windowHandle_ and not windowIsDestroyed_)
+        ::DestroyWindow(windowHandle_);
 }
 
 
-void C::ProcessMsg(Message& msg) const
+void C::processMsg(Message& msg) const
 {
     class WaitCursorSwitcher: public WinUtil::IPrePostDispatchObserver
     {
-        CursorManager::WaitCursorSwitch itsSwitch;
-        void PreDispatchNotification() final { itsSwitch.On(); }
-        void PostDispatchNotification() final { itsSwitch.Off(); }
+        CursorManager::WaitCursorSwitch switch_;
+        void preDispatchNotification() final { switch_.on(); }
+        void postDispatchNotification() final { switch_.off(); }
     };
 
     auto wcs = WaitCursorSwitcher{};
 
-    const HWND h = itsWindowHandle;
-    const WNDPROC p = itsDefaultWindowProc;
+    const HWND h = windowHandle_;
+    const WNDPROC p = defaultWindowProc_;
 
-    itsDispatcher.Dispatch(msg, wcs); // may delete this!
+    dispatcher_.dispatch(msg, wcs); // may delete this!
 
-    if (msg.OSisEnabled() && !msg.DefProcCalled())
+    if (msg.OSisEnabled() and not msg.defProcCalled())
     {
-        msg.DefProcCalled(::CallWindowProc(p,
-            h, msg.GetMsgId(), msg.GetWParam(), msg.GetLParam()));
+        msg.defProcCalled(::CallWindowProc(p,
+            h, msg.getMsgId(), msg.getWParam(), msg.getLParam()));
     }
 }
 
 
-auto C::GetDispatcher() const -> IDispatcher&
+auto C::getDispatcher() const -> IDispatcher&
 {
-    return itsDispatcher;
+    return dispatcher_;
 }
 
 
-void C::CallDefProcNow(Message& msg) const
+void C::callDefProcNow(Message& msg) const
 {
-    msg.DefProcCalled(::CallWindowProc(itsDefaultWindowProc,
-        itsWindowHandle, msg.GetMsgId(), msg.GetWParam(), msg.GetLParam()));
+    msg.defProcCalled(::CallWindowProc(defaultWindowProc_,
+        windowHandle_, msg.getMsgId(), msg.getWParam(), msg.getLParam()));
 }
 
 
-void C::SetDefaultWindowProc(WNDPROC p)
+void C::setDefaultWindowProc(WNDPROC p)
 {
-    itsDefaultWindowProc = p;
+    defaultWindowProc_ = p;
 }
 
 
-void C::SubClassWindow(HWND hwnd)
+void C::subClassWindow(HWND hwnd)
 {
-    D1_ASSERT(!itsWindowIsDestroyed);
-    itsWindowHandle = hwnd;
-    itsRemover = sharedWindowHandleTable.Add(hwnd, this);
+    D1_ASSERT(not windowIsDestroyed_);
+    windowHandle_ = hwnd;
+    remover_ = sharedWindowHandleTable.add(hwnd, this);
 
-    itsDefaultWindowProc =
+    defaultWindowProc_ =
         reinterpret_cast<WNDPROC>(
             ::SetWindowLongPtr(
                 hwnd,
                 GWLP_WNDPROC,
-                reinterpret_cast<LONG_PTR>(SharedWindowProc)));
+                reinterpret_cast<LONG_PTR>(sharedWindowProc)));
 }
 
 
-LRESULT C::WindowProc(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
+LRESULT C::windowProc(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
 {
-    itsWindowHandle = hwnd;
+    windowHandle_ = hwnd;
 
     if (uMsg == WM_DESTROY)
     {
-        D1_ASSERT(!itsWindowIsDestroyed);
-        itsWindowIsDestroyed = true;
+        D1_ASSERT(not windowIsDestroyed_);
+        windowIsDestroyed_ = true;
     }
     else if (uMsg == WM_NCDESTROY)
-        itsRemover.reset();
+        remover_.reset();
 
     auto msg = Message{ uMsg, wp, lp };
 
-    ProcessMsg(msg);
+    processMsg(msg);
 
-    return msg.GetLResult();
+    return msg.getLResult();
 }
 
 
-LRESULT CALLBACK C::SharedWindowProc(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
+LRESULT CALLBACK C::sharedWindowProc(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
 {
-    Window* w = sharedWindowHandleTable.Find(hwnd);
+    Window* w = sharedWindowHandleTable.find(hwnd);
 
-    if (!w)
+    if (not w)
         return ::DefWindowProc(hwnd, uMsg, wp, lp);
 
     return GuardedCallHelpers::call(
         "WinUtil::Window",
         *w,
-        &Window::WindowProc,
+        &Window::windowProc,
         hwnd, uMsg, wp, lp,
         LRESULT(0));
 }

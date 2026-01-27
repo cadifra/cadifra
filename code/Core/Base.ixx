@@ -38,7 +38,7 @@ export using IElementRef = std::shared_ptr<IElement>;
 
 export class ElementSet
 {
-    std::vector<IElementRef> itsContents;
+    std::vector<IElementRef> contents_;
 
 public:
     ElementSet() {}
@@ -49,34 +49,34 @@ public:
     {
         for (; a != b; ++a)
         {
-            if (!Contains(*a->get()))
-                Insert(*a->get());
+            if (not contains(*a->get()))
+                insert(*a->get());
         }
     }
 
-    auto Clone() const { return *this; }
+    auto clone() const { return *this; }
 
-    bool Insert(IElement&);
-    void Insert(const ElementSet&);
+    bool insert(IElement&);
+    void insert(const ElementSet&);
 
-    bool Remove(IElement&);
-    bool Contains(const IElement&) const;
+    bool remove(IElement&);
+    bool contains(const IElement&) const;
 
     auto size() const
     {
-        return static_cast<d1::int32>(itsContents.size());
+        return static_cast<d1::int32>(contents_.size());
     }
-    bool empty() const { return itsContents.empty(); }
-    void clear() { itsContents.clear(); }
-    auto begin() const { return itsContents.begin(); }
-    auto end() const { return itsContents.end(); }
+    bool empty() const { return contents_.empty(); }
+    void clear() { contents_.clear(); }
+    auto begin() const { return contents_.begin(); }
+    auto end() const { return contents_.end(); }
 
 
-    void Print(std::ostream&) const; // for debugging: writes all IDs
+    void print(std::ostream&) const; // for debugging: writes all IDs
 
     friend std::ostream& operator<<(std::ostream& s, const ElementSet& d)
     {
-        d.Print(s);
+        d.print(s);
         return s;
     }
 
@@ -113,29 +113,29 @@ public:
     Param(const Param&) = delete;
     Param& operator=(const Param&) = delete;
 
-    auto Call(const IElement* target) -> Result;
+    auto call(const IElement* target) -> Result;
 
-    auto Selection() const -> const ElementSet& { return itsSelection; }
+    auto selection() const -> const ElementSet& { return selection_; }
 
 private:
-    class CacheEntry;
+    struct CacheEntry;
     using Cache = std::multimap<const IElement*, CacheEntry>;
 
-    bool FindCacheEntry(const IElement* target, Result& res) const;
+    bool findCacheEntry(const IElement* target, Result& res) const;
 
-    void EraseOtherCacheEntries(const Cache::iterator except);
+    void eraseOtherCacheEntries(const Cache::iterator except);
 
-    Cache itsCache;
-    const ICaller& itsCaller;
-    const ElementSet& itsSelection;
-    const IElement* itsPrevious = nullptr;
+    Cache cache_;
+    const ICaller& caller_;
+    const ElementSet& selection_;
+    const IElement* previous_ = nullptr;
 };
 
 
 class Param::ICaller
 {
 public:
-    virtual Result MakeCall(const IElement* target, Param& p) const = 0;
+    virtual Result makeCall(const IElement* target, Param& p) const = 0;
 
 protected:
     ~ICaller() = default;
@@ -148,12 +148,12 @@ namespace Selection
 
 export class Tracker
 {
-    IView* itsView = nullptr; // may be zero (dummy Tracker)
-    bool itsSelectionChanged = false;
+    IView* view_ = nullptr; // may be zero (dummy Tracker)
+    bool selectionChanged_ = false;
 
 public:
     Tracker(IView* v):
-        itsView{ v }
+        view_{ v }
     {
     }
 
@@ -162,7 +162,7 @@ public:
 
     ~Tracker(); // intentionally NOT virtual
 
-    void Changed() { itsSelectionChanged = true; }
+    void changed() { selectionChanged_ = true; }
 };
 
 
@@ -176,7 +176,7 @@ public:
     IRestorer(const IRestorer&) = delete;
     IRestorer& operator=(const IRestorer&) = delete;
 
-    virtual void Restore(Tracker&, IView&) = 0;
+    virtual void restore(Tracker&, IView&) = 0;
 };
 
 export using IRestorerRef = std::shared_ptr<IRestorer>;
@@ -188,7 +188,7 @@ export class VisibilityServer
 {
 public:
     VisibilityServer(IView& v):
-        itsView{ v }
+        view_{ v }
     {
     }
 
@@ -197,16 +197,16 @@ public:
 
     ~VisibilityServer();
 
-    Hider HideSelection();
-    // Makes the selection invisible in itsView. If the returned Hider
+    Hider hideSelection();
+    // Makes the selection invisible in view_. If the returned Hider
     // is destructed, the selection is made visible again (if there are no
     // other selection hiders at this VisibilityServer)
 
     class Imp;
 
 private:
-    std::shared_ptr<Imp> itsImp;
-    IView& itsView;
+    std::shared_ptr<Imp> imp_;
+    IView& view_;
 };
 
 class VisibilityServer::Imp final
@@ -214,15 +214,15 @@ class VisibilityServer::Imp final
     friend class VisibilityServer;
     friend class Hider;
 
-    unsigned long itsNumOfServers{};
-    IView* itsView{};
-    unsigned long itsNumOfHiders{};
+    unsigned long numOfServers_{};
+    IView* view_{};
+    unsigned long numOfHiders_{};
 
-    void AddServer(IView& v);
-    void ReleaseServer();
+    void addServer(IView& v);
+    void releaseServer();
 
-    void AddHider();
-    void RemoveHider();
+    void addHider();
+    void removeHider();
 };
 
 
@@ -232,7 +232,7 @@ export class Hider // has value semantics
 
     friend class VS;
 
-    std::shared_ptr<VS::Imp> itsServerImp; // may be zero
+    std::shared_ptr<VS::Imp> serverImp_; // may be zero
 
 public:
     Hider() = default;
@@ -275,35 +275,22 @@ public:
         return *this;
     }
 
-    friend bool operator==(const ObjectID& a, const ObjectID& b)
-    {
-        return a.val() == b.val();
-    }
-
-    friend bool operator<(const ObjectID& a, const ObjectID& b)
-    {
-        return a.val() < b.val();
-    }
-
-    friend bool operator>(const ObjectID& a, const ObjectID& b)
-    {
-        return a.val() > b.val();
-    }
+    auto operator<=>(const ObjectID& rhs) const = default;
 };
 
 
 export class ObjectWithID: public d1::Shared
 {
-    ObjectID itsID{ 0 };
+    ObjectID iD_{ 0 };
 
 public:
     ObjectWithID() {};
 
-    ObjectID GetID() const { return itsID; }
-    void SetID(ObjectID id) { itsID = id; }
+    ObjectID getID() const { return iD_; }
+    void setID(ObjectID id) { iD_ = id; }
 
     ObjectWithID(const ObjectWithID&):
-        itsID{ 0 }
+        iD_{ 0 }
     {
     }
 
@@ -320,7 +307,7 @@ export class Weight
 //
 {
     class Impl;
-    std::shared_ptr<Impl> itsImpl;
+    std::shared_ptr<Impl> impl_;
     Weight(const std::shared_ptr<Impl>&);
 
 public:
@@ -330,41 +317,34 @@ public:
     Weight(const Weight&) = default;
     Weight& operator=(const Weight&) = default;
 
-    static auto Invisible() -> Weight;
-    static auto Text() -> Weight;
+    static auto invisible() -> Weight;
+    static auto text() -> Weight;
 
-    static auto Control(const d1::Point& weightAt, d1::int32 fuzziness,
+    static auto control(const d1::Point& weightAt, d1::int32 fuzziness,
         const d1::fPoint& point) -> Weight;
 
-    static auto Point(const d1::Point& weightAt, d1::int32 fuzziness,
+    static auto point(const d1::Point& weightAt, d1::int32 fuzziness,
         const d1::fPoint& point) -> Weight;
 
-    static auto Line(const d1::Point& weightAt, d1::int32 fuzziness,
+    static auto line(const d1::Point& weightAt, d1::int32 fuzziness,
         const d1::fPoint& a, const d1::fPoint& b) -> Weight;
 
-    static auto Area(const d1::Point& weightAt, d1::int32 fuzziness,
+    static auto area(const d1::Point& weightAt, d1::int32 fuzziness,
         const d1::nRect& r) -> Weight;
 
-    void IncreaseSelectionBias(const IView* v, const IElement& m);
+    void increaseSelectionBias(const IView* v, const IElement& m);
     // v may be zero (means there is no view).
 
     void operator+=(const Weight& rhs);
 
     bool operator==(const Weight& rhs) const;
-    bool operator<(const Weight& rhs) const;
+    std::strong_ordering operator<=>(const Weight& rhs) const;
 
-    bool operator>(const Weight& rhs) const
-    {
-        if (this->operator==(rhs))
-            return false;
-        return !this->operator<(rhs);
-    }
-
-    void Print(std::ostream& s) const;
+    void print(std::ostream& s) const;
 
     friend auto operator<<(std::ostream& s, const Weight& w) -> std::ostream&
     {
-        w.Print(s);
+        w.print(s);
         return s;
     }
 };
@@ -376,17 +356,17 @@ export class CopyRegistry
 //
 {
 public:
-    static auto MakeNew() -> std::unique_ptr<CopyRegistry>;
+    static auto makeNew() -> std::unique_ptr<CopyRegistry>;
 
     virtual ~CopyRegistry() = default;
 
-    virtual void Register(const IElement* original, IElement* copy) = 0;
+    virtual void addMapping(const IElement* original, IElement* copy) = 0;
     // Stores the mapping from original to copy (ref only pointers).
-    // PRE: (1) original != 0 && copy != 0
+    // PRE: (1) original != 0 and copy != 0
     //      (2) original and copy have not been registered yet (neither as a copy
     //          nor as an original object)
 
-    virtual IElement* FindCopy(const IElement* original) const = 0;
+    virtual IElement* findCopy(const IElement* original) const = 0;
     // Searches original in the Registry and returns the pointer to its copy if
     // found, zero if not found.
 };
@@ -397,22 +377,22 @@ export class Undoer // note: use UndoerRef wherever possible (see below)
 public:
     virtual ~Undoer() = default;
 
-    virtual bool IsNull() const { return false; }
+    virtual bool isNull() const { return false; }
     // returns true, if this Undoer is a NullUndoer.
     // A NullUndoer does not do anything, if it's Undo or Redo member functions
-    // are called. To create a NullUndoer, use UndoerRef::MakeNullUndoer().
+    // are called. To create a NullUndoer, use UndoerRef::makeNullUndoer().
 
     class Param;
 
-    void Undo(Param&);
-    void Redo(Param&);
+    void undo(Param&);
+    void redo(Param&);
 
 private:
-    virtual void UndoImp(Param&) = 0;
-    virtual void RedoImp(Param&) = 0;
+    virtual void undoImp(Param&) = 0;
+    virtual void redoImp(Param&) = 0;
 
 public:
-    virtual bool Merge(Undoer& u) = 0;
+    virtual bool merge(Undoer& u) = 0;
     // If possible, Merge retrieves all undo information from u, merges it
     // into this Undoer and returns true.
     // If merging is impossible, Merge makes nothing and returns false.
@@ -425,14 +405,14 @@ public:
     // You have to Undoers a (older) and b (younger).
     // The following two sequences are identical if Merge returns true:
     //
-    //          a.Undo(...)          a.Merge(b)
-    //          b.Undo(...)          a.Undo(...)
-    //          b.Redo(...)          a.Redo(...)
-    //          a.Redo(...)
+    //          a.undo(...)          a.merge(b)
+    //          b.undo(...)          a.undo(...)
+    //          b.redo(...)          a.redo(...)
+    //          a.redo(...)
 
-    virtual PosUndoer* GetPosUndoer() { return 0; }
+    virtual PosUndoer* getPosUndoer() { return 0; }
 
-    virtual void Remove(IElement&) = 0;
+    virtual void remove(IElement&) = 0;
 
 protected:
     Undoer()
@@ -448,12 +428,12 @@ class Undoer::Param
 {
     using MESet = std::set<IElementRef>;
 
-    MESet itsAddToDiagram;
-    MESet itsRemoveFromDiagram;
-    MESet itsUpdateViews;
+    MESet addToDiagram_;
+    MESet removeFromDiagram_;
+    MESet updateViews_;
 
-    IDiagram& itsDiagram;
-    Selection::Tracker& itsSelectionTracker; // to be removed
+    IDiagram& diagram_;
+    Selection::Tracker& selectionTracker_; // to be removed
 
 public:
     Param(IDiagram& d, Selection::Tracker& sc);
@@ -463,30 +443,30 @@ public:
 
     ~Param(); // calls Finish
 
-    void Finish(); // may be called several times
+    void finish(); // may be called several times
 
-    void AddToDiagram(const IElementRef&);
-    void RemoveFromDiagram(const IElementRef&);
-    void UpdateViews(const IElementRef&);
+    void addToDiagram(const IElementRef&);
+    void removeFromDiagram(const IElementRef&);
+    void updateViews(const IElementRef&);
 
-    auto Diagram() -> IDiagram& { return itsDiagram; }
+    auto diagram() -> IDiagram& { return diagram_; }
 };
 
 
 export class PosUndoer: public Undoer
 {
-    std::shared_ptr<IPosOwner> itsObject;
-    const d1::Vector itsOffset;
+    std::shared_ptr<IPosOwner> object_;
+    const d1::Vector offset_;
 
 public:
     //-- Undoer
 
-    void UndoImp(Param&) override;
-    void RedoImp(Param&) override;
-    bool Merge(Undoer& u) override;
-    PosUndoer* GetPosUndoer() override { return this; }
-    void Remove(IElement&) override;
-    bool IsNull() const override;
+    void undoImp(Param&) override;
+    void redoImp(Param&) override;
+    bool merge(Undoer& u) override;
+    PosUndoer* getPosUndoer() override { return this; }
+    void remove(IElement&) override;
+    bool isNull() const override;
 
     //--
 
@@ -495,69 +475,69 @@ public:
     PosUndoer(const PosUndoer&) = delete;
     PosUndoer& operator=(const PosUndoer&) = delete;
 
-    IPosOwner& Object() const { return *itsObject; }
-    const d1::Vector& Offset() const { return itsOffset; }
+    IPosOwner& object() const { return *object_; }
+    const d1::Vector& offset() const { return offset_; }
 };
 
 
 export class UndoerRef
 {
-    std::shared_ptr<Undoer> itsUndoer;
+    std::shared_ptr<Undoer> undoer_;
 
 public:
     UndoerRef()
     {
-        UndoerRef null = MakeNullUndoer();
-        itsUndoer = null.itsUndoer;
+        UndoerRef null = makeNullUndoer();
+        undoer_ = null.undoer_;
     }
 
     UndoerRef(const std::shared_ptr<Undoer>& rhs):
-        itsUndoer{ rhs }
+        undoer_{ rhs }
     {
     }
 
     UndoerRef(const UndoerRef& rhs) = default;
     UndoerRef& operator=(const UndoerRef& rhs) = default;
 
-    bool IsNull() const
+    bool isNull() const
     {
-        return itsUndoer->IsNull();
+        return undoer_->isNull();
     }
 
-    static auto MakeNullUndoer() -> UndoerRef;
+    static auto makeNullUndoer() -> UndoerRef;
 
-    void Undo(Undoer::Param& p) const
+    void undo(Undoer::Param& p) const
     {
-        itsUndoer->Undo(p);
+        undoer_->undo(p);
     }
 
-    void Redo(Undoer::Param& p) const
+    void redo(Undoer::Param& p) const
     {
-        itsUndoer->Redo(p);
+        undoer_->redo(p);
     }
 
-    auto get() const -> Undoer* { return itsUndoer.get(); }
+    auto get() const -> Undoer* { return undoer_.get(); }
 
-    bool Merge(UndoerRef u)
+    bool merge(UndoerRef u)
     {
-        return itsUndoer->Merge(*(u.itsUndoer.get()));
+        return undoer_->merge(*(u.undoer_.get()));
     }
     // If possible, Merge retrieves all undo information from the Undoer referenced
     // by u, merges it into the Undoer referenced by this UndoerRef and returns
     // true.
     // If a merge is impossible, Merge has no effect and returns false.
 
-    void Remove(IElement& me)
+    void remove(IElement& me)
     {
-        itsUndoer->Remove(me);
+        undoer_->remove(me);
     }
 };
 
 
-export auto Combine(UndoerRef first, UndoerRef second) -> UndoerRef;
+export auto combine(UndoerRef first, UndoerRef second) -> UndoerRef;
 //
 // Creates an single Undoer from a ordered pair of Undoers.
-// In contrast to Under::Merge(), Combine() is always successful.
+// In contrast to Under::merge(), combine() is always successful.
 // first and second can be any Undoer, including NullUndoers.
 //
 // PRE: first and second must have been created from
@@ -567,7 +547,7 @@ export auto Combine(UndoerRef first, UndoerRef second) -> UndoerRef;
 export class IUndoerCollector
 {
 public:
-    virtual void Add(UndoerRef) = 0;
+    virtual void add(UndoerRef) = 0;
 
 protected:
     ~IUndoerCollector() = default;
@@ -577,20 +557,20 @@ protected:
 export class IGrid
 {
 public:
-    virtual d1::Point ToGrid(const d1::Point& p) const = 0;
+    virtual d1::Point toGrid(const d1::Point& p) const = 0;
     // find nearest position on grid to.
 
     // enlarge to grid functions
 
-    virtual d1::int32 Enlarge(d1::int32 d) const = 0;
+    virtual d1::int32 enlarge(d1::int32 d) const = 0;
 
-    virtual d1::Vector Enlarge(const d1::Vector& v) const = 0;
+    virtual d1::Vector enlarge(const d1::Vector& v) const = 0;
     // if the coordinates of v are not in even grid spaces, enlarge them
     // to next multiple.
 
-    virtual d1::Size Enlarge(const d1::Size& p) const = 0;
+    virtual d1::Size enlarge(const d1::Size& p) const = 0;
 
-    virtual d1::nRect Enlarge(const d1::nRect&) const = 0;
+    virtual d1::nRect enlarge(const d1::nRect&) const = 0;
 
 protected:
     ~IGrid() = default;
@@ -603,13 +583,13 @@ export struct Env
     Selection::Tracker& sel_tracker;
     const IGrid& grid;
 
-    auto Diagram() const -> IDiagram&;
-    auto WorkingView() const -> IView*;
+    auto diagram() const -> IDiagram&;
+    auto workingView() const -> IView*;
 
-    void AddNewlyCreated(IElementRef me);
-    void AddTouched(IElement& me, bool update_view);
+    void addNewlyCreated(IElementRef me);
+    void addTouched(IElement& me, bool update_view);
 
-    auto Close() -> UndoerRef;
+    auto close() -> UndoerRef;
 };
 
 
@@ -643,51 +623,51 @@ export class IElement: public ObjectWithID
 {
     friend class Transaction;
 
-    class Rep;
-    std::unique_ptr<Rep> itsRep;
+    struct Rep;
+    std::unique_ptr<Rep> rep_;
 
 public:
     class PrivateAccess;
 
     virtual ~IElement();
 
-    virtual auto Copy() const -> IElementRef = 0;
+    virtual auto copy() const -> IElementRef = 0;
     // Creates a shallow copy of this element.
 
-    virtual void DeepInsert(ElementSet& s);
-    // The model element must insert itself and all its strictly owned dependent
+    virtual void deepInsert(ElementSet& s);
+    // The model element must insert elf_ and all its strictly owned dependent
     // model elements into s.
 
-    virtual void AdjustRefsAfterCopy(const CopyRegistry& r) = 0;
-    // To be called after Copy(). Adjusts all references to other elements
+    virtual void adjustRefsAfterCopy(const CopyRegistry& r) = 0;
+    // To be called after copy(). Adjusts all references to other elements
     // (of this element) to point to the copies. r contains the mapping
     // from the originals to the copies.
     // AdjustRefsAfterCopy shall be called only once for an element which
     // has been newly created from a Copy call.
-    // A set of elements is copied in two phases: first, Copy() is called
+    // A set of elements is copied in two phases: first, copy() is called
     // on all elements and second, AdjustRefsAfterCopy is called for
     // each newly created object.
     // If a reference is not contained in the CopyRegistry r. Then the
     // object should set this reference to 0.
 
-    virtual bool AcceptForPaste(const IDiagram&) const { return true; }
+    virtual bool acceptForPaste(const IDiagram&) const { return true; }
     // This model element is intended to be pasted into the given diagram. The model
     // element can refuse to be pasted to the diagram by returning false.
 
-    virtual void WasPasted(Env&, ElementSet& pastedElements) {}
+    virtual void wasPasted(Env&, ElementSet& pastedElements) {}
 
-    void ViewsNeedUpdate(const IDiagram&) const;
+    void viewsNeedUpdate(const IDiagram&) const;
     // Calls NeedsUpdate of all its view elements and calls
-    // ExtendViewsNeedUpdate of itself.
+    // ExtendViewsNeedUpdate of elf_.
 
     void Delete(IViewElement&);
     // Delete and forget the IViewElement.
 
-    void DeleteViewElements(Selection::Tracker&, IView* v);
+    void deleteViewElements(Selection::Tracker&, IView* v);
     // If v is not zero, deletes the view element in v.
     // If v is zero, deletes all view elements of this model element.
 
-    auto MakeViewElement(IView& v) -> IViewElement*;
+    auto makeViewElement(IView& v) -> IViewElement*;
     // creates a new view Element corresponding to the concrete type of this
     // model element. The returned pointer is a reference only.
     // This element is the exclusive owner of the newly created view element and
@@ -697,35 +677,35 @@ public:
     // already existing view element of this model element in v
     // instead.
 
-    virtual auto MakeViewElementImp(IView& v) -> std::unique_ptr<IViewElement>;
+    virtual auto makeViewElementImp(IView& v) -> std::unique_ptr<IViewElement>;
     // Called by MakeViewElement. To be overridden by derived classes.
     // This member function does have a default implementation, which
     // returns nullptr.
 
-    void SetSelectionState(Selection::Tracker&, bool new_state, IView& v);
+    void setSelectionState(Selection::Tracker&, bool new_state, IView& v);
     // Set the selection state of its view element in v
 
-    bool IsSelected(const IView* v) const;
+    bool isSelected(const IView* v) const;
     // return, whether this element is selected in view v. Returns false
     // if v is zero.
 
-    bool IsCompletelySelected(const ElementSet& selection) const;
+    bool isCompletelySelected(const ElementSet& selection) const;
     // For elements like classes: returns true, if class is selected.
     // For segments: returns true if all ends are either at selected
     // elements or unbound.
     // Parameter selection contains all selected elements. Deliberately no
     // view is specified.
 
-    auto ViewElement(const IView* v) const -> IViewElement*;
+    auto viewElement(const IView* v) const -> IViewElement*;
     // Looks through all its view elements and returns the one that is in v.
     // Returns zero if v is zero.
 
-    virtual auto IsCopySelected(ExtendSelection::Param&) const -> ExtendSelection::Result;
+    virtual auto isCopySelected(ExtendSelection::Param&) const -> ExtendSelection::Result;
 
-    void SetClub(IClub*);
-    auto Club() const -> IClub*;
+    void setClub(IClub*);
+    auto club() const -> IClub*;
 
-    virtual bool CheckHit(
+    virtual bool checkHit(
         const d1::Point& pos, d1::int32 distance,
         bool attaching = false) const
     // returns true, if pos is graphically within distance of the shape of
@@ -734,14 +714,14 @@ public:
         return false;
     }
 
-    virtual auto GetBoundingBox() const -> std::optional<d1::nRect>
+    virtual auto getBoundingBox() const -> std::optional<d1::nRect>
     // Visible Elements must return their bounding box.
     // Invisible Elements return std::nullopt
     {
         return std::nullopt;
     }
 
-    virtual auto GetWeight(const IView* v, const d1::Point& pos,
+    virtual auto getWeight(const IView* v, const d1::Point& pos,
         d1::int32 distance) const -> Weight
     // Returns the weight of this element in view v. v may be legally zero
     // (means there is no view).
@@ -752,21 +732,21 @@ public:
     // them. Normally, the element with the largest Weight value will be chosen.
     //
     // This member function is used by the implementation of
-    // IView::FindPointable().
+    // IView::findPointable().
     //
     // *** WARNING: Failing to correctly implement this function results in
     //              wrong selection behavior (mostly the element of interest
     //              may not be selected by pointing with the mouse cursor).
     {
-        return Core::Weight::Invisible();
+        return Core::Weight::invisible();
     }
 
 
     //-- storing stuff
 
-    virtual bool StoreEnabled() const { return true; }
+    virtual bool storeEnabled() const { return true; }
 
-    virtual auto GetNamedObjectName() const -> const wchar_t* { return 0; }
+    virtual auto getNamedObjectName() const -> const wchar_t* { return 0; }
     // Return non-zero if this object is a named object. Named objects are
     // stored under their name.
 
@@ -784,8 +764,8 @@ protected:
     IElement(const IElement&);
     // Has the same effect as the default CTOR.
 
-    virtual bool IsCompletelySelectedImp(const ElementSet& selection) const;
-    // Is called by this->IsCompletelySelected().
+    virtual bool isCompletelySelectedImp(const ElementSet& selection) const;
+    // Is called by this->isCompletelySelected().
     //
     // For elements like classes: returns true, if class is selected.
     // For segments: returns true if all ends are either at selected
@@ -799,11 +779,11 @@ public:
     IElement& operator=(const IElement&) = delete;
 
 private:
-    virtual void ExtendViewsNeedUpdate(const IDiagram&) const;
-    // Is called by this->ViewsNeedUpdate().
+    virtual void extendViewsNeedUpdate(const IDiagram&) const;
+    // Is called by this->viewsNeedUpdate().
     //
     // Derived classes must implement this function to express update dependencies
-    // on other model elements. They must call ViewsNeedUpdate() on all dependent
+    // on other model elements. They must call viewsNeedUpdate() on all dependent
     // model elements.
     //
     // If a concrete element does not have update dependencies on other elements
@@ -812,75 +792,75 @@ private:
     // *** WARNING: Failing to correctly implement this function results in view
     //              update errors.
     //
-    // Example: AssocEnds call ViewsNeedUpdate() of their AssocSegment because if
+    // Example: AssocEnds call viewsNeedUpdate() of their AssocSegment because if
     // the Position of an AssocEnd has changed, its Segment must be redrawn. The
-    // Segment would not redraw itself, because changing the position of the
+    // Segment would not redraw elf_, because changing the position of the
     // AssocEnd does not touch any data stored in the Segment (Segments only store
     // a references to their segment ends) and therefore the Segment would not be
     // included in the automatic update mechanism.
 
 public:
-    auto GetTransaction() const -> Transaction*;
+    auto getTransaction() const -> Transaction*;
 
-    bool IsInTransaction() const;
-    bool IsNewlyCreated() const;
-    bool IsTouched() const;
+    bool isInTransaction() const;
+    bool isNewlyCreated() const;
+    bool isTouched() const;
 
-    void PutIntoTrash(Env& e);
-    bool IsInTrash() const;
+    void putIntoTrash(Env& e);
+    bool isInTrash() const;
 
-    void SetInTrashFlag(bool f);
+    void setInTrashFlag(bool f);
     // to be called by Transaction
 
-    virtual void Finalize(Env& e);
+    virtual void finalize(Env& e);
     // A transaction calls Finalize on all touched or newly created model
     // Elements when the transaction is finalized. ModelElements may then execute
     // additional commands. IElement has a dummy implementation of Finalize,
     // which does nothing. Derived classes may override this behaviour.
 
-    virtual void Lock() = 0;
+    virtual void lock() = 0;
     // Attempts to modify locked clients will be caught at runtime. To be called
     // by Transaction. Is called by the transaction for newly created clients when
     // the transaction closes (instead of TransactionClosed call).
 
-    virtual void Unlock() = 0;
+    virtual void unlock() = 0;
     // Warning: use this function carefully. Protection is lost if clients are
     // unlocked everywhere. Normally, only clients which are part of a transaction
     // should be in unlocked state.
 
-    virtual bool IsLocked() const = 0;
+    virtual bool isLocked() const = 0;
 
 
-    virtual void SetInitialState() = 0;
+    virtual void setInitialState() = 0;
     // During a transaction, you may optionally call SetInitialState for a newly
     // created IElement. This function marks the actual state of the
     // IElement as the initial state that may be used for any future changes
     // during the running transaction.
     // Precondition:
-    // IsNewlyCreated() == true && IsInTransaction() == true
+    // isNewlyCreated() == true and isInTransaction() == true
     //
     // (The BackRep is deleted and recreated. This is important for any functions
     // that use values of the BackRep like Shift etc.)
 
 private:
-    virtual void TransactionClosed(IUndoerCollector&) = 0;
+    virtual void transactionClosed(IUndoerCollector&) = 0;
     // to be called by Transaction
 
-    virtual void TransactionAborted() = 0;
+    virtual void transactionAborted() = 0;
     // to be called by Transaction
 
-    void SetTransaction(Transaction* t);
+    void set(Transaction* t);
     // to be called by Transaction
 
-    void SetNewlyCreated(bool nc);
-    void SetTouched(bool t);
+    void setNewlyCreated(bool nc);
+    void setTouched(bool t);
 
-    void DisconnectTransaction();
+    void disconnectTransaction();
     // Resets all Transaction related flags and attributes and locks
     // this client.
 
 protected:
-    virtual void TransactionDone() {}
+    virtual void transactionDone() {}
     // Derived classes may override this function to get a notification when a
     // transaction is done (closed or aborted).
 };
@@ -889,53 +869,53 @@ protected:
 class IElement::PrivateAccess
 {
 public:
-    static void TransactionAborted(IElement& me) { me.TransactionAborted(); }
-    static void SetTransaction(IElement& me, Transaction* t) { me.SetTransaction(t); }
-    static void SetNewlyCreated(IElement& me, bool nc) { me.SetNewlyCreated(nc); }
-    static void SetTouched(IElement& me, bool t) { me.SetTouched(t); }
-    static void DisconnectTransaction(IElement& me) { me.DisconnectTransaction(); }
-    static void TransactionDone(IElement& me) { me.TransactionDone(); }
+    static void transactionAborted(IElement& me) { me.transactionAborted(); }
+    static void setTransaction(IElement& me, Transaction* t) { me.set(t); }
+    static void setNewlyCreated(IElement& me, bool nc) { me.setNewlyCreated(nc); }
+    static void setTouched(IElement& me, bool t) { me.setTouched(t); }
+    static void disconnectTransaction(IElement& me) { me.disconnectTransaction(); }
+    static void transactionDone(IElement& me) { me.transactionDone(); }
 };
 
 
 export class IPosOwner: public virtual IElement
 {
 public:
-    virtual void Move(const d1::Vector& offset) = 0;
+    virtual void move(const d1::Vector& offset) = 0;
 };
 
 
-export inline bool IdentCheck(const ObjectWithID* a, const ObjectWithID* b)
+export inline bool identCheck(const ObjectWithID* a, const ObjectWithID* b)
 {
     return a == b;
 }
 
 
-export inline bool SmallerID(const ObjectWithID* obj1, const ObjectWithID* obj2)
+export inline bool smallerID(const ObjectWithID* obj1, const ObjectWithID* obj2)
 {
-    return obj1->GetID() < obj2->GetID();
+    return obj1->getID() < obj2->getID();
 }
 
 
 export template <class R, class Pred>
-void PrintSortedIDs(std::ostream& os, const R& range, Pred pred)
+void printSortedIDs(std::ostream& os, const R& range, Pred pred)
 {
-    auto v = std::vector(begin(range), end(range));
+    auto v = std::vector(cbegin(range), cend(range));
 
     std::ranges::sort(v, pred);
 
     for (auto* obj : v)
     {
-        os << obj->GetID().val();
+        os << obj->getID().val();
         os << ",";
     }
 }
 
 
 export template <class R>
-void PrintSortedIDs(std::ostream& os, const R& range)
+void printSortedIDs(std::ostream& os, const R& range)
 {
-    PrintSortedIDs(os, range, SmallerID);
+    printSortedIDs(os, range, smallerID);
 }
 
 
@@ -950,14 +930,14 @@ public:
 
 
 export template <class T>
-void AdjustRef(PtrCont<T>& c, const CopyRegistry& r)
+void adjustRef(PtrCont<T>& c, const CopyRegistry& r)
 {
     auto new_set = PtrCont<T>{};
     new_set.reserve(c.size());
 
     for (auto* ele : c)
     {
-        if (auto* me = r.FindCopy(ele))
+        if (auto* me = r.findCopy(ele))
         {
             auto new_ele = dynamic_cast<T*>(me);
             D1_ASSERT(new_ele);
@@ -965,15 +945,15 @@ void AdjustRef(PtrCont<T>& c, const CopyRegistry& r)
         }
     }
 
-    c.assign(begin(new_set), end(new_set));
+    c.assign_range(new_set);
 }
 
 
 
 export template <class T>
-void AdjustRef(T*& ptr, const CopyRegistry& r)
+void adjustRef(T*& ptr, const CopyRegistry& r)
 {
-    if (auto* me = r.FindCopy(ptr))
+    if (auto* me = r.findCopy(ptr))
     {
         auto* new_ptr = dynamic_cast<T*>(me);
         D1_ASSERT(new_ptr);
@@ -989,32 +969,32 @@ void AdjustRef(T*& ptr, const CopyRegistry& r)
 export template <class T>
 class Contains
 {
-    const ElementSet& itsSet;
-    bool itsFound = false;
+    const ElementSet& set_;
+    bool found_ = false;
 
 public:
     explicit Contains(const ElementSet& s):
-        itsSet{ s }
+        set_{ s }
     {
     }
 
     auto get()
     {
         return [&](T* t) {
-            if (itsFound)
+            if (found_)
                 return;
-            itsFound = itsSet.Contains(*t);
+            found_ = set_.contains(*t);
         };
     }
 
-    bool Found() const { return itsFound; }
+    bool found() const { return found_; }
 };
 
 
 export class IObjectRegistry
 {
 public:
-    virtual auto Lookup(ObjectID) const -> IElement* = 0;
+    virtual auto getElement(ObjectID) const -> IElement* = 0;
     // Search for the Object with the given ID.
     // returns 0 if not found.
 
@@ -1027,16 +1007,16 @@ export class ObjectRegistry: public IObjectRegistry
 {
     using Map = std::map<ObjectID, IElement*>;
 
-    Map itsObjects; // no ownership
+    Map map_; // no ownership
 
 public:
     //-- IObjectRegistry
 
-    auto Lookup(ObjectID) const -> IElement* override;
+    auto getElement(ObjectID) const -> IElement* override;
 
     //--
 
-    void Register(IElement& obj, ObjectID id);
+    void insert(IElement& obj, ObjectID id);
 
     ObjectRegistry() {}
 
@@ -1065,18 +1045,18 @@ public:
     {
     }
 
-    bool IsNull() const { return !shiftX && !shiftY; }
+    bool isNull() const { return not shiftX and not shiftY; }
     // Note: distance == (0,0) means not that a ShiftVector is null!
 
-    d1::fPoint GetNewPos(
+    d1::fPoint getNewPos(
         const d1::fPoint& actpos, const d1::fPoint& oldpos) const;
 
-    d1::Point GetNewPos(
+    d1::Point getNewPos(
         const d1::Point& actpos, const d1::Point& oldpos) const;
 };
 
 
-inline d1::fPoint ShiftVector::GetNewPos(
+inline d1::fPoint ShiftVector::getNewPos(
     const d1::fPoint& actpos, const d1::fPoint& oldpos) const
 {
     return {
@@ -1086,7 +1066,7 @@ inline d1::fPoint ShiftVector::GetNewPos(
 }
 
 
-inline d1::Point ShiftVector::GetNewPos(
+inline d1::Point ShiftVector::getNewPos(
     const d1::Point& actpos, const d1::Point& oldpos) const
 {
     return {
@@ -1103,12 +1083,12 @@ export class ShiftSet
         IShiftable* /*sender*/, IShiftable* /*dependent*/>>;
 
 
-    ShiftVector itsActualShiftVector;
-    d1::fPoint itsActualMousePos;
-    IShiftable* itsMasterMover = nullptr; // may be zero
-    IShiftable* itsActualSender = nullptr;
-    Shiftables itsInstantShiftables, itsDeferredShiftables;
-    Dependents itsDependents;
+    ShiftVector actualShiftVector_;
+    d1::fPoint actualMousePos_;
+    IShiftable* masterMover_ = nullptr; // may be zero
+    IShiftable* actualSender_ = nullptr;
+    Shiftables instantShiftables_, deferredShiftables_;
+    Dependents dependents_;
 
 public:
     ShiftSet();
@@ -1119,48 +1099,48 @@ public:
     ShiftSet& operator=(const ShiftSet&) = delete;
 
 
-    void DeferredShift(Env&, const ShiftVector&, const d1::fPoint& mouse_pos);
-    void FinalShift(Env&);
+    void deferredShift(Env&, const ShiftVector&, const d1::fPoint& mouse_pos);
+    void finalShift(Env&);
 
-    auto GetDeferredShift() const -> const ShiftVector&;
-
-
-    void AddNormal(IShiftable&);
-
-    auto GetMasterMover() const -> IShiftable* { return itsMasterMover; }
+    auto getDeferredShift() const -> const ShiftVector&;
 
 
-    void AddNormalSet(const auto& container)
+    void addNormal(IShiftable&);
+
+    auto getMasterMover() const -> IShiftable* { return masterMover_; }
+
+
+    void addNormalSet(const auto& container)
     {
         for (auto* s : container)
-            AddNormal(*s);
+            addNormal(*s);
     }
 
-    void AddDependent(IShiftable&);
+    void addDependent(IShiftable&);
 
-    void AddDependentSet(const auto& container)
+    void addDependentSet(const auto& container)
     {
         for (auto* s : container)
-            AddDependent(*s);
+            addDependent(*s);
     }
 
     template <class Iter>
-    void AddDependentSet(Iter a, Iter b)
+    void addDependentSet(Iter a, Iter b)
     {
         for (; a != b; ++a)
-            AddDependent(**a);
+            addDependent(**a);
     }
 
-    bool IsDeferredShifting(const IShiftable&) const;
+    bool isDeferredShifting(const IShiftable&) const;
 
-    auto begin() const { return itsDeferredShiftables.begin(); }
-    auto end() const { return itsDeferredShiftables.end(); }
+    auto begin() const { return deferredShiftables_.begin(); }
+    auto end() const { return deferredShiftables_.end(); }
 
-    void Print(std::ostream&) const; // for debugging
+    void print(std::ostream&) const; // for debugging
 
     friend std::ostream& operator<<(std::ostream& s, const ShiftSet& d)
     {
-        d.Print(s);
+        d.print(s);
         return s;
     }
 };
@@ -1174,25 +1154,25 @@ public:
 
     IShiftable& operator=(const IShiftable&) = delete;
 
-    void Shift(Env&,
+    void shift(Env&,
         IElement* sender,
         const ShiftVector&,
         const ShiftSet&,
         bool shallow);
 
-    virtual void ShiftImpl(Env&,
+    virtual void shiftImpl(Env&,
         IElement* sender,
         const ShiftVector&,
         const ShiftSet&,
         bool shallow) = 0;
 
-    virtual void AddNormal(ShiftSet&, const ElementSet& selection) = 0;
-    virtual void AddDependents(ShiftSet&) = 0;
+    virtual void addNormal(ShiftSet&, const ElementSet& selection) = 0;
+    virtual void addDependents(ShiftSet&) = 0;
 
-    virtual void DetachFromSource(Env&,
+    virtual void detachFromSource(Env&,
         const ShiftSet&, const ElementSet& selection);
 
-    virtual void ExtendSelection(
+    virtual void extendSelection(
         const ElementSet& selection,
         ElementSet& extendedSelectionSet);
 };
@@ -1210,7 +1190,7 @@ public:
 
     void operator()(IShiftable* t)
     {
-        dss.AddDependent(*t);
+        dss.addDependent(*t);
     }
 };
 
@@ -1218,12 +1198,12 @@ public:
 export namespace CopyExtendSelection
 {
 
-auto Build(const ElementSet& selection, IDiagram&) -> ElementSet;
+auto build(const ElementSet& selection, IDiagram&) -> ElementSet;
 
 }
 
 
-export auto MakeStandardSelectionRestorer(
+export auto makeStandardSelectionRestorer(
     const ElementSet& selection) -> Selection::IRestorerRef;
 
 }

@@ -27,15 +27,15 @@ class C::Impl
 public:
     Impl();
 
-    HWND GetWindowHandle() const { return itsWindow.GetWindowHandle(); }
+    HWND getWindowHandle() const { return window_.getWindowHandle(); }
 
-    auto GetDispatcher() -> IDispatcher&
+    auto getDispatcher() -> IDispatcher&
     {
-        return itsWindow.GetDispatcher();
+        return window_.getDispatcher();
     }
 
 private:
-    Window itsWindow;
+    Window window_;
 };
 
 
@@ -45,12 +45,12 @@ C::Impl::Impl()
 
     static auto wc = WinUtil::WindowClass{
         TEXT("Cadifra Listener"),    // lpszClassName
-        &WinUtil::WindowStartupProc, // lpfnWndProc
+        &WinUtil::windowStartupProc, // lpfnWndProc
         i                            // hInstance
     };
 
     ::CreateWindow(
-        wc.GetAtom(), // lpClassName
+        wc.getAtom(), // lpClassName
         0,            // lpWindowName
         WS_DISABLED,  // dwStyle
         0, 0,         // x, y
@@ -58,24 +58,24 @@ C::Impl::Impl()
         0,            // hWndParent
         0,            // hMenu
         i,            // hInstance
-        &itsWindow    // lpParam
+        &window_    // lpParam
     );
 }
 
 
-auto C::GetDispatcher() const -> IDispatcher&
+auto C::getDispatcher() const -> IDispatcher&
 {
-    return Instance().GetDispatcher();
+    return instance().getDispatcher();
 }
 
 
-HWND C::GetWindowHandle() const
+HWND C::getWindowHandle() const
 {
-    return Instance().GetWindowHandle();
+    return instance().getWindowHandle();
 }
 
 
-auto C::Instance() -> Impl&
+auto C::instance() -> Impl&
 {
     static Impl singleton;
     return singleton;

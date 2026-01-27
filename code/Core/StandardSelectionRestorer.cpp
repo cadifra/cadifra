@@ -12,52 +12,53 @@ import std;
 namespace Core
 {
 
-auto MakeStandardSelectionRestorer(const ElementSet& selection)
+auto makeStandardSelectionRestorer(const ElementSet& selection)
     -> Selection::IRestorerRef
 {
     class SSR: public Selection::IRestorer
     {
         using Cont = std::vector<IElementRef>;
 
-        Cont itsSelection;
+        Cont selection_;
 
     public:
         SSR(const ElementSet& s, d1::int32 size)
         {
-            itsSelection.reserve(size);
+            selection_.reserve(size);
 
-            for (auto& m : s)
-                if (m.use_count() != 1)
-                    itsSelection.push_back(m);
+            auto f = [](auto& m) { return m.use_count() != 1; };
+
+            for (auto& m : s | std::views::filter(f))
+                selection_.push_back(m);
         }
 
         //-- Selection::IRestorer
 
-        void Restore(Selection::Tracker& sc, IView& v) final
+        void restore(Selection::Tracker& sc, IView& v) final
         {
-            const auto t = ElementSet{ begin(itsSelection), end(itsSelection) };
-            v.SetSelection(sc, t);
+            const auto t = ElementSet{ cbegin(selection_), cend(selection_) };
+            v.setSelection(sc, t);
         }
     };
 
 
     class OneSR: public Selection::IRestorer
     {
-        IElementRef itsSelectedElement;
+        IElementRef selectedElement_;
 
     public:
         OneSR(const IElementRef& me):
-            itsSelectedElement{ me }
+            selectedElement_{ me }
         {
         }
 
         //-- Selection::IRestorer
 
-        void Restore(Selection::Tracker& sc, IView& v) final
+        void restore(Selection::Tracker& sc, IView& v) final
         {
             auto t = ElementSet{};
-            t.Insert(*itsSelectedElement.get());
-            v.SetSelection(sc, t);
+            t.insert(*selectedElement_.get());
+            v.setSelection(sc, t);
         }
     };
 

@@ -16,27 +16,27 @@ namespace WinUtil
 
 export class OleString
 {
-    LPOLESTR itsOleStr;
+    LPOLESTR OleStr_;
 
 public:
     OleString(LPOLESTR s = 0):
-        itsOleStr{ s }
+        OleStr_{ s }
     {
     }
 
     ~OleString()
     {
-        ::CoTaskMemFree(itsOleStr);
+        ::CoTaskMemFree(OleStr_);
     }
 
-    operator LPOLESTR() const { return itsOleStr; }
+    operator LPOLESTR() const { return OleStr_; }
 
-    LPOLESTR get() const { return itsOleStr; }
+    LPOLESTR get() const { return OleStr_; }
 
     LPOLESTR* operator&()
     {
-        D1_ASSERT(itsOleStr == 0);
-        return &itsOleStr;
+        D1_ASSERT(OleStr_ == 0);
+        return &OleStr_;
     }
 
     OleString(const OleString&) = delete;

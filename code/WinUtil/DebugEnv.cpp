@@ -21,11 +21,11 @@ constexpr int InitialBufSize = 128;
 
 class Impl: public DebugEnv
 {
-    virtual std::string GetString(
+    virtual std::string getString(
         const std::string& section,
         const std::string& key);
 
-    virtual int GetInt(
+    virtual int getInt(
         const std::string& section,
         const std::string& key);
 
@@ -34,7 +34,7 @@ public:
 };
 
 
-std::string Impl::GetString(
+std::string Impl::getString(
     const std::string& section,
     const std::string& key)
 {
@@ -63,7 +63,7 @@ std::string Impl::GetString(
 }
 
 
-int Impl::GetInt(
+int Impl::getInt(
     const std::string& section,
     const std::string& key)
 {
@@ -74,7 +74,7 @@ int Impl::GetInt(
 }
 
 
-DebugEnv& DebugEnv::Inst()
+DebugEnv& DebugEnv::inst()
 {
     static Impl inst;
     return inst;

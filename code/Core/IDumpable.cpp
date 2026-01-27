@@ -14,8 +14,8 @@ std::ostream& operator<<(std::ostream& s, const IDumpable& d)
 {
 #ifdef _DEBUG
     std::wstringstream w;
-    d.Dump(w);
-    s << d1::ConvertToUTF8(w.str());
+    d.dump(w);
+    s << d1::convertToUTF8(w.str());
 #endif
     return s;
 }

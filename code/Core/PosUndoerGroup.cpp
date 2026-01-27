@@ -22,60 +22,60 @@ using C = PosUndoerGroup;
 }
 
 
-void C::UndoImp(Param& p)
+void C::undoImp(Param& p)
 {
-    const auto delta = d1::Vector{ -itsOffset.dx, -itsOffset.dy };
+    const auto delta = d1::Vector{ -offset_.dx, -offset_.dy };
 
-    for (auto o : itsObjects)
+    for (auto o : objects_)
     {
-        o->Move(delta);
-        p.UpdateViews({ o });
+        o->move(delta);
+        p.updateViews({ o });
     }
 }
 
 
-void C::RedoImp(Param& p)
+void C::redoImp(Param& p)
 {
-    for (auto o : itsObjects)
+    for (auto o : objects_)
     {
-        o->Move(itsOffset);
-        p.UpdateViews({ o });
+        o->move(offset_);
+        p.updateViews({ o });
     }
 }
 
 
-bool C::Merge(Undoer& u)
+bool C::merge(Undoer& u)
 {
     return false;
 }
 
 
-void C::Remove(IElement& me)
+void C::remove(IElement& me)
 {
-    d1::erase_first_with_get(itsObjects, me);
+    d1::erase_first_with_get(objects_, me);
 }
 
 
-bool C::IsNull() const
+bool C::isNull() const
 {
-    return itsObjects.empty();
+    return objects_.empty();
 }
 
 
 C::PosUndoerGroup(const d1::Vector& offset):
-    itsOffset{ offset }
+    offset_{ offset }
 {
 }
 
 
-void C::Add(IPosOwner& po)
+void C::add(IPosOwner& po)
 {
     D1_ASSERT(&po);
 
     auto sp = po.shared_from_this();
     auto spo = std::dynamic_pointer_cast<IPosOwner>(sp);
 
-    itsObjects.push_back(spo);
+    objects_.push_back(spo);
 }
 
 }

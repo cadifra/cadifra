@@ -21,12 +21,12 @@ namespace WinUtil
 export class ListenerWindow
 {
     class Impl;
-    static Impl& Instance();
+    static Impl& instance();
 
 public:
-    auto GetDispatcher() const -> IDispatcher&; // (1)
+    auto getDispatcher() const -> IDispatcher&; // (1)
 
-    d1::HWND GetWindowHandle() const; // (1)
+    d1::HWND getWindowHandle() const; // (1)
 };
 
 }

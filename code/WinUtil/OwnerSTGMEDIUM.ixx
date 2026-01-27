@@ -127,7 +127,7 @@ inline OwnerSTGMEDIUM::OwnerSTGMEDIUM(HENHMETAFILE v, IUnknown* u)
 
 inline OwnerSTGMEDIUM::OwnerSTGMEDIUM(TYMED t, HGLOBAL v, IUnknown* u)
 {
-    D1_ASSERT((t == TYMED_HGLOBAL) || (t == TYMED_MFPICT));
+    D1_ASSERT((t == TYMED_HGLOBAL) or (t == TYMED_MFPICT));
 
     tymed = TYMED_HGLOBAL;
     hGlobal = v;
@@ -204,7 +204,7 @@ inline void OwnerSTGMEDIUM::Assign(HENHMETAFILE v, IUnknown* u)
 
 inline void OwnerSTGMEDIUM::Assign(TYMED t, HGLOBAL v, IUnknown* u)
 {
-    D1_ASSERT((t == TYMED_HGLOBAL) || (t == TYMED_MFPICT));
+    D1_ASSERT((t == TYMED_HGLOBAL) or (t == TYMED_MFPICT));
 
     Free();
     tymed = TYMED_HGLOBAL;

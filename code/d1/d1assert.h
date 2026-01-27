@@ -11,7 +11,7 @@
 
 
 // call the debugger, if it is running
-#define D1_PERMANENT_ASSERT(expr)  if (!(expr)) { __debugbreak(); }
+#define D1_PERMANENT_ASSERT(expr)  if (not (expr)) { __debugbreak(); }
 
 
 #ifdef _DEBUG

@@ -45,12 +45,12 @@ inline std::ostream& operator<<(std::ostream& os, const Printer& p)
 
 class PrintCLIPFORMAT: public Printer
 {
-    CLIPFORMAT m;
+    CLIPFORMAT m_;
     virtual void print(std::ostream&) const;
 
 public:
     PrintCLIPFORMAT(CLIPFORMAT cf):
-        m{ cf }
+        m_{ cf }
     {
     }
 };
@@ -58,12 +58,12 @@ public:
 
 class PrintTYMED: public Printer
 {
-    DWORD m;
+    DWORD m_;
     virtual void print(std::ostream&) const;
 
 public:
     PrintTYMED(DWORD t):
-        m{ t }
+        m_{ t }
     {
     }
 };
@@ -71,12 +71,12 @@ public:
 
 class PrintADVF: public Printer
 {
-    DWORD m;
+    DWORD m_;
     virtual void print(std::ostream&) const;
 
 public:
     PrintADVF(DWORD t):
-        m{ t }
+        m_{ t }
     {
     }
 };
@@ -84,12 +84,12 @@ public:
 
 class PrintHRESULT: public Printer
 {
-    HRESULT m;
+    HRESULT m_;
     virtual void print(std::ostream&) const;
 
 public:
     PrintHRESULT(HRESULT t):
-        m{ t }
+        m_{ t }
     {
     }
 };

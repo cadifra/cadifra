@@ -21,18 +21,18 @@ using C = SuspendQuit;
 C::SuspendQuit()
 {
     auto msg = MSG{};
-    itRemovedQuitMessage =
+    removedQuitMessage_ =
         0 != ::PeekMessage(&msg, 0, WM_QUIT, WM_QUIT, PM_REMOVE);
 
-    if (itRemovedQuitMessage && msg.message == WM_QUIT)
-        itsExitCode = static_cast<int>(msg.wParam);
+    if (removedQuitMessage_ and msg.message == WM_QUIT)
+        exitCode_ = static_cast<int>(msg.wParam);
 }
 
 
 C::~SuspendQuit()
 {
-    if (itRemovedQuitMessage)
-        ::PostQuitMessage(itsExitCode);
+    if (removedQuitMessage_)
+        ::PostQuitMessage(exitCode_);
 }
 
 }

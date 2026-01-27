@@ -23,74 +23,74 @@ using C = TransferSet;
 
 C::~TransferSet()
 {
-    Clear();
+    clear();
 }
 
 
-void C::Add(IElementRef m)
+void C::add(IElementRef m)
 {
-    itsElements.push_back(m);
-    m->SetClub(this);
+    elements_.push_back(m);
+    m->setClub(this);
 }
 
 
-void C::Remove(IElement& m)
+void C::remove(IElement& m)
 {
-    d1::erase_first_with_get(itsElements, m);
+    d1::erase_first_with_get(elements_, m);
 }
 
 
-void C::SetFocus(ObjectID id)
+void C::setFocus(ObjectID id)
 {
-    itsFocus = 0;
+    focus_ = 0;
 
-    for (auto mi : itsElements)
+    for (auto mi : elements_)
     {
         auto& me = *mi.get();
-        if (me.GetID() == id)
+        if (me.getID() == id)
         {
-            itsFocus = &me;
+            focus_ = &me;
             return;
         }
     }
 }
 
 
-void C::Clear()
+void C::clear()
 {
-    itsElements.clear();
-    itsFocus = 0;
+    elements_.clear();
+    focus_ = 0;
 }
 
 
-auto C::Paste(Transaction& t) const -> PasteRes
+auto C::paste(Transaction& t) const -> PasteRes
 {
     PasteRes res;
 
-    D1_ASSERT(!itsCopier); // paste is not allowed while there is an active copier
+    D1_ASSERT(not copier_); // paste is not allowed while there is an active copier
 
-    if (itsElements.empty())
+    if (elements_.empty())
         return res; // nothing to paste
 
-    auto r = CopyRegistry::MakeNew();
+    auto r = CopyRegistry::makeNew();
 
     MeSet copies;
 
     // first pass: create all copies --------------------------------------------
 
-    for (auto mi : itsElements)
+    for (auto mi : elements_)
     {
         const auto& orig = *mi.get();
 
-        if (!orig.AcceptForPaste(t.Diagram()))
+        if (not orig.acceptForPaste(t.diagram()))
             continue;
 
-        auto copy{ orig.Copy() };
+        auto copy{ orig.copy() };
 
         copies.push_back(copy);
-        r->Register(&orig, copy.get());
+        r->addMapping(&orig, copy.get());
 
-        if (&orig == itsFocus)
+        if (&orig == focus_)
             res.focus = copy.get();
     }
 
@@ -104,33 +104,33 @@ auto C::Paste(Transaction& t) const -> PasteRes
     {
         auto copy = mi.get();
         D1_ASSERT(copy);
-        copy->AdjustRefsAfterCopy(*r);
+        copy->adjustRefsAfterCopy(*r);
     }
 
     // ## copies are consistent now and may be used
     for (auto mi : copies)
-        t.AddNewlyCreated(mi);
+        t.addNewlyCreated(mi);
 
     for (auto mi : copies)
-        res.pasted_elements.Insert(*mi.get());
+        res.pasted_elements.insert(*mi.get());
 
     return res;
 }
 
 
-void C::AssignIDs()
+void C::assignIDs()
 {
     ObjectID id;
 
-    for (auto mi : itsElements)
+    for (auto mi : elements_)
     {
         auto me = mi.get();
-        me->SetID(++id);
+        me->setID(++id);
     }
 }
 
 
-auto C::GetGroup() -> Group&
+auto C::getGroup() -> Group&
 {
     class GroupImp: public Group
     {
@@ -148,7 +148,7 @@ auto C::GetGroup() -> Group&
         {
         }
 
-        void AssignIDs() final { ts_.AssignIDs(); };
+        void assignIDs() final { ts_.assignIDs(); };
 
         SI begin() const final
         {
@@ -161,16 +161,16 @@ auto C::GetGroup() -> Group&
         }
     };
 
-    if (!itsGroup)
-        itsGroup = std::make_unique<GroupImp>(*this);
+    if (not group_)
+        group_ = std::make_unique<GroupImp>(*this);
 
-    return *itsGroup.get();
+    return *group_.get();
 }
 
 
-auto C::StartCopy() -> Copier
+auto C::startCopy() -> Copier
 {
-    Clear();
+    clear();
     return { *this };
 }
 
@@ -182,26 +182,26 @@ class IteratorImp: public d1::Iterator<IElement*>::Imp
     using Base = d1::Iterator<IElement*>::Imp;
     using C = TransferSet::MeSet;
 
-    C::const_iterator itsIterator;
+    C::const_iterator iterator_;
 
-    auto Clone() const -> std::unique_ptr<Base> final
+    auto clone() const -> std::unique_ptr<Base> final
     {
-        return std::make_unique<IteratorImp>(itsIterator);
+        return std::make_unique<IteratorImp>(iterator_);
     }
 
-    bool IsEqual(const Base& rhs) const final
+    bool isEqual(const Base& rhs) const final
     {
-        return itsIterator ==
-               static_cast<const IteratorImp&>(rhs).itsIterator;
+        return iterator_ ==
+               static_cast<const IteratorImp&>(rhs).iterator_;
     }
 
-    void Next() final { ++itsIterator; }
+    void next() final { ++iterator_; }
 
-    value_type Val() const final { return itsIterator->get(); }
+    value_type val() const final { return iterator_->get(); }
 
 public:
     IteratorImp(C::const_iterator i):
-        itsIterator{ i }
+        iterator_{ i }
     {
     }
 };
@@ -210,66 +210,66 @@ public:
 
 auto C::begin() const -> d1::Iterator<IElement*>
 {
-    return { std::make_unique<IteratorImp>(itsElements.begin()) };
+    return { std::make_unique<IteratorImp>(elements_.begin()) };
 }
 
 
 auto C::end() const -> d1::Iterator<IElement*>
 {
-    return { std::make_unique<IteratorImp>(itsElements.end()) };
+    return { std::make_unique<IteratorImp>(elements_.end()) };
 }
 
 
 C::Copier::Copier(TransferSet& c):
-    itsTransferSet{ c },
-    itsCopyRegistry{ nullptr }
+    transferSet_{ c },
+    copyRegistry_{ nullptr }
 {
-    D1_ASSERT(!itsTransferSet.itsCopier);
-    itsTransferSet.itsCopier = this;
+    D1_ASSERT(not transferSet_.copier_);
+    transferSet_.copier_ = this;
 }
 
 
-auto C::Copier::AddCopy(IElement& m) -> IElement&
+auto C::Copier::addCopy(IElement& m) -> IElement&
 {
-    if (!itsCopyRegistry)
-        itsCopyRegistry = CopyRegistry::MakeNew();
+    if (not copyRegistry_)
+        copyRegistry_ = CopyRegistry::makeNew();
 
-    D1_ASSERT(itsCopyRegistry);
-    D1_ASSERT(itsTransferSet.itsCopier == this);
+    D1_ASSERT(copyRegistry_);
+    D1_ASSERT(transferSet_.copier_ == this);
 
-    auto copy{ m.Copy() };
-    itsTransferSet.Add(copy);
+    auto copy{ m.copy() };
+    transferSet_.add(copy);
 
-    itsCopyRegistry->Register(/*original*/ &m, /*copy*/ copy.get());
+    copyRegistry_->addMapping(/*original*/ &m, /*copy*/ copy.get());
 
     return *copy.get();
 }
 
 
 
-void C::Copier::AddFocusCopy(IElement& m)
+void C::Copier::addFocusCopy(IElement& m)
 {
-    itsTransferSet.itsFocus = &AddCopy(m);
+    transferSet_.focus_ = &addCopy(m);
 }
 
 
-void C::Copier::Complete()
+void C::Copier::complete()
 {
-    if (!itsCopyRegistry)
+    if (not copyRegistry_)
         return;
 
-    D1_ASSERT(itsCopyRegistry);
-    D1_ASSERT(itsTransferSet.itsCopier == this);
+    D1_ASSERT(copyRegistry_);
+    D1_ASSERT(transferSet_.copier_ == this);
 
-    for (auto mi : itsTransferSet.itsElements)
+    for (auto mi : transferSet_.elements_)
     {
         auto& me = *mi.get();
-        me.AdjustRefsAfterCopy(*itsCopyRegistry);
+        me.adjustRefsAfterCopy(*copyRegistry_);
     }
 
-    itsTransferSet.itsCopier = 0;
+    transferSet_.copier_ = 0;
 
-    itsCopyRegistry.reset();
+    copyRegistry_.reset();
 }
 
 }

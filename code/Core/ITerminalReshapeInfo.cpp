@@ -8,16 +8,16 @@ module Core;
 namespace Core
 {
 
-auto ITerminal::ReshapeInfo::GetNewAttachmentPos(
+auto ITerminal::ReshapeInfo::getNewAttachmentPos(
     const d1::fPoint& oldPos, const d1::fPoint& farPos,
     const ShiftSet& dss) const -> d1::fPoint
 {
-    auto res = GetNewAttachmentPosImpl(oldPos, farPos);
+    auto res = getNewAttachmentPosImpl(oldPos, farPos);
 
-    if (!dss.IsDeferredShifting(GetReshapedTerminal()))
+    if (not dss.isDeferredShifting(getReshapedTerminal()))
         return res;
 
-    auto v = dss.GetDeferredShift();
+    auto v = dss.getDeferredShift();
     if (v.shiftX)
         res.x += v.distance.dx;
     if (v.shiftY)

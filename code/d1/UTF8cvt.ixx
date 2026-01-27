@@ -10,8 +10,8 @@ import std;
 export namespace d1
 {
 
-std::wstring ConvertFromUTF8(const std::string&);
-std::string ConvertToUTF8(const std::wstring&);
+std::wstring convertFromUTF8(const std::string&);
+std::string convertToUTF8(const std::wstring&);
 
 
 using UTF8cvtBase = std::codecvt<wchar_t, char, std::mbstate_t>;
@@ -25,8 +25,8 @@ protected:
     virtual result do_out(
         state_type& state,
         const intern_type* from,
-        const intern_type* from_end,
-        const intern_type*& from_next,
+        const intern_type* froend_,
+        const intern_type*& fronext_,
         extern_type* to,
         extern_type* to_limit,
         extern_type*& to_next) const;
@@ -34,8 +34,8 @@ protected:
     virtual result do_in(
         state_type& state,
         const extern_type* from,
-        const extern_type* from_end,
-        const extern_type*& from_next,
+        const extern_type* froend_,
+        const extern_type*& fronext_,
         intern_type* to,
         intern_type* to_limit,
         intern_type*& to_next) const;

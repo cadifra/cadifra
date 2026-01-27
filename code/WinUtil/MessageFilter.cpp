@@ -30,11 +30,11 @@ using C = MessageFilter;
 
 class C::Impl: private ::IMessageFilter
 {
-    ::IMessageFilter* itsPreviousFilter = nullptr;
-    HWND itsWindow = {};
+    ::IMessageFilter* previousFilter_ = nullptr;
+    HWND window_ = {};
     bool itIsRegistered = false;
-    ULONG itsRefCount = 0; // dummy
-    int itsPostponeIncomingCalls = 0;
+    ULONG refCount_ = 0; // dummy
+    int postponeIncomingCalls_ = 0;
 
 public:
     //-- IUnknown
@@ -71,52 +71,52 @@ public:
 public:
     virtual ~Impl();
 
-    void Register(HWND);
-    void Unregister();
-    void IncPostponeIncomingCalls();
-    void DecPostponeIncomingCalls();
+    void activate(HWND);
+    void deactivate();
+    void incPostponeIncomingCalls();
+    void decPostponeIncomingCalls();
 };
 
 
 C::Impl::~Impl()
 {
-    Unregister();
+    deactivate();
 }
 
 
-void C::Impl::Register(HWND w)
+void C::Impl::activate(HWND w)
 {
-    itsWindow = w;
-    if (!itIsRegistered)
+    window_ = w;
+    if (not itIsRegistered)
     {
         itIsRegistered = true;
         D1_VERIFY(SUCCEEDED(
-            ::CoRegisterMessageFilter(this, &itsPreviousFilter)));
+            ::CoRegisterMessageFilter(this, &previousFilter_)));
     }
 }
 
 
-void C::Impl::Unregister()
+void C::Impl::deactivate()
 {
     if (itIsRegistered)
     {
         ::IMessageFilter* dummy = 0;
         D1_VERIFY(SUCCEEDED(
-            ::CoRegisterMessageFilter(itsPreviousFilter, &dummy)));
+            ::CoRegisterMessageFilter(previousFilter_, &dummy)));
         itIsRegistered = false;
     }
 }
 
 
-void C::Impl::IncPostponeIncomingCalls()
+void C::Impl::incPostponeIncomingCalls()
 {
-    ++itsPostponeIncomingCalls;
+    ++postponeIncomingCalls_;
 }
 
 
-void C::Impl::DecPostponeIncomingCalls()
+void C::Impl::decPostponeIncomingCalls()
 {
-    --itsPostponeIncomingCalls;
+    --postponeIncomingCalls_;
 }
 
 // MessageFilter::Impl::IUnknown functions:
@@ -139,13 +139,13 @@ HRESULT C::Impl::QueryInterface(
 
 ULONG C::Impl::AddRef()
 {
-    return ++itsRefCount;
+    return ++refCount_;
 }
 
 
 ULONG C::Impl::Release()
 {
-    return --itsRefCount;
+    return --refCount_;
 }
 
 // MessageFilter::Impl::IMessageFilter functions:
@@ -156,7 +156,7 @@ DWORD C::Impl::HandleInComingCall(
     DWORD dwTickCount,
     LPINTERFACEINFO lpInterfaceInfo)
 {
-    HRESULT hres = itsPostponeIncomingCalls > 0
+    HRESULT hres = postponeIncomingCalls_ > 0
                        ? SERVERCALL_RETRYLATER
                        : SERVERCALL_ISHANDLED;
 
@@ -211,7 +211,7 @@ DWORD C::Impl::RetryRejectedCall(
 
             ob.cbStruct = sizeof(ob);
             ob.dwFlags = BZ_DISABLECANCELBUTTON;
-            ob.hWndOwner = itsWindow;
+            ob.hWndOwner = window_;
             ob.lpszCaption = 0;
             ob.lpfnHook = 0;
             ob.lCustData = 0;
@@ -258,27 +258,27 @@ DWORD C::Impl::MessagePending(
 
 // class MessageFilter:
 
-MessageFilter& C::Instance()
+MessageFilter& C::instance()
 {
     static MessageFilter Instance;
     return Instance;
 }
 
 
-void C::Register(HWND w)
+void C::activate(HWND w)
 {
-    itsImpl->Register(w);
+    impl_->activate(w);
 }
 
 
-void C::Unregister()
+void C::deactivate()
 {
-    itsImpl->Unregister();
+    impl_->deactivate();
 }
 
 
 C::MessageFilter():
-    itsImpl{ std::make_unique<MessageFilter::Impl>() }
+    impl_{ std::make_unique<MessageFilter::Impl>() }
 {
 }
 
@@ -286,15 +286,15 @@ C::MessageFilter():
 C::~MessageFilter() = default;
 
 
-void C::IncPostponeIncomingCalls()
+void C::incPostponeIncomingCalls()
 {
-    itsImpl->IncPostponeIncomingCalls();
+    impl_->incPostponeIncomingCalls();
 }
 
 
-void C::DecPostponeIncomingCalls()
+void C::decPostponeIncomingCalls()
 {
-    itsImpl->DecPostponeIncomingCalls();
+    impl_->decPostponeIncomingCalls();
 }
 
 }

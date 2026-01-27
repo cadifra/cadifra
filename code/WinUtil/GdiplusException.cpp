@@ -14,7 +14,7 @@ namespace WinUtil
 
 const char* GdiplusException::what() const
 {
-    switch (itsStatus)
+    switch (status_)
     {
         STATUS_ENTRY(Ok);
         STATUS_ENTRY(GenericError);

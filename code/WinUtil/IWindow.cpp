@@ -22,10 +22,10 @@ using C = IWindow;
 }
 
 
-bool C::GetRect(d1::Rect& r) const
+bool C::getRect(d1::Rect& r) const
 {
     RECT wr;
-    BOOL res = ::GetWindowRect(GetWindowHandle(), &wr);
+    BOOL res = ::GetWindowRect(getWindowHandle(), &wr);
 
     if (res != 0)
     {
@@ -37,15 +37,15 @@ bool C::GetRect(d1::Rect& r) const
 }
 
 
-void C::UpdateWindow() const
+void C::updateWindow() const
 {
-    D1_VERIFY(::UpdateWindow(GetWindowHandle()));
+    D1_VERIFY(::UpdateWindow(getWindowHandle()));
 }
 
 
-void C::SetWindowTitle(const std::wstring& title)
+void C::setWindowTitle(const std::wstring& title)
 {
-    D1_VERIFY(::SetWindowText(GetWindowHandle(), title.c_str()));
+    D1_VERIFY(::SetWindowText(getWindowHandle(), title.c_str()));
 }
 
 }

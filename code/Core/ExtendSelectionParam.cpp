@@ -18,9 +18,8 @@ using C = ExtendSelection::Param;
 }
 
 
-class C::CacheEntry
+struct C::CacheEntry
 {
-public:
     const IElement* previous;
     Result res;
     CacheEntry(const IElement* p, Result r):
@@ -31,8 +30,8 @@ public:
 
 
 C::Param(const ICaller& caller, const ElementSet& selection):
-    itsCaller{ caller },
-    itsSelection{ selection }
+    caller_{ caller },
+    selection_{ selection }
 {
 }
 
@@ -40,13 +39,13 @@ C::Param(const ICaller& caller, const ElementSet& selection):
 C::~Param() = default;
 
 
-bool C::FindCacheEntry(const IElement* target, Result& res) const
+bool C::findCacheEntry(const IElement* target, Result& res) const
 {
     bool found = false;
 
     for (
-        auto i = itsCache.find(target);
-        i != end(itsCache) && i->first == target;
+        auto i = cache_.find(target);
+        i != end(cache_) and i->first == target;
         ++i)
     {
         const auto& e = i->second;
@@ -55,7 +54,7 @@ bool C::FindCacheEntry(const IElement* target, Result& res) const
             res = e.res;
             return true;
         }
-        if (e.previous == itsPrevious)
+        if (e.previous == previous_)
         {
             res = e.res;
             found = true;
@@ -66,45 +65,45 @@ bool C::FindCacheEntry(const IElement* target, Result& res) const
 };
 
 
-void C::EraseOtherCacheEntries(const Cache::iterator except)
+void C::eraseOtherCacheEntries(const Cache::iterator except)
 {
-    auto i = itsCache.find(except->first);
+    auto i = cache_.find(except->first);
 
-    while (i != end(itsCache) && i->first == except->first)
+    while (i != end(cache_) and i->first == except->first)
     {
         if (i == except)
             ++i;
         else
-            i = itsCache.erase(i);
+            i = cache_.erase(i);
     }
 }
 
 
-auto C::Call(const IElement* target) -> Result
+auto C::call(const IElement* target) -> Result
 {
     D1_ASSERT(target);
-    if (target->IsInTrash())
+    if (target->isInTrash())
         return Result::no;
 
     auto res = Result::possibly;
 
-    if (FindCacheEntry(target, res))
+    if (findCacheEntry(target, res))
         return res;
 
-    auto newEntry = itsCache.insert({ target, { 0, res } });
+    auto newEntry = cache_.insert({ target, { 0, res } });
     // Repel recursion: this can happen with recursive data structures created by
     // the user (absolutely legal).
     // The default answer during recursion is "possibly".
 
-    const auto* oldPrevious = itsPrevious;
-    itsPrevious = target;
-    res = itsCaller.MakeCall(target, *this);
-    itsPrevious = oldPrevious;
+    const auto* oldPrevious = previous_;
+    previous_ = target;
+    res = caller_.makeCall(target, *this);
+    previous_ = oldPrevious;
 
-    newEntry->second = { itsPrevious, res };
+    newEntry->second = { previous_, res };
 
-    if (!itsPrevious)
-        EraseOtherCacheEntries(newEntry);
+    if (not previous_)
+        eraseOtherCacheEntries(newEntry);
 
     return res;
 }

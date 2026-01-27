@@ -18,7 +18,7 @@ using C = ObjectRegistry;
 }
 
 
-void C::Register(IElement& obj, ObjectID id)
+void C::insert(IElement& obj, ObjectID id)
 {
     if (id.val() == 0)
         throw NullObjectID{};
@@ -26,16 +26,16 @@ void C::Register(IElement& obj, ObjectID id)
     if (id.val() == -1)
         throw InvalidObjectID{};
 
-    auto res = itsObjects.insert(std::make_pair(id, &obj));
+    auto res = map_.insert(std::make_pair(id, &obj));
 
-    if (!res.second)
+    if (not res.second)
         throw DuplicateObjectID{};
 
-    obj.SetID(id);
+    obj.setID(id);
 }
 
 
-auto C::Lookup(ObjectID id) const -> IElement*
+auto C::getElement(ObjectID id) const -> IElement*
 {
     if (id.val() == 0)
         return nullptr;
@@ -43,9 +43,9 @@ auto C::Lookup(ObjectID id) const -> IElement*
     if (id.val() == -1)
         throw InvalidObjectID{};
 
-    auto iter = itsObjects.find(id);
+    auto iter = map_.find(id);
 
-    if (iter != end(itsObjects))
+    if (iter != end(map_))
         return iter->second;
 
     return nullptr;

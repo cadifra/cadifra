@@ -15,7 +15,7 @@ namespace d1
 {
 
 export template <class Key, class Ty, class Pr = std::less<Key>>
-class VectorMap: private std::vector<std::pair<Key, Ty>>
+class VectorMap
 {
     using Entry = std::pair<Key, Ty>;
 
@@ -27,28 +27,30 @@ class VectorMap: private std::vector<std::pair<Key, Ty>>
         }
     };
 
+    std::vector<std::pair<Key, Ty>> v_;
+
 public:
-    void Insert(const Key& k, Ty t)
+    void insert(const Key& k, Ty t)
     {
-        auto i = std::lower_bound(this->begin(), this->end(), k, pred{});
-        D1_ASSERT(i == this->end() || Pr{}(k, i->first));
-        this->insert(i, Entry{ k, t });
+        auto i = std::lower_bound(v_.cbegin(), v_.cend(), k, pred{});
+        D1_ASSERT(i == v_.end() or Pr{}(k, i->first));
+        v_.insert(i, Entry{ k, t });
     }
 
-    Ty Get(const Key& k)
+    Ty get(const Key& k)
     {
-        auto i = std::lower_bound(this->begin(), this->end(), k, pred{});
-        if (i != this->end() && !Pr{}(k, i->first))
+        auto i = std::lower_bound(v_.cbegin(), v_.cend(), k, pred{});
+        if (i != v_.end() and not Pr{}(k, i->first))
             return i->second;
         else
             return Ty{};
     }
 
-    void Erase(const Key& k)
+    void erase(const Key& k)
     {
-        auto i = std::lower_bound(this->begin(), this->end(), k, pred{});
-        D1_ASSERT(i != this->end() && !Pr{}(i->first, k));
-        this->erase(i);
+        auto i = std::lower_bound(v_.cbegin(), v_.cend(), k, pred{});
+        D1_ASSERT(i != v_.end() and not Pr{}(i->first, k));
+        v_.erase(i);
     }
 };
 

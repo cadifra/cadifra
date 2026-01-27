@@ -14,20 +14,20 @@ namespace WinUtil
 
 class DebugEntryExitReporter
 {
-    const char* itsText;
-    bool itsEnabled;
+    const char* text_;
+    bool enabled_;
 
 public:
     DebugEntryExitReporter(bool enabled, const char* text):
-        itsText{ text }, itsEnabled{ enabled }
+        text_{ text }, enabled_{ enabled }
     {
-        if (itsEnabled)
-            dout << itsText << " started." << std::endl;
+        if (enabled_)
+            dout << text_ << " started." << std::endl;
     }
     ~DebugEntryExitReporter()
     {
-        if (itsEnabled)
-            dout << itsText << " finished." << std::endl;
+        if (enabled_)
+            dout << text_ << " finished." << std::endl;
     }
 };
 

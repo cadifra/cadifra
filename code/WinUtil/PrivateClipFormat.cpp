@@ -21,26 +21,26 @@ class Impl: public PrivateClipFormat
 {
 public:
     Impl();
-    CLIPFORMAT Register() final;
+    CLIPFORMAT getCLIPFORMAT() final;
 
 private:
-    CLIPFORMAT itsNextClipFormat;
+    CLIPFORMAT nextClipFormat_;
 };
 
 Impl::Impl():
-    itsNextClipFormat{ CF_PRIVATEFIRST }
+    nextClipFormat_{ CF_PRIVATEFIRST }
 {
 }
 
-CLIPFORMAT Impl::Register()
+CLIPFORMAT Impl::getCLIPFORMAT()
 {
-    D1_ASSERT(itsNextClipFormat < CF_PRIVATELAST);
-    return itsNextClipFormat++;
+    D1_ASSERT(nextClipFormat_ < CF_PRIVATELAST);
+    return nextClipFormat_++;
 }
 
 }
 
-auto PrivateClipFormat::Instance() -> PrivateClipFormat&
+auto PrivateClipFormat::instance() -> PrivateClipFormat&
 {
     static Impl pc;
     return pc;

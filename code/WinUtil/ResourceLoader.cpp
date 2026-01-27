@@ -22,43 +22,43 @@ class Impl: public ResourceLoader
 public:
     Impl();
 
-    void Init(HINSTANCE) final;
-    std::wstring GetString(UINT id) const final;
-    std::wstring GetFormatString(
+    void init(HINSTANCE) final;
+    std::wstring getString(UINT id) const final;
+    std::wstring getFormatString(
         UINT id, const StringListType& list) const final;
 
-    HICON GetIcon(WORD id) const final;
-    HACCEL GetAccelerators(WORD id) const final;
-    RootMenuHandle GetMenu(WORD id) const final;
-    HCURSOR GetCursor(WORD id) const final;
-    GdiObjectOwner<HBITMAP> GetBitmap(WORD id) const final;
-    HINSTANCE GetInstanceHandle() const final;
+    HICON getIcon(WORD id) const final;
+    HACCEL getAccelerators(WORD id) const final;
+    RootMenuHandle getMenu(WORD id) const final;
+    HCURSOR getCursor(WORD id) const final;
+    GdiObjectOwner<HBITMAP> getBitmap(WORD id) const final;
+    HINSTANCE getInstanceHandle() const final;
 
 private:
-    HINSTANCE itsInstance;
+    HINSTANCE instance_;
 };
 
 
 Impl::Impl():
-    itsInstance{ ::GetModuleHandle(0) }
+    instance_{ ::GetModuleHandle(0) }
 {
 }
 
 
-void Impl::Init(HINSTANCE inst)
+void Impl::init(HINSTANCE inst)
 {
-    itsInstance = inst;
+    instance_ = inst;
 }
 
 
-HINSTANCE Impl::GetInstanceHandle() const
+HINSTANCE Impl::getInstanceHandle() const
 {
-    D1_ASSERT(itsInstance);
-    return itsInstance;
+    D1_ASSERT(instance_);
+    return instance_;
 }
 
 
-std::wstring Impl::GetString(UINT id) const
+std::wstring Impl::getString(UINT id) const
 {
     using std::wstring;
 
@@ -68,7 +68,7 @@ std::wstring Impl::GetString(UINT id) const
     const int MaxLength = 100 * 1024;
     // maximum string length
 
-    D1_ASSERT(itsInstance);
+    D1_ASSERT(instance_);
     int len = InitialLength;
     wstring s;
 
@@ -77,7 +77,7 @@ std::wstring Impl::GetString(UINT id) const
         s.resize(len);
 
         int res = ::LoadString(
-            itsInstance,
+            instance_,
             id,
             const_cast<wstring::value_type*>(s.c_str()),
             static_cast<int>(s.size())
@@ -88,7 +88,7 @@ std::wstring Impl::GetString(UINT id) const
             // string not found
             return L"Resource not found";
         }
-        else if ((res == len) || (res == len - 1))
+        else if ((res == len) or (res == len - 1))
         {
             // the buffer was probably to small
 
@@ -112,18 +112,18 @@ std::wstring Impl::GetString(UINT id) const
 
 struct LocalAllocBuffer
 {
-    LPVOID itsAddress{};
+    LPVOID address_{};
     LocalAllocBuffer() {}
-    ~LocalAllocBuffer() { ::LocalFree(itsAddress); }
+    ~LocalAllocBuffer() { ::LocalFree(address_); }
 };
 
 
-std::wstring Impl::GetFormatString(
+std::wstring Impl::getFormatString(
     UINT id, const StringListType& list) const
 {
     // ## WARNING: If the format string specified by id contains placeholders
     //             %1..%n, but there are less than n actual entries in list,
-    //             the behavior of GetFormatString() is not defined.
+    //             the behavior of getFormatString() is not defined.
 
     using std::wstring;
 
@@ -140,7 +140,7 @@ std::wstring Impl::GetFormatString(
 
     arg.push_back(0);
 
-    auto format = wstring(this->GetString(id));
+    auto format = wstring(this->getString(id));
 
     auto buf = LocalAllocBuffer{}; // will hold address of buffer allocated by following
                                    //::FormatMessage call
@@ -164,7 +164,7 @@ std::wstring Impl::GetFormatString(
         0,
 
         // LPTSTR lpBuffer,    // message buffer
-        reinterpret_cast<LPTSTR>(&buf.itsAddress),
+        reinterpret_cast<LPTSTR>(&buf.address_),
 
         // DWORD nSize,        // minimum number of TCHARS to allocate for output buffer
         0,
@@ -172,17 +172,17 @@ std::wstring Impl::GetFormatString(
         // va_list *Arguments  // array of message inserts
         const_cast<char**>(reinterpret_cast<const char**>(&arg.front())));
 
-    auto s = wstring(static_cast<const wchar_t*>(buf.itsAddress));
+    auto s = wstring(static_cast<const wchar_t*>(buf.address_));
 
     return s;
 }
 
 
-HICON Impl::GetIcon(WORD id) const
+HICON Impl::getIcon(WORD id) const
 {
-    D1_ASSERT(itsInstance);
+    D1_ASSERT(instance_);
     return static_cast<HICON>(::LoadImage(
-        itsInstance,
+        instance_,
         MAKEINTRESOURCE(id),
         IMAGE_ICON,
         0, // cxDesired
@@ -191,25 +191,25 @@ HICON Impl::GetIcon(WORD id) const
 }
 
 
-HACCEL Impl::GetAccelerators(WORD id) const
+HACCEL Impl::getAccelerators(WORD id) const
 {
-    D1_ASSERT(itsInstance);
-    return ::LoadAccelerators(itsInstance, MAKEINTRESOURCE(id));
+    D1_ASSERT(instance_);
+    return ::LoadAccelerators(instance_, MAKEINTRESOURCE(id));
 }
 
 
-RootMenuHandle Impl::GetMenu(WORD id) const
+RootMenuHandle Impl::getMenu(WORD id) const
 {
-    D1_ASSERT(itsInstance);
-    return RootMenuHandle{ ::LoadMenu(itsInstance, MAKEINTRESOURCE(id)) };
+    D1_ASSERT(instance_);
+    return RootMenuHandle{ ::LoadMenu(instance_, MAKEINTRESOURCE(id)) };
 }
 
 
-HCURSOR Impl::GetCursor(WORD id) const
+HCURSOR Impl::getCursor(WORD id) const
 {
-    D1_ASSERT(itsInstance);
+    D1_ASSERT(instance_);
     return static_cast<HCURSOR>(::LoadImage(
-        itsInstance,
+        instance_,
         MAKEINTRESOURCE(id),
         IMAGE_CURSOR,
         0, // cxDesired
@@ -218,14 +218,14 @@ HCURSOR Impl::GetCursor(WORD id) const
 }
 
 
-auto Impl::GetBitmap(WORD id) const
+auto Impl::getBitmap(WORD id) const
     -> GdiObjectOwner<HBITMAP>
 {
-    D1_ASSERT(itsInstance);
+    D1_ASSERT(instance_);
     return GdiObjectOwner<HBITMAP>{
         static_cast<HBITMAP>(
             ::LoadImage(
-                itsInstance,
+                instance_,
                 MAKEINTRESOURCE(id),
                 IMAGE_BITMAP,
                 0, // cxDesired
@@ -237,7 +237,7 @@ auto Impl::GetBitmap(WORD id) const
 }
 
 
-auto ResourceLoader::Instance() -> ResourceLoader&
+auto ResourceLoader::instance() -> ResourceLoader&
 {
     static Impl impl;
     return impl;

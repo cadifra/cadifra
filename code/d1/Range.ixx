@@ -8,37 +8,37 @@ namespace d1
 {
 
 template <typename T>
-class _Range
+class Range
 {
-    T itsLow;
-    T itsHigh;
+    T low_;
+    T high_;
 
 public:
-    _Range(T l, T h):
-        itsLow{ l }, itsHigh{ h }
+    Range(T l, T h):
+        low_{ l }, high_{ h }
     {
         if (l > h)
         {
-            itsLow = h;
-            itsHigh = l;
+            low_ = h;
+            high_ = l;
         }
     }
 
-    _Range Limit(auto& v) const
+    Range limit(auto& v) const
     {
-        if (v < itsLow)
-            v = itsLow;
-        if (v > itsHigh)
-            v = itsHigh;
+        if (v < low_)
+            v = low_;
+        if (v > high_)
+            v = high_;
         return *this;
     }
 };
 
 
 export template <typename T>
-auto Range(T l, T h)
+auto range(T l, T h)
 {
-    return _Range{ l, h };
+    return Range{ l, h };
 }
 
 }

@@ -17,7 +17,7 @@ constexpr int InitialBufSize = 30;
 namespace WinUtil::Registry
 {
 
-Key Open(HKEY k, SubKeyName name, REGSAM sam)
+Key open(HKEY k, SubKeyName name, REGSAM sam)
 {
     HKEY sk = 0;
     LONG r = ::RegOpenKeyEx(k, name.c_str(), 0, sam, &sk);
@@ -29,7 +29,7 @@ Key Open(HKEY k, SubKeyName name, REGSAM sam)
 }
 
 
-Key Create(HKEY k, SubKeyName name, REGSAM sam)
+Key create(HKEY k, SubKeyName name, REGSAM sam)
 {
     HKEY sk = 0;
     LONG r = ::RegCreateKeyEx(
@@ -42,7 +42,7 @@ Key Create(HKEY k, SubKeyName name, REGSAM sam)
 }
 
 
-bool Query(HKEY k, ValueName name, std::wstring& val)
+bool query(HKEY k, ValueName name, std::wstring& val)
 {
     auto buf = std::vector<BYTE>(InitialBufSize, 0);
     DWORD size = static_cast<DWORD>(buf.size());
@@ -60,7 +60,7 @@ bool Query(HKEY k, ValueName name, std::wstring& val)
 
     if (r == ERROR_SUCCESS)
     {
-        if (type != REG_SZ || size < sizeof(wchar_t))
+        if (type != REG_SZ or size < sizeof(wchar_t))
             return false;
 
         val.assign(reinterpret_cast<wchar_t*>(buf.data()), size / sizeof(wchar_t) - 1);
@@ -75,7 +75,7 @@ bool Query(HKEY k, ValueName name, std::wstring& val)
 }
 
 
-bool Query(HKEY k, ValueName name, std::vector<std::wstring>& val)
+bool query(HKEY k, ValueName name, std::vector<std::wstring>& val)
 {
     DWORD size = 0;
     DWORD type = REG_NONE;
@@ -120,7 +120,7 @@ bool Query(HKEY k, ValueName name, std::vector<std::wstring>& val)
     {
         It t = i;
 
-        for (; t != end && *t; ++t)
+        for (; t != end and *t; ++t)
             ;
 
         if (i == t)
@@ -139,7 +139,7 @@ bool Query(HKEY k, ValueName name, std::vector<std::wstring>& val)
 }
 
 
-bool Query(HKEY k, ValueName name, d1::bytestring& val)
+bool query(HKEY k, ValueName name, d1::bytestring& val)
 {
     auto buf = d1::bytestring(InitialBufSize, 0);
     DWORD size = static_cast<DWORD>(buf.size());
@@ -157,7 +157,7 @@ bool Query(HKEY k, ValueName name, d1::bytestring& val)
 
     if (r == ERROR_SUCCESS)
     {
-        if (type == REG_BINARY && size > 0)
+        if (type == REG_BINARY and size > 0)
         {
             buf.resize(size);
             val.swap(buf);
@@ -174,18 +174,18 @@ bool Query(HKEY k, ValueName name, d1::bytestring& val)
 }
 
 
-bool Query(HKEY k, ValueName name, HGLOBAL& val, UINT uFlags)
+bool query(HKEY k, ValueName name, HGLOBAL& val, UINT uFlags)
 {
     DWORD size = 0;
     DWORD type = REG_NONE;
 
     LONG r = ::RegQueryValueEx(k, name.c_str(), 0, &type, 0, &size);
 
-    if (not(r == ERROR_SUCCESS && type == REG_BINARY && size > 0))
+    if (not(r == ERROR_SUCCESS and type == REG_BINARY and size > 0))
         return false;
 
     HGLOBAL g = ::GlobalAlloc(uFlags, size);
-    if (!g)
+    if (not g)
         return false;
 
     LPVOID v = ::GlobalLock(g);
@@ -207,7 +207,7 @@ bool Query(HKEY k, ValueName name, HGLOBAL& val, UINT uFlags)
 }
 
 
-bool Query(HKEY k, ValueName name, LPBYTE val, DWORD size)
+bool query(HKEY k, ValueName name, LPBYTE val, DWORD size)
 {
     DWORD s = size;
     DWORD type = REG_NONE;
@@ -236,7 +236,7 @@ bool Query(HKEY k, ValueName name, LPBYTE val, DWORD size)
 }
 
 
-bool Query(HKEY k, ValueName name, d1::int32& val)
+bool query(HKEY k, ValueName name, d1::int32& val)
 {
     d1::int32 buf = 0;
     DWORD size = sizeof(buf);
@@ -252,7 +252,7 @@ bool Query(HKEY k, ValueName name, d1::int32& val)
 
     if (r == ERROR_SUCCESS)
     {
-        if (type == REG_DWORD && size == sizeof(buf))
+        if (type == REG_DWORD and size == sizeof(buf))
         {
             val = buf;
             return true;
@@ -269,10 +269,10 @@ bool Query(HKEY k, ValueName name, d1::int32& val)
 }
 
 
-bool Query(HKEY k, ValueName name, bool& val)
+bool query(HKEY k, ValueName name, bool& val)
 {
     d1::int32 t = 0;
-    if (!Query(k, name, t))
+    if (not query(k, name, t))
         return false;
     else
     {
@@ -282,7 +282,7 @@ bool Query(HKEY k, ValueName name, bool& val)
 }
 
 
-void Set(HKEY k, ValueName name, const std::wstring& val)
+void set(HKEY k, ValueName name, const std::wstring& val)
 {
     LONG r = ::RegSetValueEx(k, name.c_str(), 0, REG_SZ,
         reinterpret_cast<CONST BYTE*>(val.c_str()), static_cast<DWORD>(val.size()) + 1);
@@ -293,7 +293,7 @@ void Set(HKEY k, ValueName name, const std::wstring& val)
 
 
 
-void Set(HKEY k, ValueName name, const std::vector<std::wstring>& val)
+void set(HKEY k, ValueName name, const std::vector<std::wstring>& val)
 {
     std::wstring s;
 
@@ -313,7 +313,7 @@ void Set(HKEY k, ValueName name, const std::vector<std::wstring>& val)
 }
 
 
-void Set(HKEY k, ValueName name, const d1::bytestring& val)
+void set(HKEY k, ValueName name, const d1::bytestring& val)
 {
     LONG r = ::RegSetValueEx(k, name.c_str(), 0, REG_BINARY,
         reinterpret_cast<CONST BYTE*>(val.data()), static_cast<DWORD>(val.size()));
@@ -323,13 +323,13 @@ void Set(HKEY k, ValueName name, const d1::bytestring& val)
 }
 
 
-void Set(HKEY k, ValueName name, const HGLOBAL val)
+void set(HKEY k, ValueName name, const HGLOBAL val)
 {
     LONG r = ERROR_INVALID_PARAMETER;
     DWORD s = static_cast<DWORD>(::GlobalSize(val));
     LPVOID v = ::GlobalLock(val);
 
-    if (v && s)
+    if (v and s)
         r = ::RegSetValueEx(
             k, name.c_str(), 0, REG_BINARY, reinterpret_cast<CONST BYTE*>(v), s);
 
@@ -340,7 +340,7 @@ void Set(HKEY k, ValueName name, const HGLOBAL val)
 }
 
 
-void Set(HKEY k, ValueName name, CONST BYTE* val, DWORD size)
+void set(HKEY k, ValueName name, CONST BYTE* val, DWORD size)
 {
     LONG r = ::RegSetValueEx(k, name.c_str(), 0, REG_BINARY, val, size);
 
@@ -349,7 +349,7 @@ void Set(HKEY k, ValueName name, CONST BYTE* val, DWORD size)
 }
 
 
-void Set(HKEY k, ValueName name, const d1::int32 val)
+void set(HKEY k, ValueName name, const d1::int32 val)
 {
     LONG r = ::RegSetValueEx(k, name.c_str(), 0, REG_DWORD,
         reinterpret_cast<CONST BYTE*>(&val), sizeof(val));
@@ -359,54 +359,54 @@ void Set(HKEY k, ValueName name, const d1::int32 val)
 }
 
 
-void Set(HKEY k, ValueName name, const bool val)
+void set(HKEY k, ValueName name, const bool val)
 {
     d1::int32 t = val ? 1 : 0;
-    Set(k, name, t);
+    set(k, name, t);
 }
 
 
 Key::Letter::Letter(HKEY k):
-    itsKey{ k }
+    key_{ k }
 {
 }
 
 
 Key::Letter::~Letter()
 {
-    ::RegCloseKey(itsKey);
+    ::RegCloseKey(key_);
 }
 
 
 Key::Key(HKEY k):
-    itsLetter{ std::make_shared<Letter>(k) }
+    letter_{ std::make_shared<Letter>(k) }
 {
 }
 
 
 Exception::Exception(LONG err):
-    itsError(err),
-    itsString(255, 0)
+    error_(err),
+    string_(255, 0)
 {
     DWORD res = ::FormatMessageA(
         FORMAT_MESSAGE_FROM_SYSTEM,
         0,   // lpSource
         err, // dwMessageId
         0,   // dwLanguageId
-        itsString.data(),
-        static_cast<DWORD>(itsString.size()),
+        string_.data(),
+        static_cast<DWORD>(string_.size()),
         0 // Arguments
     );
 
-    itsString.resize(res);
+    string_.resize(res);
 
-    itsString = "Registry access error:\n" + itsString;
+    string_ = "Registry access error:\n" + string_;
 }
 
 
 const char* Exception::what() const
 {
-    return itsString.c_str();
+    return string_.c_str();
 }
 
 }

@@ -12,14 +12,14 @@ namespace WinUtil
 
 export class DCfromWindow
 {
-    d1::HWND itsHwnd;
-    d1::HDC itsDC;
+    d1::HWND hwnd_;
+    d1::HDC DC_;
 
 public:
     DCfromWindow(d1::HWND w);
     ~DCfromWindow();
 
-    operator const d1::HDC() const { return itsDC; }
+    operator const d1::HDC() const { return DC_; }
 
     DCfromWindow(const DCfromWindow&) = delete;
     DCfromWindow& operator=(const DCfromWindow&) = delete;

@@ -17,12 +17,12 @@ export class MenuHandle // has value semantics
 {
 protected:
     class Impl;
-    std::shared_ptr<Impl> itsImpl;
+    std::shared_ptr<Impl> impl_;
 
 protected:
     MenuHandle(d1::HMENU parent);
     MenuHandle(const MenuHandle& m, int SubMenuPos);
-    HMENU ReleaseOwnershipImpl();
+    HMENU releaseOwnershipImpl();
 
 public:
     MenuHandle();
@@ -30,8 +30,8 @@ public:
     MenuHandle(const MenuHandle&);
     MenuHandle& operator=(const MenuHandle&);
 
-    d1::HMENU Get() const;
-    operator d1::HMENU() const { return Get(); }
+    d1::HMENU get() const;
+    operator d1::HMENU() const { return get(); }
 };
 
 
@@ -42,7 +42,7 @@ public:
         MenuHandle{ m }
     {
     }
-    d1::HMENU ReleaseOwnership() { return ReleaseOwnershipImpl(); }
+    d1::HMENU releaseOwnership() { return releaseOwnershipImpl(); }
 };
 
 

@@ -10,18 +10,18 @@ AddRef() and Release() of COM classes as in the following example:
 
   class IDoNothing: public IUnknown
   {
-    d1::RefCounter<IDoNothing> itsRefCounter;
+    d1::RefCounter<IDoNothing> refCounter_;
 
   public:
 
     virtual ULONG STDMETHODCALLTYPE AddRef()
     {
-      return itsRefCounter.AddRef();
+      return refCounter_.AddRef();
     }
 
     virtual ULONG STDMETHODCALLTYPE Release()
     {
-      return itsRefCounter.Release(this);
+      return refCounter_.Release(this);
     }
 
     ....
@@ -36,20 +36,20 @@ namespace d1
 export template <class T>
 class RefCounter
 {
-    unsigned long itsCount = 0;
+    unsigned long count_ = 0;
 
 public:
     RefCounter() {}
 
     unsigned long AddRef()
     {
-        return ++itsCount;
+        return ++count_;
     }
 
     unsigned long Release(T* t)
     {
-        unsigned long res = --itsCount;
-        if (itsCount == 0)
+        unsigned long res = --count_;
+        if (count_ == 0)
         {
             delete t;
         }

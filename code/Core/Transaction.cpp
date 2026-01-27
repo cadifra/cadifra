@@ -22,8 +22,8 @@ using C = Transaction;
 
 
 C::Transaction(IDiagram& d, IView* v):
-    itsDiagram{ d },
-    itsWorkingView{ v }
+    diagram_{ d },
+    workingView_{ v }
 {
 }
 
@@ -31,50 +31,50 @@ C::Transaction(IDiagram& d, IView* v):
 C::~Transaction() = default;
 
 
-auto C::Close(Selection::Tracker& sc, const IGrid& g) -> UndoerRef
+auto C::close(Selection::Tracker& sc, const IGrid& g) -> UndoerRef
 {
     class UndoOnDelete
     {
-        Env itsEnv;
-        UndoerRef itsUndoer;
+        Env env_;
+        UndoerRef undoer_;
 
     public:
         UndoOnDelete(Transaction& t, Selection::Tracker& sc, const IGrid& g):
-            itsEnv{ t, sc, g }
+            env_{ t, sc, g }
         {
         }
 
         ~UndoOnDelete()
         {
-            auto up = Undoer::Param{ itsEnv.Diagram(), itsEnv.sel_tracker };
-            itsUndoer.Undo(up);
+            auto up = Undoer::Param{ env_.diagram(), env_.sel_tracker };
+            undoer_.undo(up);
         }
 
-        auto Release() -> UndoerRef
+        auto release() -> UndoerRef
         {
             UndoerRef u;
-            std::swap(itsUndoer, u);
+            std::swap(undoer_, u);
             return u;
         }
 
-        void Add(UndoerRef u) { itsUndoer = Combine(itsUndoer, u); }
+        void add(UndoerRef u) { undoer_ = combine(undoer_, u); }
 
-        auto GetEnv() -> Env& { return itsEnv; }
+        auto getEnv() -> Env& { return env_; }
 
     } u{ *this, sc, g };
 
-    unsigned int maxrepeat = 10000 + itsDiagram.GetNumOfElements();
+    unsigned int maxrepeat = 10000 + diagram_.getNumOfElements();
 
     for (;;)
     {
-        u.Add(SubTransactionClose(sc, g));
+        u.add(subTransactionClose(sc, g));
 
-        if (itsFollowUps.empty())
+        if (followUps_.empty())
             break;
 
-        if (!--maxrepeat)
+        if (not --maxrepeat)
         {
-            itsFollowUps.clear();
+            followUps_.clear();
 
             class E: public d1::Exception
             {
@@ -84,30 +84,30 @@ auto C::Close(Selection::Tracker& sc, const IGrid& g) -> UndoerRef
             throw E{};
         }
 
-        auto f = FollowUpJob{ itsFollowUps.front() };
-        itsFollowUps.pop_front();
+        auto f = FollowUpJob{ followUps_.front() };
+        followUps_.pop_front();
 
-        f.Do(u.GetEnv());
+        f.Do(u.getEnv());
     }
 
-    return u.Release();
+    return u.release();
 }
 
 
-auto C::SubTransactionClose(Selection::Tracker& sc, const IGrid& g) -> UndoerRef
+auto C::subTransactionClose(Selection::Tracker& sc, const IGrid& g) -> UndoerRef
 {
-    if (!itsImp)
+    if (not imp_)
         return {};
 
-    bool finalize_successful = itsImp->Finalize(sc, g);
-    auto res = itsImp->Close(sc, g);
-    itsImp.reset();
+    bool finalize_successful = imp_->finalize(sc, g);
+    auto res = imp_->close(sc, g);
+    imp_.reset();
 
     if (finalize_successful)
         return res;
 
-    auto up = Undoer::Param{ itsDiagram, sc };
-    res.Undo(up);
+    auto up = Undoer::Param{ diagram_, sc };
+    res.undo(up);
 
     class E: public d1::Exception
     {
@@ -121,60 +121,60 @@ auto C::SubTransactionClose(Selection::Tracker& sc, const IGrid& g) -> UndoerRef
 }
 
 
-void C::Abort()
+void C::abort()
 {
-    if (itsImp)
+    if (imp_)
     {
-        itsImp->Abort();
-        itsImp.reset();
+        imp_->abort();
+        imp_.reset();
     }
-    itsFollowUps.clear();
+    followUps_.clear();
 }
 
 
-void C::MakeNew()
+void C::makeNew()
 {
-    if (!itsImp)
-        itsImp = std::make_unique<Imp>(itsDiagram, itsWorkingView, *this);
+    if (not imp_)
+        imp_ = std::make_unique<Imp>(diagram_, workingView_, *this);
 }
 
 
-void C::AddTouched(IElement& me, bool update_view)
+void C::addTouched(IElement& me, bool update_view)
 {
-    MakeNew();
-    D1_ASSERT(itsImp.get());
-    itsImp->AddTouched(me, update_view);
+    makeNew();
+    D1_ASSERT(imp_.get());
+    imp_->addTouched(me, update_view);
 }
 
 
-void C::PutIntoTrash(Selection::Tracker& sc, const IElementRef& me)
+void C::putIntoTrash(Selection::Tracker& sc, const IElementRef& me)
 {
-    MakeNew();
-    D1_ASSERT(itsImp.get());
-    itsImp->PutIntoTrash(sc, me);
+    makeNew();
+    D1_ASSERT(imp_.get());
+    imp_->putIntoTrash(sc, me);
 }
 
 
-void C::AddNewlyCreated(IElementRef me)
+void C::addNewlyCreated(IElementRef me)
 {
-    MakeNew();
-    D1_ASSERT(itsImp.get());
-    itsImp->AddNewlyCreated(me);
+    makeNew();
+    D1_ASSERT(imp_.get());
+    imp_->addNewlyCreated(me);
 }
 
 
-bool C::HasNewlyCreated(const IElement& me) const
+bool C::hasNewlyCreated(const IElement& me) const
 {
-    if (itsImp)
-        return itsImp->HasNewlyCreated(me);
+    if (imp_)
+        return imp_->hasNewlyCreated(me);
 
     return false;
 }
 
 
-void C::ScheduleFollowUpJob(FollowUpJob f)
+void C::scheduleFollowUpJob(FollowUpJob f)
 {
-    d1::push_back_if_missing(itsFollowUps, f);
+    d1::push_back_if_missing(followUps_, f);
 }
 
 }

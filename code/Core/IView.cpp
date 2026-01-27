@@ -23,47 +23,47 @@ using C = IView;
 
 
 C::IView(IClub& c):
-    itsClub{ c }
+    club_{ c }
 {
 }
 
 
-void C::ChangeActiveState(bool isActive)
+void C::changeActiveState(bool active)
 {
-    if (itsDeleting)
+    if (deleting_)
         return;
 
-    if (isActive == itIsActive)
+    if (active == active_)
         return; // no change
 
-    itIsActive = isActive;
+    active_ = active;
 }
 
 
 C::~IView()
 {
-    itsDeleting = true;
+    deleting_ = true;
 
-    auto a = [&](auto* ve) { ve->ViewDeleted(); };
-    for_each(itsViewElements, a);
+    auto a = [&](auto* ve) { ve->viewDeleted(); };
+    for_each(viewElements_, a);
 }
 
 
-void C::Insert(IElement& me, bool update_view)
+void C::insert(IElement& me, bool update_view)
 {
-    if (itsDeleting)
+    if (deleting_)
         return;
 
-    IViewElement* existing_ve = me.ViewElement(this);
+    IViewElement* existing_ve = me.viewElement(this);
 
     if (existing_ve)
         return; // me already has a view element in this view
 
-    D1_ASSERT(!existing_ve);
+    D1_ASSERT(not existing_ve);
 
-    IViewElement* new_ve = me.MakeViewElement(*this);
+    IViewElement* new_ve = me.makeViewElement(*this);
     if (new_ve)
-        new_ve->Insert(update_view);
+        new_ve->insert(update_view);
 }
 
 
@@ -71,44 +71,44 @@ void C::Insert(IElement& me, bool update_view)
 namespace
 {
 d1::uint32 gDebugFindPointableAmbiguous = 0;
-bool FindPointableDebugEnabled()
+bool findPointableDebugEnabled()
 {
-    return (WinUtil::DebugEnv::Inst().GetInt("Core", "IView::DebugFindPointable") != 0);
+    return (WinUtil::DebugEnv::inst().getInt("Core", "IView::DebugFindPointable") != 0);
 }
 }
 #endif
 
 
-auto C::FindPointable(const d1::Point& p, d1::int32 unzoomed_distance,
+auto C::findPointable(const d1::Point& p, d1::int32 unzoomed_distance,
     const IFilter* theFilter, bool attaching) const -> VIPointable*
 {
-    if (itsDeleting)
+    if (deleting_)
         return nullptr;
 
-    d1::int32 distance = this->ZoomedDistance(unzoomed_distance);
+    d1::int32 distance = this->zoomedDistance(unzoomed_distance);
     Weight max;
     bool first = true;
-    VIPointable* res = 0;
-    IViewElement* max_ve = 0;
+    VIPointable* res = nullptr;
+    IViewElement* max_ve = nullptr;
     int num_candidates = 0;
 
-    for (auto ve : itsViewElements)
+    for (auto ve : viewElements_)
     {
         D1_ASSERT(ve);
 
-        if (theFilter && !theFilter->Pass(*ve))
+        if (theFilter and not theFilter->pass(*ve))
             continue;
 
-        if (!attaching)
+        if (not attaching)
         {
-            auto sve = ve->Selectable();
-            if (sve && sve->IsSelected())
+            auto sve = ve->selectable();
+            if (sve and sve->isSelected())
             {
-                VIPointable* pb = sve->FindControl(p, distance);
+                VIPointable* pb = sve->findControl(p, distance);
                 if (pb)
                 {
-                    auto lev = pb->GetWeight(p, distance);
-                    if (first || (lev > max))
+                    auto lev = pb->getWeight(p, distance);
+                    if (first or (lev > max))
                     {
                         first = false;
                         max = lev;
@@ -122,10 +122,10 @@ auto C::FindPointable(const d1::Point& p, d1::int32 unzoomed_distance,
             }
         }
 
-        if (ve->CheckHit(p, distance, attaching))
+        if (ve->checkHit(p, distance, attaching))
         {
-            auto lev = ve->GetWeight(p, distance);
-            if (first || lev > max)
+            auto lev = ve->getWeight(p, distance);
+            if (first or lev > max)
             {
                 first = false;
                 max = lev;
@@ -139,7 +139,7 @@ auto C::FindPointable(const d1::Point& p, d1::int32 unzoomed_distance,
     } // for
 
 #ifdef _DEBUG
-    if (FindPointableDebugEnabled() && num_candidates > 1)
+    if (findPointableDebugEnabled() and num_candidates > 1)
     {
         ++gDebugFindPointableAmbiguous;
         WinUtil::dout << "@@@ Core::IView::FindPointable ambiguous: " << num_candidates
@@ -153,143 +153,143 @@ auto C::FindPointable(const d1::Point& p, d1::int32 unzoomed_distance,
 }
 
 
-bool C::HasSelection() const
+bool C::hasSelection() const
 {
-    if (itsDeleting)
+    if (deleting_)
         return false;
 
-    for (auto ve : itsViewElements)
+    for (auto ve : viewElements_)
     {
         D1_ASSERT(ve);
-        if (ve->IsSelected())
+        if (ve->isSelected())
             return true;
     }
     return false; // nothing selected
 }
 
 
-void C::DeselectAll(Selection::Tracker& sc)
+void C::deselectAll(Selection::Tracker& sc)
 {
-    if (itsDeleting)
+    if (deleting_)
         return;
 
-    for (auto ve : itsViewElements)
+    for (auto ve : viewElements_)
     {
         D1_ASSERT(ve);
-        auto* sve = ve->Selectable();
+        auto* sve = ve->selectable();
         if (sve)
-            sve->Deselect(sc);
+            sve->deselect(sc);
     }
 }
 
 
-void C::SelectAll(Selection::Tracker& sc)
+void C::selectAll(Selection::Tracker& sc)
 {
-    if (itsDeleting)
+    if (deleting_)
         return;
 
-    for (auto ve : itsViewElements)
+    for (auto ve : viewElements_)
     {
         D1_ASSERT(ve);
-        auto* sve = ve->Selectable();
+        auto* sve = ve->selectable();
         if (sve)
-            sve->Select(sc);
+            sve->select(sc);
     }
 }
 
 
-auto C::Selection() const -> ElementSet
+auto C::selection() const -> ElementSet
 {
     ElementSet res;
 
-    if (itsDeleting)
+    if (deleting_)
         return res;
 
-    for (auto ve : itsViewElements)
+    for (auto ve : viewElements_)
     {
         D1_ASSERT(ve);
-        if (ve->IsSelected())
-            res.Insert(ve->Element());
+        if (ve->isSelected())
+            res.insert(ve->element());
     }
     return res;
 }
 
 
-void C::SetSelectionVisibility(bool visible)
+void C::setSelectionVisibility(bool visible)
 {
-    if (itsDeleting)
+    if (deleting_)
         return;
 
-    if (itsSelectionVisible == visible)
+    if (selectionVisible_ == visible)
         return;
 
-    itsSelectionVisible = visible;
+    selectionVisible_ = visible;
 
-    for (auto ve : itsViewElements)
+    for (auto ve : viewElements_)
     {
         D1_ASSERT(ve);
-        auto* sve = ve->Selectable();
-        if (sve && sve->IsSelected())
-            sve->SelectionNeedsUpdate();
+        auto* sve = ve->selectable();
+        if (sve and sve->isSelected())
+            sve->selectionNeedsUpdate();
     }
 }
 
 
-void C::NotifySelectionObservers() const
+void C::notifySelectionObservers() const
 {
-    if (itsDeleting)
+    if (deleting_)
         return;
-    itsSelectionObserverDock.Notify();
+    selectionObserverDock_.notify();
 }
 
 
 
-void C::SetSelection(Selection::Tracker& sc, ElementSet theSelection)
+void C::setSelection(Selection::Tracker& sc, ElementSet theSelection)
 {
-    if (itsDeleting)
+    if (deleting_)
         return;
 
-    for (auto ve : itsViewElements)
+    for (auto ve : viewElements_)
     {
         D1_ASSERT(ve);
-        bool selected = theSelection.Contains(ve->Element());
-        auto* sve = ve->Selectable();
+        bool selected = theSelection.contains(ve->element());
+        auto* sve = ve->selectable();
         if (sve)
-            sve->SetSelectionState(sc, selected);
+            sve->setSelectionState(sc, selected);
     }
 }
 
 
-auto C::HideSelection() -> Selection::Hider
+auto C::hideSelection() -> Selection::Hider
 {
-    return itsSelectionVisibilityServer.HideSelection();
+    return selectionVisibilityServer_.hideSelection();
 }
 
 
-bool C::HasViewElement(IViewElement& v) const
+bool C::has(IViewElement& v) const
 {
-    return itsViewElements.find(&v) != itsViewElements.end();
+    return viewElements_.find(&v) != viewElements_.end();
 }
 
 
-void C::Add(IViewElement& ve)
+void C::add(IViewElement& ve)
 {
-    if (itsDeleting)
+    if (deleting_)
         return;
 
-    itsViewElements.insert(&ve);
+    viewElements_.insert(&ve);
     // inserts only if ve is not yet contained.
 
 #ifdef _DEBUG
     // some consistency checks
     {
-        IElement& me = ve.Element();
+        IElement& me = ve.element();
         D1_ASSERT(&me);
 
-        IView& view_of_ve = ve.GetView();
+        IView& view_of_ve = ve.getView();
         D1_ASSERT(&view_of_ve == this);
 
-        IViewElement* ve_of_me = me.ViewElement(this);
+        IViewElement* ve_of_me = me.viewElement(this);
         D1_ASSERT(ve_of_me);
         D1_ASSERT(ve_of_me == &ve);
     }
@@ -297,24 +297,24 @@ void C::Add(IViewElement& ve)
 }
 
 
-void C::Add(VISelectable& ve)
+void C::add(VISelectable& ve)
 {
-    if (itsDeleting)
+    if (deleting_)
         return;
 
-    itsViewElements.insert(&ve);
+    viewElements_.insert(&ve);
     // inserts only if ve is not yet contained.
 
 #ifdef _DEBUG
     // some consistency checks
     {
-        IElement& me = ve.Element();
+        IElement& me = ve.element();
         D1_ASSERT(&me);
 
-        IView& view_of_ve = ve.GetView();
+        IView& view_of_ve = ve.getView();
         D1_ASSERT(&view_of_ve == this);
 
-        IViewElement* ve_of_me = me.ViewElement(this);
+        IViewElement* ve_of_me = me.viewElement(this);
         D1_ASSERT(ve_of_me);
         D1_ASSERT(ve_of_me == &ve);
     }
@@ -322,21 +322,21 @@ void C::Add(VISelectable& ve)
 }
 
 
-void C::Remove(IViewElement& ve)
+void C::remove(IViewElement& ve)
 {
-    if (itsDeleting)
+    if (deleting_)
         return;
 
-    itsViewElements.erase(&ve);
+    viewElements_.erase(&ve);
 }
 
 
-void C::Remove(VISelectable& ve)
+void C::remove(VISelectable& ve)
 {
-    if (itsDeleting)
+    if (deleting_)
         return;
 
-    itsViewElements.erase(&ve);
+    viewElements_.erase(&ve);
 }
 
 }

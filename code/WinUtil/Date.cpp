@@ -12,7 +12,7 @@ module WinUtil.Date;
 namespace WinUtil::Date
 {
 
-d1::Date GetLocalDate()
+d1::Date getLocalDate()
 {
     auto res = d1::Date{};
 

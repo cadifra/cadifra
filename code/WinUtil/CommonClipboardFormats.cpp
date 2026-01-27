@@ -74,10 +74,10 @@ UINT FileName()
 }
 
 
-UINT RichTextFormat()
+UINT RichTEXTFormat()
 {
     static UINT cf = ::RegisterClipboardFormat(
-        TEXT("Rich Text Format"));
+        TEXT("Rich TEXT Format"));
 
     D1_ASSERT(cf);
     return cf;

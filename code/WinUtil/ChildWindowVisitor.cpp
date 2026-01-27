@@ -16,16 +16,16 @@ namespace WinUtil
 namespace
 {
 
-BOOL CALLBACK EnumChildProcForVisitor(HWND hwnd, LPARAM lParam)
+BOOL CALLBACK enumChildProcForVisitor(HWND hwnd, LPARAM lParam)
 {
-    return reinterpret_cast<ChildWindowVisitor*>(lParam)->Visit(hwnd);
+    return reinterpret_cast<ChildWindowVisitor*>(lParam)->visit(hwnd);
 }
 
 }
 
-void VisitChildWindows(HWND parent, ChildWindowVisitor* Visitor)
+void visitChildWindows(HWND parent, ChildWindowVisitor* Visitor)
 {
-    D1_VERIFY(::EnumChildWindows(parent, EnumChildProcForVisitor,
+    D1_VERIFY(::EnumChildWindows(parent, enumChildProcForVisitor,
         reinterpret_cast<LPARAM>(Visitor)));
 }
 
@@ -33,13 +33,13 @@ void VisitChildWindows(HWND parent, ChildWindowVisitor* Visitor)
 // class ChildWindowSender:
 
 ChildWindowSender::ChildWindowSender(UINT uMsg, WPARAM wParam, LPARAM lParam):
-    itsMsg{ uMsg }, itsWParam{ wParam }, itsLParam{ lParam }
+    msg_{ uMsg }, WParam_{ wParam }, LParam_{ lParam }
 {
 }
 
-bool ChildWindowSender::Visit(HWND hwnd)
+bool ChildWindowSender::visit(HWND hwnd)
 {
-    ::SendMessage(hwnd, itsMsg, itsWParam, itsLParam);
+    ::SendMessage(hwnd, msg_, WParam_, LParam_);
     return true;
 }
 

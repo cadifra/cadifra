@@ -16,15 +16,15 @@ export template <typename String = std::wstring>
 class CaseInsensitiveLess
 {
     using Char = String::value_type;
-    ToLower<Char> itsToLower;
+    ToLower<Char> toLower_;
 
 public:
     CaseInsensitiveLess(const std::locale& l = std::locale()):
-        itsToLower(l) {}
+        toLower_(l) {}
 
     bool operator()(Char a, Char b) const
     {
-        return itsToLower(a) < itsToLower(b);
+        return toLower_(a) < toLower_(b);
     }
 
     bool operator()(const String& a, const String& b) const
@@ -40,15 +40,15 @@ export template <typename String = std::wstring>
 class CaseInsensitiveEqual
 {
     using Char = String::value_type;
-    ToLower<Char> itsToLower;
+    ToLower<Char> toLower_;
 
 public:
     CaseInsensitiveEqual(const std::locale& l = std::locale()):
-        itsToLower(l) {}
+        toLower_(l) {}
 
     bool operator()(Char a, Char b) const
     {
-        return itsToLower(a) == itsToLower(b);
+        return toLower_(a) == toLower_(b);
     }
 
     bool operator()(const String& a, const String& b) const

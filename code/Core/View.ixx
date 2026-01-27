@@ -24,7 +24,7 @@ export class ISelectionObserver;
 export class IFilter
 {
 public:
-    virtual bool Pass(const VIPointable&) const = 0;
+    virtual bool pass(const VIPointable&) const = 0;
 
     IFilter() = default;
 
@@ -49,29 +49,29 @@ public:
 
     virtual ~ISelectionObserver();
 
-    virtual void SelectionChanged() = 0;
+    virtual void selectionChanged() = 0;
     // The observed selection may have been changed.
 
-    void SetDock(Dock* d) { itsDock = d; }
+    void setDock(Dock* d) { dock_ = d; }
 
 private:
-    Dock* itsDock = nullptr;
+    Dock* dock_ = nullptr;
 };
 
 
 class ISelectionObserver::Dock
 {
     using SelObsContainer = std::vector<ISelectionObserver*>;
-    SelObsContainer itsObservers;
+    SelObsContainer observers_;
 
 public:
     Dock() {}
     Dock(const Dock&) = delete;
     Dock& operator=(const Dock&) = delete;
 
-    void Attach(ISelectionObserver&);
-    void Detach(ISelectionObserver&);
-    void Notify() const;
+    void attach(ISelectionObserver&);
+    void detach(ISelectionObserver&);
+    void notify() const;
 };
 
 
@@ -80,120 +80,120 @@ export class IView
     using ItsViewElementsType = d1::ListSet<IViewElement*>;
     using ItsSelectableViewElementsType = d1::ListSet<VISelectable*>;
 
-    IClub& itsClub;
-    ItsViewElementsType itsViewElements; // reference only
-    ISelectionObserver::Dock itsSelectionObserverDock;
-    Selection::VisibilityServer itsSelectionVisibilityServer{ *this };
-    bool itsSelectionVisible = true;
-    bool itIsActive = false;
-    bool itsDeleting = false;
+    IClub& club_;
+    ItsViewElementsType viewElements_; // reference only
+    ISelectionObserver::Dock selectionObserverDock_;
+    Selection::VisibilityServer selectionVisibilityServer_{ *this };
+    bool selectionVisible_ = true;
+    bool active_ = false;
+    bool deleting_ = false;
 
 public:
     IView(IClub&);
 
     virtual ~IView() = 0; // this DTOR has an implementation
 
-    auto Club() const -> IClub& { return itsClub; }
+    auto club() const -> IClub& { return club_; }
 
-    virtual void Update() = 0;
+    virtual void update() = 0;
     // Updates all outdated IViewElements.
 
-    virtual void ChangeActiveState(bool isActive);
+    virtual void changeActiveState(bool isActive);
     // if derived class overrides ChangeActiveState, it must call this
     // member explicitly.
 
-    bool IsActive() const { return itIsActive; }
+    bool isActive() const { return active_; }
 
-    void Insert(IElement& me, bool update_view = true); // no ownership taken
+    void insert(IElement& me, bool update_view = true); // no ownership taken
     // Checks if me already has a view element in this view. If not, it
     // creates a new view element in this view and adds it to the view
     // elements of me.
 
-    virtual void AddToSelection(Selection::Tracker&, const d1::nRect& bounding_box) = 0;
+    virtual void addToSelection(Selection::Tracker&, const d1::nRect& bounding_box) = 0;
     // Sets the selection based on a bounding box. bounding_box must be
     // normalized.
 
-    auto FindPointable(const d1::Point& p, d1::int32 distance,
+    auto findPointable(const d1::Point& p, d1::int32 distance,
         const IFilter* theFilter = 0, bool attaching = false) const -> VIPointable*;
-    // Get the VIPointable that says CheckHit() true when the mouse points
+    // Get the VIPointable that says checkHit() true when the mouse points
     // at position p within distance (p is in logical coordinates).
     // The optional parameter theFilter (reference only) may point
-    // to a filter object. If such a filter is supplied, FindPointable()
-    // considers only those VIPointable e that have filter.Pass(e) == true
+    // to a filter object. If such a filter is supplied, findPointable()
+    // considers only those VIPointable e that have filter.pass(e) == true
 
-    auto begin() const { return itsViewElements.begin(); }
-    auto end() const { return itsViewElements.end(); }
+    auto begin() const { return viewElements_.begin(); }
+    auto end() const { return viewElements_.end(); }
 
-    bool HasSelection() const;
+    bool hasSelection() const;
     // Returns true if at least one ViewElement is selected.
 
-    void DeselectAll(Selection::Tracker&);
-    void SelectAll(Selection::Tracker&);
+    void deselectAll(Selection::Tracker&);
+    void selectAll(Selection::Tracker&);
 
-    auto Selection() const -> ElementSet;
+    auto selection() const -> ElementSet;
 
-    void SetSelection(Selection::Tracker&, ElementSet theSelection);
+    void setSelection(Selection::Tracker&, ElementSet theSelection);
     // POST: all elements which are in "theSelection" are selected.
     //       All others are deselected.
 
-    auto HideSelection() -> Selection::Hider;
+    auto hideSelection() -> Selection::Hider;
     // Hides the selection. The selection is unhidden, after the last
     // Selection::Hider has been destructed. SelectionHiders are allowed
     // to live longer than their view.
 
-    bool SelectionIsVisible() const { return itsSelectionVisible; }
+    bool selectionIsVisible() const { return selectionVisible_; }
 
-    void Attach(ISelectionObserver& so)
+    void attach(ISelectionObserver& so)
     {
-        itsSelectionObserverDock.Attach(so);
+        selectionObserverDock_.attach(so);
     }
 
-    void Detach(ISelectionObserver& so)
+    void detach(ISelectionObserver& so)
     {
-        itsSelectionObserverDock.Detach(so);
+        selectionObserverDock_.detach(so);
     }
 
-    void NotifySelectionObservers() const;
+    void notifySelectionObservers() const;
 
-    bool HasViewElement(IViewElement& v) const;
+    bool has(IViewElement& v) const;
 
-    virtual d1::int32 ZoomedDistance(d1::int32 distance) const = 0;
+    virtual d1::int32 zoomedDistance(d1::int32 distance) const = 0;
     // Adjusts distance to account for actual zoom factor.
 
-    void SetSelectionVisibility(bool visible);
+    void setSelectionVisibility(bool visible);
     // Sets the visibility state of all selected elements.
     // To be called by SelectionVisibilityServerImp.
 
-    void Add(IViewElement& v);
+    void add(IViewElement& v);
     // Inserts v into its list of view elements if not yet contained.
     // This function is used by IViewElement::Insert.
 
-    void Add(VISelectable& v);
+    void add(VISelectable& v);
     // Inserts v into its list of selectable view elements if not
     // yet contained. This function is used by
     // ISelectableViewElement::Insert.
 
-    void Remove(IViewElement& v);
+    void remove(IViewElement& v);
 
-    void Remove(VISelectable& v);
+    void remove(VISelectable& v);
 };
 
 
 export class VIPointable // mouse pointable object in a view
 {
 public:
-    virtual auto GetView() const -> IView& = 0;
+    virtual auto getView() const -> IView& = 0;
 
-    virtual bool CheckHit(const d1::Point& pos, d1::int32 distance,
+    virtual bool checkHit(const d1::Point& pos, d1::int32 distance,
         bool attaching) const = 0;
     // returns true, if this VIPointable feels it is hit, given that
     // the mouse points to position pos within distance.
 
-    virtual auto GetWeight(const d1::Point& pos, d1::int32 distance) const -> Weight = 0;
-    // Used in IView::FindPointable(). Usually, the model is consulted to compute
-    // the Weight [see IElement::GetWeight()].
+    virtual auto getWeight(const d1::Point& pos, d1::int32 distance) const -> Weight = 0;
+    // Used in IView::findPointable(). Usually, the model is consulted to compute
+    // the Weight [see IElement::getWeight()].
 
-    virtual void SetCursor(const d1::Point& mouse_pos) const = 0;
+    virtual void setCursor(const d1::Point& mouse_pos) const = 0;
 
 protected:
     ~VIPointable() = default;
@@ -202,55 +202,55 @@ protected:
 
 export class IViewElement: public virtual VIPointable
 {
-    IView& itsView;
+    IView& view_;
 
 public:
     //-- VIPointable
 
-    bool CheckHit(const d1::Point&, d1::int32, bool attaching) const override;
-    auto GetWeight(const d1::Point& pos, d1::int32 distance) const
+    bool checkHit(const d1::Point&, d1::int32, bool attaching) const override;
+    auto getWeight(const d1::Point& pos, d1::int32 distance) const
         -> Weight override;
 
     //--
 
     IViewElement(IView& v):
-        itsView{ v }
+        view_{ v }
     {
     }
 
     virtual ~IViewElement();
-    // Removes itself from itsIView.
+    // Removes elf_ from iView_.
 
-    auto View() const -> IView& { return itsView; }
+    auto view() const -> IView& { return view_; }
 
-    virtual void NeedsUpdate() = 0;
-    // Inserts itself to the list of outdated elements of its view.
+    virtual void needsUpdate() = 0;
+    // Inserts elf_ to the list of outdated elements of its view.
 
-    virtual void CancelUpdate() = 0;
+    virtual void cancelUpdate() = 0;
     // Cancels a pending update triggered with NeedsUpdate.
 
-    virtual auto Element() const -> IElement& = 0;
+    virtual auto element() const -> IElement& = 0;
 
-    virtual void ViewDeleted();
+    virtual void viewDeleted();
     // Someone deleted the View in which this IViewElement is displayed.
-    // ViewDeleted() asks the owning model Element of this IViewElement
+    // viewDeleted() asks the owning model Element of this IViewElement
     // to delete it (the View is *not* the owner of the IViewElements).
 
-    virtual void Insert(bool needsUpdate = true);
-    // Inserts itself into its IView and calls NeedsUpdate if needsUpdate
+    virtual void insert(bool needsUpdate = true);
+    // Inserts elf_ into its IView and calls NeedsUpdate if needsUpdate
     // is true. It's allowed to call Insert more than once.
 
-    bool IsInActiveView() const;
+    bool isInActiveView() const;
     // Returns true, if the view of this view element is currently active.
 
-    bool IsSelected() const;
+    bool isSelected() const;
 
-    virtual auto Selectable() -> VISelectable* { return nullptr; }
-    virtual auto Selectable() const -> const VISelectable* { return nullptr; }
+    virtual auto selectable() -> VISelectable* { return nullptr; }
+    virtual auto selectable() const -> const VISelectable* { return nullptr; }
     // If this view Element supports the Selectable interface, returns
     // a reference pointer to it. Returns zero, if not.
 
-    virtual void TransactionDone() {}
+    virtual void transactionDone() {}
 };
 
 
@@ -258,13 +258,13 @@ export template <class T>
 requires std::derived_from<T, IElement>
 class Filter: public IFilter
 {
-    bool Pass(const VIPointable& ps) const override
+    bool pass(const VIPointable& ps) const override
     {
         using CVE = const IViewElement;
         auto ve = dynamic_cast<CVE*>(&ps);
         if (ve)
         {
-            auto& me = ve->Element();
+            auto& me = ve->element();
             if (dynamic_cast<T*>(&me))
                 return true;
         }
@@ -275,35 +275,35 @@ class Filter: public IFilter
 
 export class VISelectable: public virtual IViewElement
 {
-    bool itIsSelected = false;
+    bool selected_ = false;
 
 public:
     //-- IViewElement
 
-    void Insert(bool needsUpdate) override;
-    auto Selectable() -> VISelectable* override { return this; }
-    auto Selectable() const -> const VISelectable* override { return this; }
+    void insert(bool needsUpdate) override;
+    auto selectable() -> VISelectable* override { return this; }
+    auto selectable() const -> const VISelectable* override { return this; }
 
     //--
 
-    virtual void SetSelectionState(Selection::Tracker&, bool);
+    virtual void setSelectionState(Selection::Tracker&, bool);
     // selects or deselects a view element.
     // The new selection states becomes immediately visible (no update call
     // needed). The selection state acts only on one view element in a
     // distinct view.
 
-    void ToggleSelectionState(Selection::Tracker& c) { SetSelectionState(c, !itIsSelected); }
-    void Select(Selection::Tracker& c) { SetSelectionState(c, true); }
-    void Deselect(Selection::Tracker& c) { SetSelectionState(c, false); }
+    void toggleSelectionState(Selection::Tracker& c) { setSelectionState(c, not selected_); }
+    void select(Selection::Tracker& c) { setSelectionState(c, true); }
+    void deselect(Selection::Tracker& c) { setSelectionState(c, false); }
 
-    bool IsSelected() const { return itIsSelected; }
+    bool isSelected() const { return selected_; }
 
-    bool SelectionIsVisible() const;
+    bool selectionIsVisible() const;
 
-    virtual void SelectionNeedsUpdate() = 0;
-    // Inserts itself in the list of outdated selectables of its view.
+    virtual void selectionNeedsUpdate() = 0;
+    // Inserts elf_ in the list of outdated selectables of its view.
 
-    virtual auto FindControl(const d1::Point& p, d1::int32 distance) -> VIPointable*;
+    virtual auto findControl(const d1::Point& p, d1::int32 distance) -> VIPointable*;
     // If this IViewElement has controls, it must find out, if it has a control
     // within distance of p and must return a reference to this Control.
     // If this ViewElement does not have any controls at all or if no Control is

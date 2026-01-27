@@ -16,48 +16,48 @@ Common::Common()
 
 
 Common::Common(const EXCEPTION_RECORD& er):
-    itsFlags{ er.ExceptionFlags },
-    itsAddress{ er.ExceptionAddress }
+    flags_{ er.ExceptionFlags },
+    address_{ er.ExceptionAddress }
 {
 }
 
 
 const char* Common::what() const
 {
-    if (itsBuffer.empty())
+    if (buffer_.empty())
     {
         auto ost = std::ostringstream{};
-        ost << "CException::" << GetName() << " thrown at address " << itsAddress
+        ost << "CException::" << getName() << " thrown at address " << address_
             << std::endl;
 
-        itsBuffer = ost.str();
+        buffer_ = ost.str();
     }
 
-    return itsBuffer.c_str();
+    return buffer_.c_str();
 }
 
 
 Access_violation::Access_violation(const EXCEPTION_RECORD& er):
     Common{ er },
     itWasAWrite{ er.ExceptionInformation[0] == 1 },
-    itsAccessAddress{ reinterpret_cast<void*>(er.ExceptionInformation[1]) }
+    accessAddress_{ reinterpret_cast<void*>(er.ExceptionInformation[1]) }
 {
 }
 
 
 const char* Access_violation::what() const
 {
-    if (itsBuffer.empty())
+    if (buffer_.empty())
     {
         Common::what();
         auto ost = std::stringstream{};
         ost << "Tried to " << (itWasAWrite ? "write to" : "read from")
-            << " address " << itsAccessAddress << std::endl;
+            << " address " << accessAddress_ << std::endl;
 
-        itsBuffer += ost.str();
+        buffer_ += ost.str();
     }
 
-    return itsBuffer.c_str();
+    return buffer_.c_str();
 }
 
 }

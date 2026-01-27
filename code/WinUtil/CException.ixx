@@ -17,9 +17,9 @@ export namespace WinUtil::CException
 class Common: public std::exception
 {
 protected:
-    const unsigned int itsFlags = 0;
-    const void* itsAddress = nullptr; // ref only
-    mutable std::string itsBuffer;
+    const unsigned int flags_ = 0;
+    const void* address_ = nullptr; // ref only
+    mutable std::string buffer_;
 
 public:
     Common();
@@ -31,14 +31,14 @@ public:
     Common& operator=(const Common&) = default;
 
 private:
-    virtual const char* GetName() const = 0;
+    virtual const char* getName() const = 0;
 };
 
 
 #define D1_DEFINE_CEXCEPTION_CLASS(name, parent)     \
     class name: public parent                        \
     {                                                \
-        virtual const char* GetName() const          \
+        virtual const char* getName() const          \
         {                                            \
             return #name;                            \
         }                                            \
@@ -87,8 +87,8 @@ D1_DEFINE_CEXCEPTION_CLASS(Control_c_exit, Common)
 class Access_violation: public Common
 {
     const bool itWasAWrite{};
-    const void* itsAccessAddress = nullptr;
-    virtual const char* GetName() const { return "Access_violation"; }
+    const void* accessAddress_ = nullptr;
+    virtual const char* getName() const { return "Access_violation"; }
 
 public:
     Access_violation(const EXCEPTION_RECORD& er);

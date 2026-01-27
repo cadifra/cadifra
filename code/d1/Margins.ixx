@@ -31,10 +31,10 @@ struct MarginsBase
         r{}, // right
         b{}; // bottom
 
-    value_type Left() const { return l; }
-    value_type Top() const { return t; }
-    value_type Right() const { return r; }
-    value_type Bottom() const { return b; }
+    value_type left() const { return l; }
+    value_type top() const { return t; }
+    value_type right() const { return r; }
+    value_type bottom() const { return b; }
 };
 
 
@@ -62,7 +62,7 @@ export struct Margins: public MarginsBase<int32>
 
     bool operator==(const Margins& x) const
     {
-        return (l == x.l) && (t == x.t) && (r == x.r) && (b == x.b);
+        return (l == x.l) and (t == x.t) and (r == x.r) and (b == x.b);
     }
 };
 
@@ -117,9 +117,9 @@ export struct fMargins: public MarginsBase<float64>
 
     bool operator==(const fMargins& rhs) const
     {
-        return isEqual(l, rhs.l) &&
-               isEqual(t, rhs.t) &&
-               isEqual(r, rhs.r) &&
+        return isEqual(l, rhs.l) and
+               isEqual(t, rhs.t) and
+               isEqual(r, rhs.r) and
                isEqual(b, rhs.b);
     }
 };

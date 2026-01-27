@@ -27,36 +27,36 @@ using C = GuardedFunctionCall;
 }
 
 
-void C::ShowErrorBox(const std::exception& e) const
+void C::showErrorBox(const std::exception& e) const
 {
     const auto name = std::string(typeid(e).name());
-    auto os = std::ostream{ &WinUtil::ExceptionBox::Clear() };
+    auto os = std::ostream{ &WinUtil::ExceptionBox::clear() };
     os
         << name << " catched in "
-        << (itsCaller ? itsCaller : "WinUtil::GuardedFunctionCall") << "\n"
+        << (caller_ ? caller_ : "WinUtil::GuardedFunctionCall") << "\n"
         << e.what()
         << std::endl;
-    ExceptionBox::Show();
+    ExceptionBox::show();
 }
 
 
-auto C::CallL3() -> Result
+auto C::callL3() -> Result
 {
     auto res = Result::ok;
     try
     {
-        ImplementCall();
+        implementCall();
     }
     catch (const d1::Exception& e)
     {
-        if (!e.Handled())
-            ShowErrorBox(e);
+        if (not e.handled())
+            showErrorBox(e);
 
         res = Result::exception_catched;
     }
     catch (std::exception& e)
     {
-        ShowErrorBox(e);
+        showErrorBox(e);
     }
     return res;
 }
@@ -65,7 +65,7 @@ auto C::CallL3() -> Result
 namespace
 {
 
-void TryToRestoreGuardPageAfterStackOverflow()
+void tryToRestoreGuardPageAfterStackOverflow()
 {
     // see https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/resetstkoflw?view=msvc-160
     _resetstkoflw();
@@ -85,7 +85,7 @@ void TryToRestoreGuardPageAfterStackOverflow()
 //       mov   eax,1
 // which does not use stack (but is 5 bytes in size).
 
-auto C::CallL2() -> Result
+auto C::callL2() -> Result
 {
     auto res = Result::ok;
     auto er = EXCEPTION_RECORD{};
@@ -93,20 +93,20 @@ auto C::CallL2() -> Result
 
     __try
     {
-        res = CallL3();
+        res = callL3();
     }
     __except (
         er = *(GetExceptionInformation())->ExceptionRecord,
         EXCEPTION_EXECUTE_HANDLER)
     {
         if (er.ExceptionCode == EXCEPTION_STACK_OVERFLOW)
-            TryToRestoreGuardPageAfterStackOverflow();
+            tryToRestoreGuardPageAfterStackOverflow();
         SEH_exception_catched = true;
         res = Result::exception_catched;
     }
 
     if (SEH_exception_catched)
-        SEHTranslator::ThrowCException(er);
+        SEHTranslator::throwCException(er);
 
     return res;
 }
@@ -115,33 +115,33 @@ auto C::CallL2() -> Result
 // turns optimization settings to previous values.
 
 
-auto C::Execute() throw() -> Result
+auto C::execute() throw() -> Result
 {
     auto res = Result::ok;
     try
     {
-        res = CallL2();
+        res = callL2();
     }
     catch (CException::Common& e)
     {
         res = Result::exception_catched;
-        auto os = std::ostream{ &WinUtil::ExceptionBox::Clear() };
+        auto os = std::ostream{ &WinUtil::ExceptionBox::clear() };
         os
             << "WinUtil::CException::Common catched in "
-            << (itsCaller ? itsCaller : "WinUtil::GuardedFunctionCall") << "\n"
+            << (caller_ ? caller_ : "WinUtil::GuardedFunctionCall") << "\n"
             << e.what()
             << std::endl;
-        ExceptionBox::Show();
+        ExceptionBox::show();
     }
     catch (...)
     {
         res = Result::exception_catched;
-        auto os = std::ostream{ &WinUtil::ExceptionBox::Clear() };
+        auto os = std::ostream{ &WinUtil::ExceptionBox::clear() };
         os
             << "catch(...) exception in "
-            << (itsCaller ? itsCaller : "WinUtil::GuardedFunctionCall") << "\n"
+            << (caller_ ? caller_ : "WinUtil::GuardedFunctionCall") << "\n"
             << std::endl;
-        ExceptionBox::Show();
+        ExceptionBox::show();
     }
     return res;
 }

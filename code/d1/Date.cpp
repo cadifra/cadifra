@@ -18,16 +18,16 @@ namespace d1
 namespace
 {
 
-bool CheckSeparator(std::istream& in, wchar_t sep = L'-')
+bool checkSeparator(std::istream& in, wchar_t sep = L'-')
 {
-    if (!in)
+    if (not in)
         return false;
     char c = 0;
     in.get(c);
     if (in.fail())
         return false;
     bool ok = (c == sep);
-    if (!ok)
+    if (not ok)
         in.setstate(std::ios_base::failbit);
     return ok;
 }
@@ -48,13 +48,13 @@ public:
 auto digits(std::string& s) -> std::string::size_type
 {
     std::string::size_type count = 0;
-    while (!s.empty())
+    while (not s.empty())
     {
         char c = s.at(0);
         s.erase(0, 1);
         if (c == '-')
             return count;
-        if (!std::isdigit(c))
+        if (not std::isdigit(c))
             throw DateConversionError{};
         ++count;
     }
@@ -62,7 +62,7 @@ auto digits(std::string& s) -> std::string::size_type
 }
 
 
-void CheckFormat(const std::string in_s)
+void checkFormat(const std::string in_s)
 {
     auto s = in_s;
 
@@ -75,29 +75,29 @@ void CheckFormat(const std::string in_s)
     if (digits(s) != 2)
         throw DateConversionError{};
 
-    if (!s.empty())
+    if (not s.empty())
         throw DateConversionError{};
 }
 
 }
 
 
-bool /*ok*/ Date::ConvertFromISO(const std::string& s)
+bool /*ok*/ Date::convertFromISO(const std::string& s)
 {
     const bool ok = true;
 
     Date res;
 
     if (s.empty())
-        return !ok;
+        return not ok;
 
     try
     {
-        CheckFormat(s);
+        checkFormat(s);
     }
     catch (DateConversionError&)
     {
-        return !ok;
+        return not ok;
     }
 
     auto is = std::istringstream{ s };
@@ -106,21 +106,21 @@ bool /*ok*/ Date::ConvertFromISO(const std::string& s)
     try
     {
         is >> res.year;
-        CheckSeparator(is);
+        checkSeparator(is);
         is >> res.month;
-        CheckSeparator(is);
+        checkSeparator(is);
         is >> res.day;
     }
     catch (std::ios_base::failure&)
     {
-        return !ok;
+        return not ok;
     }
 
-    if (!is.eof())
-        return !ok;
+    if (not is.eof())
+        return not ok;
 
-    if (!res.IsValid())
-        return !ok;
+    if (not res.isValid())
+        return not ok;
 
     *this = res;
 
@@ -128,35 +128,21 @@ bool /*ok*/ Date::ConvertFromISO(const std::string& s)
 }
 
 
-bool Date::operator<=(const Date& r) const
-{
-    if (year < r.year)
-        return true;
-    if (year != r.year)
-        return false;
-    if (month < r.month)
-        return true;
-    if (month != r.month)
-        return false;
-    return day <= r.day;
-}
-
-
-bool Date::IsValid() const
+bool Date::isValid() const
 {
     const bool valid = true;
 
-    if (year == 0 || month == 0 || day == 0)
-        return !valid;
+    if (year == 0 or month == 0 or day == 0)
+        return not valid;
 
     if (month > 12)
-        return !valid;
+        return not valid;
 
     if (day > 31)
-        return !valid;
+        return not valid;
 
-    if (day == 31 && (month == 4 || month == 6 || month == 9 || month == 11))
-        return !valid;
+    if (day == 31 and (month == 4 or month == 6 or month == 9 or month == 11))
+        return not valid;
 
     if (month != 2)
         return valid;
@@ -164,26 +150,26 @@ bool Date::IsValid() const
     D1_ASSERT(month == 2);
 
     if (day > 29)
-        return !valid;
+        return not valid;
 
     if (day < 29)
         return valid;
 
     D1_ASSERT(day == 29);
 
-    if (!IsLeapYear())
-        return !valid;
+    if (not isLeapYear())
+        return not valid;
 
     return valid;
 }
 
 
-bool Date::IsLeapYear(uint16 year)
+bool Date::isLeapYear(uint16 year)
 {
     const bool LeapYear = true;
 
     if (year % 4 != 0)
-        return !LeapYear;
+        return not LeapYear;
 
     /* year is divisible by four */
 
@@ -191,7 +177,7 @@ bool Date::IsLeapYear(uint16 year)
         return LeapYear;
 
     if (year % 100 == 0)
-        return !LeapYear;
+        return not LeapYear;
 
     return LeapYear;
 }

@@ -18,8 +18,8 @@ class Imp: public Finalizer::Dock
 public:
     //-- Finalizer::Dock
 
-    void Add(std::unique_ptr<Finalizer>) final;
-    void ExecuteAll(Env&) final;
+    void add(std::unique_ptr<Finalizer>) final;
+    void executeAll(Env&) final;
 
     //--
 };
@@ -27,22 +27,22 @@ public:
 }
 
 
-auto Finalizer::GetDock() -> Dock&
+auto Finalizer::getDock() -> Dock&
 {
     static Imp imp;
     return imp;
 }
 
 
-void Imp::Add(std::unique_ptr<Finalizer> f)
+void Imp::add(std::unique_ptr<Finalizer> f)
 {
     v_.push_back(std::move(f));
 }
 
 
-void Imp::ExecuteAll(Env& e)
+void Imp::executeAll(Env& e)
 {
-    auto a = [&](const auto& f) { f->Execute(e); };
+    auto a = [&](const auto& f) { f->execute(e); };
     std::ranges::for_each(v_, a);
 }
 

@@ -16,7 +16,7 @@ namespace WinUtil
 
 namespace
 {
-inline int MapWindowRect(HWND hWndFrom, HWND hWndTo, RECT& r)
+inline int mapWindowRect(HWND hWndFrom, HWND hWndTo, RECT& r)
 {
     return MapWindowPoints(hWndFrom, hWndTo, reinterpret_cast<LPPOINT>(&r), 2);
 }
@@ -26,42 +26,42 @@ using C = WindowResizer;
 
 
 C::WindowResizer(IWindow& theWindow):
-    itsWindow{ theWindow },
-    itsProcReg{ theWindow.GetDispatcher(), 0 }
+    window_{ theWindow },
+    procReg_{ theWindow.getDispatcher(), 0 }
 {
-    auto ph = itsProcReg.Helper(*this);
+    auto ph = procReg_.helper(*this);
 
-    ph.RegisterSpy(&This::OnSettingChange);
-    ph.RegisterSpy(&This::OnWinPosChanged);
+    ph.addSpy(&This::onSettingChange);
+    ph.addSpy(&This::onWinPosChanged);
 
-    D1_VERIFY(::GetClientRect(itsWindow.GetWindowHandle(), &itsBasePos));
-    MapWindowRect(itsWindow.GetWindowHandle(), 0, itsBasePos);
+    D1_VERIFY(::GetClientRect(window_.getWindowHandle(), &basePos_));
+    mapWindowRect(window_.getWindowHandle(), 0, basePos_);
 }
 
 
-void C::RegisterChild(ResizeAlgorithm& ra)
+void C::registerChild(ResizeAlgorithm& ra)
 {
-    itsAlgorithms.push_back(&ra);
+    algorithms_.push_back(&ra);
 }
 
 
-void C::NewSize()
+void C::newSize()
 {
-    if (::IsIconic(itsWindow.GetWindowHandle()))
+    if (::IsIconic(window_.getWindowHandle()))
         return;
 
     RECT newParentRect;
-    D1_VERIFY(::GetClientRect(itsWindow.GetWindowHandle(), &newParentRect));
-    MapWindowRect(itsWindow.GetWindowHandle(), 0, newParentRect);
+    D1_VERIFY(::GetClientRect(window_.getWindowHandle(), &newParentRect));
+    mapWindowRect(window_.getWindowHandle(), 0, newParentRect);
 
-    HDWP hdwp = ::BeginDeferWindowPos(static_cast<int>(itsAlgorithms.size()));
+    HDWP hdwp = ::BeginDeferWindowPos(static_cast<int>(algorithms_.size()));
     D1_ASSERT(hdwp);
 
-    for (auto* algo : itsAlgorithms)
+    for (auto* algo : algorithms_)
     {
-        if (!hdwp)
+        if (not hdwp)
             break;
-        hdwp = algo->CallDeferWindowPos(hdwp, itsBasePos, newParentRect);
+        hdwp = algo->callDeferWindowPos(hdwp, basePos_, newParentRect);
     }
 
     if (hdwp)
@@ -69,30 +69,30 @@ void C::NewSize()
 }
 
 
-void C::StorePos()
+void C::storePos()
 {
-    D1_VERIFY(::GetClientRect(itsWindow.GetWindowHandle(), &itsBasePos));
-    MapWindowRect(itsWindow.GetWindowHandle(), 0, itsBasePos);
+    D1_VERIFY(::GetClientRect(window_.getWindowHandle(), &basePos_));
+    mapWindowRect(window_.getWindowHandle(), 0, basePos_);
 
-    for (auto ra : itsAlgorithms)
-        ra->StorePos();
+    for (auto ra : algorithms_)
+        ra->storePos();
 }
 
 
-void C::OnSettingChange(WM_SETTINGCHANGE_Msg)
+void C::onSettingChange(WM_SETTINGCHANGE_Msg)
 {
-    StorePos();
+    storePos();
 }
 
 
-void C::OnWinPosChanged(WM_WINDOWPOSCHANGED_Msg msg)
+void C::onWinPosChanged(WM_WINDOWPOSCHANGED_Msg msg)
 {
     LPWINDOWPOS wp = msg.wpos();
 
     if (wp->flags & SWP_NOSIZE)
         return;
 
-    NewSize();
+    newSize();
 }
 
 }

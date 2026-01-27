@@ -10,23 +10,23 @@ import :Undoer;
 namespace Core
 {
 
-auto Combine(UndoerRef first, UndoerRef second) -> UndoerRef
+auto combine(UndoerRef first, UndoerRef second) -> UndoerRef
 {
-    if (first.IsNull())
+    if (first.isNull())
         return second;
 
-    if (second.IsNull())
+    if (second.isNull())
         return first;
 
-    const bool could_merge = first.Merge(second);
+    const bool could_merge = first.merge(second);
 
     if (could_merge)
         return first;
 
     auto su = std::make_shared<SequenceUndoer>();
 
-    su->Append(first);
-    su->Append(second);
+    su->append(first);
+    su->append(second);
 
     return { su };
 }

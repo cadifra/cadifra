@@ -30,7 +30,7 @@ HGLOBAL createDEVNAMES(
     d->wDeviceOffset = d->wDriverOffset + static_cast<WORD>(driver.size()) + 1;
     d->wOutputOffset = d->wDeviceOffset + static_cast<WORD>(device.size()) + 1;
 
-    TCHAR* i = reinterpret_cast<TCHAR*>(d.GetPtr());
+    TCHAR* i = reinterpret_cast<TCHAR*>(d.getPtr());
 
     CopyMemory(i + d->wDriverOffset, driver.c_str(), (driver.size() + 1) * sizeof(TCHAR));
     CopyMemory(i + d->wDeviceOffset, device.c_str(), (device.size() + 1) * sizeof(TCHAR));
@@ -44,7 +44,7 @@ ExtractDEVNAMES::ExtractDEVNAMES(HGLOBAL g)
 {
     auto d = GlobalLocker<DEVNAMES>{ g };
 
-    const TCHAR* i = reinterpret_cast<const TCHAR*>(d.GetPtr());
+    const TCHAR* i = reinterpret_cast<const TCHAR*>(d.getPtr());
 
     if (d->wDriverOffset)
         driver = i + d->wDriverOffset;

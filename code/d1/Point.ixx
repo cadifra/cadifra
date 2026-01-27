@@ -33,9 +33,9 @@ export struct Point
 
     bool operator==(const Point&) const = default;
 
-    Point& Move(const Vector& offset);
+    Point& move(const Vector& offset);
 
-    bool IsNear(const Point& rhs, int32 distance) const;
+    bool isNear(const Point& rhs, int32 distance) const;
 
     Point& operator+=(const Vector& v);
 };
@@ -71,7 +71,7 @@ export struct fPoint
 
     bool operator==(const fPoint& rhs) const
     {
-        return isEqual(x, rhs.x) && isEqual(y, rhs.y);
+        return isEqual(x, rhs.x) and isEqual(y, rhs.y);
     }
 
     fPoint& operator+=(const fVector& vect);
@@ -149,17 +149,17 @@ export struct fVector
     {
     }
 
-    float64 Length() const
+    float64 length() const
     {
         return std::sqrt(dx * dx + dy * dy);
     }
 
     bool operator==(const fVector& rhs) const
     {
-        return isEqual(dx, rhs.dx) && isEqual(dy, rhs.dy);
+        return isEqual(dx, rhs.dx) and isEqual(dy, rhs.dy);
     }
 
-    fVector Perpendicular() const
+    fVector perpendicular() const
     {
         return { -dy, dx };
     }
@@ -208,7 +208,7 @@ inline fPoint& fPoint::operator+=(const fVector& v)
 }
 
 
-inline Point& Point::Move(const Vector& v)
+inline Point& Point::move(const Vector& v)
 {
     x += v.dx;
     y += v.dy;
@@ -336,16 +336,16 @@ inline auto operator-(const Origin&, const fVector& b)
 
 
 
-inline float64 SquareDistance(const fPoint& p1, const fPoint& p2)
+inline float64 squareDistance(const fPoint& p1, const fPoint& p2)
 {
     auto v = fVector{ p2 - p1 };
     return v.dx * v.dx + v.dy * v.dy;
 }
 
 
-inline float64 Distance(const fPoint& p1, const fPoint& p2)
+inline float64 distance(const fPoint& p1, const fPoint& p2)
 {
-    return std::sqrt(SquareDistance(p1, p2));
+    return std::sqrt(squareDistance(p1, p2));
 }
 
 
@@ -355,13 +355,13 @@ inline auto round(const fPoint& p)
 }
 
 
-inline auto Length(const fVector& v)
+inline auto length(const fVector& v)
 {
-    return v.Length();
+    return v.length();
 }
 
 
-inline auto Swap(const fPoint& p)
+inline auto swap(const fPoint& p)
 {
     return fPoint{ p.y, p.x };
 }

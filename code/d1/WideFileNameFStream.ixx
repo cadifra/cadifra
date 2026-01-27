@@ -17,18 +17,18 @@ namespace d1
 export template <class S> // std::basic_ostream, std::basic_istream or std::basic_iostream
 class WideFileNameFStream: public S
 {
-    std::basic_filebuf<typename S::char_type, typename S::traits_type> itsFileBuf;
+    std::basic_filebuf<typename S::char_type, typename S::traits_type> fileBuf_;
 
 public:
     WideFileNameFStream(const wchar_t* fileName, const wchar_t* mode):
-        S(&itsFileBuf),
-        itsFileBuf(_wfopen(fileName, mode)) // non-standard c-tor called!
+        S(&fileBuf_),
+        fileBuf_(_wfopen(fileName, mode)) // non-standard c-tor called!
     {
     }
 
     ~WideFileNameFStream()
     {
-        itsFileBuf.close();
+        fileBuf_.close();
     }
 
     // The WideFileNameFStream class has no member functions "open", "is_open"

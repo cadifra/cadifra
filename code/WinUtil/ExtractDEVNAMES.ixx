@@ -19,12 +19,9 @@ export d1::HGLOBAL createDEVNAMES(
     const std::wstring& output);
 
 
-export class ExtractDEVNAMES
+export struct ExtractDEVNAMES
 {
-public:
-    std::wstring device;
-    std::wstring driver;
-    std::wstring output;
+    std::wstring device, driver, output;
     ExtractDEVNAMES(d1::HGLOBAL g);
 };
 

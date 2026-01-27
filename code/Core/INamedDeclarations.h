@@ -10,5 +10,5 @@
 //                              * * *
 //
 
-std::wstring GetName() const override;
-void SetName(Core::Env& e, const std::wstring&) override;
+std::wstring getName() const override;
+void setName(Core::Env& e, const std::wstring&) override;

@@ -255,7 +255,7 @@ std::ostream& operator<<(std::ostream& os, HRGN rgn)
 
 void PrintCLIPFORMAT::print(std::ostream& os) const
 {
-    switch (m)
+    switch (m_)
     {
     case CF_TEXT:
         os << "CF_TEXT";
@@ -339,10 +339,10 @@ void PrintCLIPFORMAT::print(std::ostream& os) const
         const int maxNameLen = 30;
         TCHAR formatName[maxNameLen];
 
-        if (GetClipboardFormatName(m, formatName, maxNameLen))
+        if (GetClipboardFormatName(m_, formatName, maxNameLen))
             os << d1::wstring2string(formatName);
         else
-            os << m;
+            os << m_;
     }
 }
 
@@ -362,7 +362,7 @@ bool testClear(DWORD* candidate, const DWORD raster)
 
 void PrintTYMED::print(std::ostream& os) const
 {
-    DWORD tymed = m;
+    DWORD tymed = m_;
 
     if (tymed == TYMED_NULL)
         os << "TYMED_NULL ";
@@ -389,7 +389,7 @@ void PrintTYMED::print(std::ostream& os) const
 
 void PrintADVF::print(std::ostream& os) const
 {
-    DWORD advf = m;
+    DWORD advf = m_;
     if (advf == 0)
         os << "no ADVF set";
     if (testClear(&advf, ADVF_NODATA))
@@ -411,13 +411,13 @@ void PrintADVF::print(std::ostream& os) const
 
 void PrintHRESULT::print(std::ostream& os) const
 {
-    if (m == S_OK)
+    if (m_ == S_OK)
         os << "S_OK";
-    else if (m == S_FALSE)
+    else if (m_ == S_FALSE)
         os << "S_FALSE";
     else
     {
-        _com_error e(m);
-        os << std::hex << m << " = " << d1::wstring2string(e.ErrorMessage());
+        auto e = _com_error{ m_ };
+        os << std::hex << m_ << " = " << d1::wstring2string(e.ErrorMessage());
     }
 }

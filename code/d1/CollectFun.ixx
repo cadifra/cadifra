@@ -21,7 +21,7 @@ struct CollectFun
     auto get()
     {
         return [&](E e) {
-            if (!count++)
+            if (not count++)
                 first = e;
             last = e;
         };

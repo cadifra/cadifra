@@ -30,7 +30,7 @@ const char* C::what() const
     const DWORD res = ::FormatMessageA(
         FORMAT_MESSAGE_FROM_SYSTEM,
         0,          // lpSource
-        itsHRESULT, // dwMessageId
+        HRESULT_, // dwMessageId
         0,          // dwLanguageId
         const_cast<char*>(lastMessage.c_str()),
         static_cast<DWORD>(lastMessage.capacity()),
@@ -44,20 +44,20 @@ const char* C::what() const
         o << lastMessage.c_str();
     }
 
-    o << GetHRESULT_string() << std::ends;
+    o << getHRESULT_string() << std::ends;
 
     return lastWhat.c_str();
 }
 
 
-void C::Check(d1::HRESULT r)
+void C::check(d1::HRESULT r)
 {
     if (FAILED(r))
         throw ComException{ r };
 }
 
 
-std::string C::GetHRESULT_string(bool hex, bool with_prefix, bool in_parens) const
+std::string C::getHRESULT_string(bool hex, bool with_prefix, bool in_parens) const
 {
     auto oss = std::ostringstream{};
 
@@ -68,9 +68,9 @@ std::string C::GetHRESULT_string(bool hex, bool with_prefix, bool in_parens) con
         oss << "HRESULT=";
 
     if (hex)
-        oss << "0x" << std::hex << itsHRESULT;
+        oss << "0x" << std::hex << HRESULT_;
     else
-        oss << itsHRESULT;
+        oss << HRESULT_;
 
     if (in_parens)
         oss << ")";

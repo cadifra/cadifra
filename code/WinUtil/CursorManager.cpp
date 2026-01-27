@@ -37,32 +37,32 @@ constexpr LONGLONG WaitBeforeWaitCursor = -300 * 10000;
 class Impl: public CursorManager
 {
     bool itIsRunning = false;
-    HCURSOR itsWaitCursor{};
+    HCURSOR waitCursor_{};
 
-    UniqueHandle itsQuitEvent;
-    UniqueHandle itsSwitchOffEvent;
-    UniqueHandle itsTimer;
-    UniqueHandle itsThread;
-    DWORD itsCreatorThreadId = {};
+    UniqueHandle quitEvent_;
+    UniqueHandle switchOffEvent_;
+    UniqueHandle timer_;
+    UniqueHandle thread_;
+    DWORD creatorThreadId_ = {};
 
-    CriticalSection::Object itsCSO;
-    HCURSOR itsCursor = {};
-    bool itsWaitCursorSet = false;
+    CriticalSection::Object CSO_;
+    HCURSOR cursor_ = {};
+    bool waitCursorSet_ = false;
 
-    LARGE_INTEGER itsWaitTime = {};
+    LARGE_INTEGER waitTime_ = {};
 
-    void SetWaitCursor();
-    void RestoreCursor();
-    void Set(HCURSOR newCursor) final;
-    void RestoreCursorState() final;
+    void setWaitCursor();
+    void restoreCursor();
+    void set(HCURSOR newCursor) final;
+    void restoreCursorState() final;
 
-    HCURSOR GetCursor() const final { return itsCursor; }
-    HCURSOR GetWaitCursor() const final { return itsWaitCursor; }
+    HCURSOR getCursor() const final { return cursor_; }
+    HCURSOR getWaitCursor() const final { return waitCursor_; }
 
-    bool Start() final;
-    bool Stop() final;
+    bool start() final;
+    bool stop() final;
 
-    static DWORD WINAPI ThreadRoutine(void*);
+    static DWORD WINAPI threadRoutine(void*);
 
 public:
     Impl();
@@ -73,7 +73,7 @@ public:
 //
 //   The CursorManager thread.
 //
-DWORD WINAPI Impl::ThreadRoutine(void* cmImpl)
+DWORD WINAPI Impl::threadRoutine(void* cmImpl)
 {
     Impl* This = static_cast<Impl*>(cmImpl);
 
@@ -81,22 +81,22 @@ DWORD WINAPI Impl::ThreadRoutine(void* cmImpl)
     // thread.
     D1_VERIFY(::AttachThreadInput(
         GetCurrentThreadId(),
-        This->itsCreatorThreadId,
+        This->creatorThreadId_,
         TRUE));
 
     const HANDLE WaitToSwitchOn[2] = {
-        This->itsQuitEvent.get(), This->itsTimer.get()
+        This->quitEvent_.get(), This->timer_.get()
     };
 
     const HANDLE WaitToSwitchOff[2] = {
-        This->itsQuitEvent.get(), This->itsSwitchOffEvent.get()
+        This->quitEvent_.get(), This->switchOffEvent_.get()
     };
 
     for (;;)
     {
         // This thread sleeps inside the WaitForMultipleObjects() below
         // as long as the following condition is met:
-        // (itsQuitEvent has not been signaled)
+        // (quitEvent_ has not been signaled)
         // AND ( (the main thread is not in a lengthy operation section)
         //       OR
         //       (the main thread IS in a lengthy operation section AND the
@@ -107,81 +107,81 @@ DWORD WINAPI Impl::ThreadRoutine(void* cmImpl)
         D1_ASSERT(res != WAIT_FAILED);
 
         if (res == WAIT_OBJECT_0)
-            return 0; // itsQuitEvent has been signaled. Shut down thread.
+            return 0; // quitEvent_ has been signaled. Shut down thread.
 
         // ## we are in a lengthy operation AND the timer has expired.
 
-        This->SetWaitCursor();
+        This->setWaitCursor();
 
         // let's wait until the lengthy operation is finished (which is
-        // signaled by itsSwitchOffEvent) or we must shut down (signaled by
-        // itsQuitEvent).
+        // signaled by switchOffEvent_) or we must shut down (signaled by
+        // quitEvent_).
         res = WaitForMultipleObjects(2, WaitToSwitchOff, FALSE, INFINITE);
 
         D1_ASSERT(res != WAIT_FAILED);
 
         if (res == WAIT_OBJECT_0)
-            return 0; // itsQuitEvent has been signaled. Shut down thread.
+            return 0; // quitEvent_ has been signaled. Shut down thread.
 
         // ## the lengthy operation is finished
 
-        This->RestoreCursor();
+        This->restoreCursor();
     }
 
     return 1; // we will never reach this
 }
 
 
-void Impl::SetWaitCursor()
+void Impl::setWaitCursor()
 {
-    auto criticalSection = CriticalSection{ itsCSO };
-    if (!itsWaitCursorSet)
+    auto criticalSection = CriticalSection{ CSO_ };
+    if (not waitCursorSet_)
     {
-        itsWaitCursorSet = true;
-        itsCursor = ::SetCursor(itsWaitCursor);
+        waitCursorSet_ = true;
+        cursor_ = ::SetCursor(waitCursor_);
     }
 }
 
 
-void Impl::RestoreCursor()
+void Impl::restoreCursor()
 {
-    auto criticalSection = CriticalSection{ itsCSO };
-    if (itsWaitCursorSet)
+    auto criticalSection = CriticalSection{ CSO_ };
+    if (waitCursorSet_)
     {
-        itsWaitCursorSet = false;
-        ::SetCursor(itsCursor);
+        waitCursorSet_ = false;
+        ::SetCursor(cursor_);
     }
 }
 
 
-void Impl::Set(HCURSOR newCursor)
+void Impl::set(HCURSOR newCursor)
 {
-    auto criticalSection = CriticalSection{ itsCSO };
-    itsCursor = newCursor;
-    if (!itsWaitCursorSet)
+    auto criticalSection = CriticalSection{ CSO_ };
+    cursor_ = newCursor;
+    if (not waitCursorSet_)
         ::SetCursor(newCursor);
 }
 
 
-void Impl::RestoreCursorState()
+void Impl::restoreCursorState()
 {
-    auto criticalSection = CriticalSection{ itsCSO };
-    if (itsWaitCursorSet)
-        ::SetCursor(itsWaitCursor);
-    else if (itsCursor)
-        ::SetCursor(itsCursor);
+    auto criticalSection = CriticalSection{ CSO_ };
+    if (waitCursorSet_)
+        ::SetCursor(waitCursor_);
+    else if (cursor_)
+        ::SetCursor(cursor_);
 }
 
 
-bool Impl::Start()
+bool Impl::start()
 {
     if (itIsRunning)
         return false;
 
-    D1_VERIFY(::ResetEvent(itsSwitchOffEvent.get()));
+    D1_VERIFY(::ResetEvent(switchOffEvent_.get()));
     D1_VERIFY(::SetWaitableTimer(
-        itsTimer.get(),
-        &itsWaitTime,
+        timer_.get(),
+        &waitTime_,
         0, // not periodic
         0, // no completion routine
         0, // no arguments for completion routine
@@ -193,13 +193,13 @@ bool Impl::Start()
 }
 
 
-bool Impl::Stop()
+bool Impl::stop()
 {
-    if (!itIsRunning)
+    if (not itIsRunning)
         return false;
 
-    D1_VERIFY(::CancelWaitableTimer(itsTimer.get()));
-    D1_VERIFY(::SetEvent(itsSwitchOffEvent.get()));
+    D1_VERIFY(::CancelWaitableTimer(timer_.get()));
+    D1_VERIFY(::SetEvent(switchOffEvent_.get()));
 
     itIsRunning = false;
 
@@ -208,60 +208,60 @@ bool Impl::Stop()
 
 
 Impl::Impl():
-    itsCreatorThreadId{ ::GetCurrentThreadId() }
+    creatorThreadId_{ ::GetCurrentThreadId() }
 {
-    D1_ASSERT(itsCreatorThreadId);
+    D1_ASSERT(creatorThreadId_);
 
-    itsWaitTime.QuadPart = WaitBeforeWaitCursor;
+    waitTime_.QuadPart = WaitBeforeWaitCursor;
 
-    itsWaitCursor = static_cast<HCURSOR>(::LoadImage(
+    waitCursor_ = static_cast<HCURSOR>(::LoadImage(
         0, // hinst
         IDC_WAIT,
         IMAGE_CURSOR,
         0, // cxDesired
         0, // cyDesired
         LR_SHARED));
-    D1_ASSERT(itsWaitCursor);
+    D1_ASSERT(waitCursor_);
 
 
-    itsQuitEvent.reset(::CreateEvent(
+    quitEvent_.reset(::CreateEvent(
         0,     // default security descriptor
         TRUE,  // manual reset
         FALSE, // initially nonsignaled,
         0      // unnamed
         ));
-    D1_ASSERT(itsQuitEvent);
+    D1_ASSERT(quitEvent_);
 
 
-    itsSwitchOffEvent.reset(::CreateEvent(
+    switchOffEvent_.reset(::CreateEvent(
         0,    // default security descriptor
         TRUE, // manual reset
         TRUE, // initially signaled,
         0     // unnamed
         ));
-    D1_ASSERT(itsSwitchOffEvent);
+    D1_ASSERT(switchOffEvent_);
 
 
-    itsTimer.reset(::CreateWaitableTimer(
+    timer_.reset(::CreateWaitableTimer(
         0,     // default security descriptor
         FALSE, // automatic reset (synchronization timer)
         0      // unnamed
         ));
-    D1_ASSERT(itsTimer);
+    D1_ASSERT(timer_);
 
 
     DWORD threadId = 0;
-    itsThread.reset(::CreateThread(
+    thread_.reset(::CreateThread(
         0,
         0,
-        ThreadRoutine,
+        threadRoutine,
         this,
         0, // run immediately
         &threadId));
-    D1_ASSERT(itsThread);
+    D1_ASSERT(thread_);
 
     D1_VERIFY(::SetThreadPriority(
-        itsThread.get(),
+        thread_.get(),
         THREAD_PRIORITY_TIME_CRITICAL));
 }
 
@@ -269,10 +269,10 @@ Impl::Impl():
 Impl::~Impl()
 {
     // signal the CursorManager thread to shut down
-    D1_VERIFY(::SetEvent(itsQuitEvent.get()));
+    D1_VERIFY(::SetEvent(quitEvent_.get()));
 
     // sleep until CursorManager thread is shut down
-    ::WaitForSingleObject(itsThread.get(), INFINITE);
+    ::WaitForSingleObject(thread_.get(), INFINITE);
 }
 
 using C = CursorManager;
@@ -286,42 +286,42 @@ C::WaitCursorSwitch::WaitCursorSwitch()
 
 C::WaitCursorSwitch::~WaitCursorSwitch()
 {
-    if (itIsOn)
-        Instance().Stop();
+    if (isOn_)
+        instance().stop();
 }
 
 
-void C::WaitCursorSwitch::On()
+void C::WaitCursorSwitch::on()
 {
-    if (!itIsOn)
-        itIsOn = Instance().Start();
+    if (not isOn_)
+        isOn_ = instance().start();
 }
 
 
-void C::WaitCursorSwitch::Off()
+void C::WaitCursorSwitch::off()
 {
-    if (itIsOn)
+    if (isOn_)
     {
-        Instance().Stop();
-        itIsOn = false;
+        instance().stop();
+        isOn_ = false;
     }
 }
 
 
 C::ImmediateWaitCursor::ImmediateWaitCursor():
-    itsOldCursor{ Instance().GetCursor() }
+    oldCursor_{ instance().getCursor() }
 {
-    Instance().Set(Instance().GetWaitCursor());
+    instance().set(instance().getWaitCursor());
 }
 
 
 C::ImmediateWaitCursor::~ImmediateWaitCursor()
 {
-    if (itsOldCursor)
-        Instance().Set(itsOldCursor);
+    if (oldCursor_)
+        instance().set(oldCursor_);
 }
 
-auto C::Instance() -> CursorManager&
+auto C::instance() -> CursorManager&
 {
     static Impl instance;
     return instance;

@@ -17,32 +17,32 @@ class CastIteratorImp: public d1::Iterator<T>::Imp
 {
     using Base = d1::Iterator<T>::Imp;
 
-    I itsIter;
+    I iter_;
 
     //-- Base
 
-    auto Clone() const -> std::unique_ptr<Base> override
+    auto clone() const -> std::unique_ptr<Base> override
     {
-        return std::make_unique<CastIteratorImp>(itsIter);
+        return std::make_unique<CastIteratorImp>(iter_);
     }
 
-    bool IsEqual(const Base& rhs) const override
+    bool isEqual(const Base& rhs) const override
     {
-        return itsIter == static_cast<const CastIteratorImp&>(rhs).itsIter;
+        return iter_ == static_cast<const CastIteratorImp&>(rhs).iter_;
     }
 
-    void Next() override { ++itsIter; }
+    void next() override { ++iter_; }
 
-    T Val() const override
+    T val() const override
     {
-        return dynamic_cast<T>(static_cast<Ptr>(*itsIter));
+        return dynamic_cast<T>(static_cast<Ptr>(*iter_));
     }
 
     //--
 
 public:
     CastIteratorImp(I i):
-        itsIter{ i }
+        iter_{ i }
     {
     }
 };

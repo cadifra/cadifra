@@ -21,14 +21,14 @@ export namespace WinUtil
 // App
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_ACTIVATEAPP_Msg, WM_ACTIVATEAPP)
-BOOL fActive() const { return static_cast<BOOL>(GetWParam()); }
-DWORD dwThreadID() const { return static_cast<DWORD>(GetLParam()); }
+BOOL fActive() const { return static_cast<BOOL>(getWParam()); }
+DWORD dwThreadID() const { return static_cast<DWORD>(getLParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_SETTINGCHANGE_Msg, WM_SETTINGCHANGE)
-UINT wFlag() const { return static_cast<UINT>(GetWParam()); }
-LPCTSTR pszSection() const { return reinterpret_cast<LPCTSTR>(GetLParam()); }
+UINT wFlag() const { return static_cast<UINT>(getWParam()); }
+LPCTSTR pszSection() const { return reinterpret_cast<LPCTSTR>(getLParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
@@ -40,8 +40,8 @@ D1_WINMESSAGE_WRAPPER_CLASS_NO_PARAM(WM_FONTCHANGE_Msg, WM_FONTCHANGE)
 // Clipboard
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_CHANGECBCHAIN_Msg, WM_CHANGECBCHAIN)
-HWND hwndRemove() const { return reinterpret_cast<HWND>(GetWParam()); }
-HWND hwndNext() const { return reinterpret_cast<HWND>(GetLParam()); }
+HWND hwndRemove() const { return reinterpret_cast<HWND>(getWParam()); }
+HWND hwndNext() const { return reinterpret_cast<HWND>(getLParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
@@ -53,9 +53,9 @@ D1_WINMESSAGE_WRAPPER_CLASS_NO_PARAM(WM_CLIPBOARDUPDATE_Msg, WM_CLIPBOARDUPDATE)
 // Command
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_COMMAND_Msg, WM_COMMAND)
-WORD wNotifyCode() const { return HIWORD(GetWParam()); }
-WORD wID() const { return LOWORD(GetWParam()); }
-HWND hwndCtl() const { return reinterpret_cast<HWND>(GetLParam()); }
+WORD wNotifyCode() const { return HIWORD(getWParam()); }
+WORD wID() const { return LOWORD(getWParam()); }
+HWND hwndCtl() const { return reinterpret_cast<HWND>(getLParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
@@ -64,7 +64,7 @@ D1_WINMESSAGE_WRAPPER_CLASS_END
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_COPYDATA_Msg, WM_COPYDATA)
 PCOPYDATASTRUCT copyData() const
 {
-    return reinterpret_cast<PCOPYDATASTRUCT>(GetLParam());
+    return reinterpret_cast<PCOPYDATASTRUCT>(getLParam());
 }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
@@ -72,166 +72,166 @@ D1_WINMESSAGE_WRAPPER_CLASS_END
 // DeviceContext
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_PAINT_Msg, WM_PAINT)
-HDC hdc() const { return reinterpret_cast<HDC>(GetWParam()); }
+HDC hdc() const { return reinterpret_cast<HDC>(getWParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_ERASEBKGND_Msg, WM_ERASEBKGND)
-HDC hdc() const { return reinterpret_cast<HDC>(GetWParam()); }
+HDC hdc() const { return reinterpret_cast<HDC>(getWParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 // Dialog
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_INITDIALOG_Msg, WM_INITDIALOG)
-HWND defaultControl() const { return reinterpret_cast<HWND>(GetWParam()); }
-LPARAM initData() const { return GetLParam(); }
+HWND defaultControl() const { return reinterpret_cast<HWND>(getWParam()); }
+LPARAM initData() const { return getLParam(); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_DRAWITEM_Msg, WM_DRAWITEM)
-UINT controlId() const { return static_cast<UINT>(GetWParam()); }
-LPDRAWITEMSTRUCT itemData() const { return reinterpret_cast<LPDRAWITEMSTRUCT>(GetLParam()); }
+UINT controlId() const { return static_cast<UINT>(getWParam()); }
+LPDRAWITEMSTRUCT itemData() const { return reinterpret_cast<LPDRAWITEMSTRUCT>(getLParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_GETDLGCODE_Msg, WM_GETDLGCODE)
-LPMSG messageInfo() const { return reinterpret_cast<LPMSG>(GetLParam()); }
+LPMSG messageInfo() const { return reinterpret_cast<LPMSG>(getLParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_SETFONT_Msg, WM_SETFONT)
-HFONT font() const { return reinterpret_cast<HFONT>(GetWParam()); }
-BOOL redraw() const { return static_cast<BOOL>(LOWORD(GetLParam())); }
+HFONT font() const { return reinterpret_cast<HFONT>(getWParam()); }
+BOOL redraw() const { return static_cast<BOOL>(LOWORD(getLParam())); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 // Keyboard
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_KEYDOWN_Msg, WM_KEYDOWN)
-int nVirtKey() const { return static_cast<int>(GetWParam()); }
-LPARAM lKeyData() const { return GetLParam(); }
+int nVirtKey() const { return static_cast<int>(getWParam()); }
+LPARAM lKeyData() const { return getLParam(); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_KEYUP_Msg, WM_KEYUP)
-int nVirtKey() const { return static_cast<int>(GetWParam()); }
-LPARAM lKeyData() const { return GetLParam(); }
+int nVirtKey() const { return static_cast<int>(getWParam()); }
+LPARAM lKeyData() const { return getLParam(); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_CHAR_Msg, WM_CHAR)
-TCHAR chCharCode() const { return static_cast<TCHAR>(GetWParam()); }
-LPARAM lKeyData() const { return GetLParam(); }
+TCHAR chCharCode() const { return static_cast<TCHAR>(getWParam()); }
+LPARAM lKeyData() const { return getLParam(); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_SETFOCUS_Msg, WM_SETFOCUS)
-HWND hwndLoseFocus() const { return reinterpret_cast<HWND>(GetWParam()); }
+HWND hwndLoseFocus() const { return reinterpret_cast<HWND>(getWParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_KILLFOCUS_Msg, WM_KILLFOCUS)
-HWND hwndGetFocus() const { return reinterpret_cast<HWND>(GetWParam()); }
+HWND hwndGetFocus() const { return reinterpret_cast<HWND>(getWParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 // Menu
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_INITMENU_Msg, WM_INITMENU)
-HMENU hmenuInit() const { return reinterpret_cast<HMENU>(GetWParam()); }
+HMENU hmenuInit() const { return reinterpret_cast<HMENU>(getWParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_INITMENUPOPUP_Msg, WM_INITMENUPOPUP)
-HMENU hmenuPopup() const { return reinterpret_cast<HMENU>(GetWParam()); }
-UINT uPos() const { return static_cast<UINT>(LOWORD(GetLParam())); }
-BOOL fSystemMenu() const { return static_cast<BOOL>(HIWORD(GetLParam())); }
+HMENU hmenuPopup() const { return reinterpret_cast<HMENU>(getWParam()); }
+UINT uPos() const { return static_cast<UINT>(LOWORD(getLParam())); }
+BOOL fSystemMenu() const { return static_cast<BOOL>(HIWORD(getLParam())); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_CONTEXTMENU_Msg, WM_CONTEXTMENU)
-HWND hwnd() const { return reinterpret_cast<HWND>(GetWParam()); }
-short xPos() const { return static_cast<short>(LOWORD(GetLParam())); }
-short yPos() const { return static_cast<short>(HIWORD(GetLParam())); }
-d1::Point GetClientCoordinates() const;
-bool IsKeyboardGenerated() const;
+HWND hwnd() const { return reinterpret_cast<HWND>(getWParam()); }
+short xPos() const { return static_cast<short>(LOWORD(getLParam())); }
+short yPos() const { return static_cast<short>(HIWORD(getLParam())); }
+d1::Point getClientCoordinates() const;
+bool isKeyboardGenerated() const;
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 // Notification
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_NOTIFY_Msg, WM_NOTIFY)
-int idCtrl() const { return static_cast<int>(GetWParam()); }
-LPNMHDR pnmh() const { return reinterpret_cast<LPNMHDR>(GetLParam()); }
+int idCtrl() const { return static_cast<int>(getWParam()); }
+LPNMHDR pnmh() const { return reinterpret_cast<LPNMHDR>(getLParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 // Scroll
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_VSCROLL_Msg, WM_VSCROLL)
-int nScrollCode() const { return static_cast<int>(LOWORD(GetWParam())); }
-short int nPos() const { return static_cast<short int>(HIWORD(GetWParam())); }
-HWND hwndScrollBar() const { return reinterpret_cast<HWND>(GetLParam()); }
+int nScrollCode() const { return static_cast<int>(LOWORD(getWParam())); }
+short int nPos() const { return static_cast<short int>(HIWORD(getWParam())); }
+HWND hwndScrollBar() const { return reinterpret_cast<HWND>(getLParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_HSCROLL_Msg, WM_HSCROLL)
-int nScrollCode() const { return static_cast<int>(LOWORD(GetWParam())); }
-short int nPos() const { return static_cast<short int>(HIWORD(GetWParam())); }
-HWND hwndScrollBar() const { return reinterpret_cast<HWND>(GetLParam()); }
+int nScrollCode() const { return static_cast<int>(LOWORD(getWParam())); }
+short int nPos() const { return static_cast<short int>(HIWORD(getWParam())); }
+HWND hwndScrollBar() const { return reinterpret_cast<HWND>(getLParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 // Session
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_QUERYENDSESSION_Msg, WM_QUERYENDSESSION)
-UINT nSource() const { return static_cast<UINT>(GetWParam()); }
-LPARAM fLogOff() const { return GetLParam(); }
+UINT nSource() const { return static_cast<UINT>(getWParam()); }
+LPARAM fLogOff() const { return getLParam(); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 // Timer
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_TIMER_Msg, WM_TIMER)
-UINT wTimerID() const { return static_cast<UINT>(GetWParam()); }
-TIMERPROC* tmprc() const { return reinterpret_cast<TIMERPROC*>(GetLParam()); }
+UINT wTimerID() const { return static_cast<UINT>(getWParam()); }
+TIMERPROC* tmprc() const { return reinterpret_cast<TIMERPROC*>(getLParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 // Windows
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_SIZE_Msg, WM_SIZE)
-WPARAM fwSizeType() const { return GetWParam(); }
-WORD nWidth() const { return LOWORD(GetLParam()); }
-WORD nHeight() const { return HIWORD(GetLParam()); }
+WPARAM fwSizeType() const { return getWParam(); }
+WORD nWidth() const { return LOWORD(getLParam()); }
+WORD nHeight() const { return HIWORD(getLParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_SIZING_Msg, WM_SIZING)
-WPARAM what() const { return GetWParam(); }
-LPRECT rect() const { return reinterpret_cast<LPRECT>(GetLParam()); }
+WPARAM what() const { return getWParam(); }
+LPRECT rect() const { return reinterpret_cast<LPRECT>(getLParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_WINDOWPOSCHANGED_Msg, WM_WINDOWPOSCHANGED)
-LPWINDOWPOS wpos() const { return reinterpret_cast<LPWINDOWPOS>(GetLParam()); }
+LPWINDOWPOS wpos() const { return reinterpret_cast<LPWINDOWPOS>(getLParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_MDIACTIVATE_Msg, WM_MDIACTIVATE)
-HWND hwndChildDeact() const { return reinterpret_cast<HWND>(GetWParam()); }
-HWND hwndChildAct() const { return reinterpret_cast<HWND>(GetLParam()); }
+HWND hwndChildDeact() const { return reinterpret_cast<HWND>(getWParam()); }
+HWND hwndChildAct() const { return reinterpret_cast<HWND>(getLParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_ACTIVATE_Msg, WM_ACTIVATE)
-UINT state() const { return static_cast<UINT>(LOWORD(GetWParam())); }
-HWND hwndActDeact() const { return reinterpret_cast<HWND>(GetLParam()); }
-BOOL fMinimized() const { return static_cast<BOOL>(HIWORD(GetWParam())); }
+UINT state() const { return static_cast<UINT>(LOWORD(getWParam())); }
+HWND hwndActDeact() const { return reinterpret_cast<HWND>(getLParam()); }
+BOOL fMinimized() const { return static_cast<BOOL>(HIWORD(getWParam())); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_CREATE_Msg, WM_CREATE)
-LPCREATESTRUCT lpcs() const { return reinterpret_cast<LPCREATESTRUCT>(GetLParam()); }
+LPCREATESTRUCT lpcs() const { return reinterpret_cast<LPCREATESTRUCT>(getLParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
@@ -241,7 +241,7 @@ D1_WINMESSAGE_WRAPPER_CLASS_NO_PARAM(WM_CLOSE_Msg, WM_CLOSE)
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_NCACTIVATE_Msg, WM_NCACTIVATE)
-BOOL fActive() const { return static_cast<BOOL>(GetWParam()); }
+BOOL fActive() const { return static_cast<BOOL>(getWParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
@@ -256,9 +256,9 @@ public:
     WM_XBUTTONX_Msg(Message& msg):
         StaticWinMsgWrapper<MsgId>(msg) {}
 
-    WPARAM fwKeys() const { return this->GetWParam(); }
-    short xPos() const { return static_cast<short>(LOWORD(this->GetLParam())); }
-    short yPos() const { return static_cast<short>(HIWORD(this->GetLParam())); }
+    WPARAM fwKeys() const { return this->getWParam(); }
+    short xPos() const { return static_cast<short>(LOWORD(this->getLParam())); }
+    short yPos() const { return static_cast<short>(HIWORD(this->getLParam())); }
 };
 
 
@@ -295,41 +295,41 @@ D1_WINMESSAGE_WRAPPER_SUBCLASS_NO_PARAM(
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_MOUSEMOVE_Msg, WM_MOUSEMOVE)
-WPARAM fwKeys() const { return GetWParam(); }
-short xPos() const { return static_cast<short>(LOWORD(GetLParam())); }
-short yPos() const { return static_cast<short>(HIWORD(GetLParam())); }
-bool ButtonDown(d1::MouseButton) const;
+WPARAM fwKeys() const { return getWParam(); }
+short xPos() const { return static_cast<short>(LOWORD(getLParam())); }
+short yPos() const { return static_cast<short>(HIWORD(getLParam())); }
+bool buttonDown(d1::MouseButton) const;
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_MOUSEWHEEL_Msg, WM_MOUSEWHEEL)
-WORD fwKeys() const { return LOWORD(GetWParam()); }
-short zDelta() const { return static_cast<short>(HIWORD(GetWParam())); }
-short xPos() const { return static_cast<short>(LOWORD(GetLParam())); }
-short yPos() const { return static_cast<short>(HIWORD(GetLParam())); }
+WORD fwKeys() const { return LOWORD(getWParam()); }
+short zDelta() const { return static_cast<short>(HIWORD(getWParam())); }
+short xPos() const { return static_cast<short>(LOWORD(getLParam())); }
+short yPos() const { return static_cast<short>(HIWORD(getLParam())); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_MOUSEACTIVATE_Msg, WM_MOUSEACTIVATE)
-HWND hwndTopLevel() const { return reinterpret_cast<HWND>(GetWParam()); }
-INT nHittest() const { return static_cast<INT>(LOWORD(GetLParam())); }
-UINT uMsg() const { return static_cast<UINT>(HIWORD(GetLParam())); }
+HWND hwndTopLevel() const { return reinterpret_cast<HWND>(getWParam()); }
+INT nHittest() const { return static_cast<INT>(LOWORD(getLParam())); }
+UINT uMsg() const { return static_cast<UINT>(HIWORD(getLParam())); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_SETCURSOR_Msg, WM_SETCURSOR)
-HWND hwnd() const { return reinterpret_cast<HWND>(GetWParam()); }
-INT nHittest() const { return static_cast<INT>(LOWORD(GetLParam())); }
-UINT wMouseMsg() const { return static_cast<UINT>(HIWORD(GetLParam())); }
+HWND hwnd() const { return reinterpret_cast<HWND>(getWParam()); }
+INT nHittest() const { return static_cast<INT>(LOWORD(getLParam())); }
+UINT wMouseMsg() const { return static_cast<UINT>(HIWORD(getLParam())); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 
 
 D1_WINMESSAGE_WRAPPER_CLASS_BEGIN(WM_CAPTURECHANGED_Msg, WM_CAPTURECHANGED)
-HWND hwnd() const { return reinterpret_cast<HWND>(GetLParam()); }
+HWND hwnd() const { return reinterpret_cast<HWND>(getLParam()); }
 D1_WINMESSAGE_WRAPPER_CLASS_END
 
 }

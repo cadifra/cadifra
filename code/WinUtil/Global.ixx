@@ -16,66 +16,66 @@ namespace WinUtil
 
 export class GlobalOwner
 {
-    d1::HGLOBAL itsGlob = {}; // ownership
+    d1::HGLOBAL glob_ = {}; // ownership
 
-    static d1::HGLOBAL Copy(d1::HGLOBAL g);
+    static d1::HGLOBAL copy(d1::HGLOBAL g);
 
 public:
     GlobalOwner() {}
 
     explicit GlobalOwner(d1::HGLOBAL g):
-        itsGlob{ g } {}
+        glob_{ g } {}
     // Takes ownership of g
 
     GlobalOwner(const GlobalOwner& g):
-        itsGlob{ Copy(g.itsGlob) } {}
+        glob_{ copy(g.glob_) } {}
     // Copies g
 
-    ~GlobalOwner() { Reset(); }
+    ~GlobalOwner() { reset(); }
 
     GlobalOwner& operator=(const GlobalOwner& g);
-    // Frees itsGlob and copies g
+    // Frees glob_ and copies g
 
     GlobalOwner& operator=(d1::HGLOBAL g);
-    // Frees itsGlob and takes ownership of g
+    // Frees glob_ and takes ownership of g
 
-    d1::HGLOBAL Get() const { return itsGlob; }
+    d1::HGLOBAL get() const { return glob_; }
 
-    d1::HGLOBAL Release();
-    // Releases ownership and sets itsGlob = 0;
+    d1::HGLOBAL release();
+    // Releases ownership and sets glob_ = 0;
 
-    void Reset();
-    // Frees itsGlob.
+    void reset();
+    // Frees glob_.
 };
 
 
 export template <typename T>
 class GlobalLocker
 {
-    d1::HGLOBAL itsGlob;
-    T* itsPtr;
+    d1::HGLOBAL glob_;
+    T* ptr_;
 
 public:
     GlobalLocker(d1::HGLOBAL g):
-        itsGlob{ g }
+        glob_{ g }
     {
-        itsPtr = static_cast<T*>(::GlobalLock(itsGlob));
+        ptr_ = static_cast<T*>(::GlobalLock(glob_));
     }
 
     ~GlobalLocker()
     {
-        ::GlobalUnlock(itsGlob);
+        ::GlobalUnlock(glob_);
     }
 
-    operator T*() const { return itsPtr; }
+    operator T*() const { return ptr_; }
 
-    T& operator*() const { return *itsPtr; }
+    T& operator*() const { return *ptr_; }
 
-    T* operator->() const { return itsPtr; }
+    T* operator->() const { return ptr_; }
 
-    T* GetPtr() const
+    T* getPtr() const
     {
-        return itsPtr;
+        return ptr_;
     }
 
     GlobalLocker(const GlobalLocker&) = delete;

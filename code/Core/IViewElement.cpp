@@ -20,50 +20,50 @@ using C = IViewElement;
 }
 
 
-bool C::CheckHit(const d1::Point& pos, d1::int32 dist, bool attaching) const
+bool C::checkHit(const d1::Point& pos, d1::int32 dist, bool attaching) const
 {
-    return Element().CheckHit(pos, dist, attaching);
+    return element().checkHit(pos, dist, attaching);
 }
 
 
 C::~IViewElement()
 {
-    itsView.Remove(*this);
+    view_.remove(*this);
 }
 
 
-void C::Insert(bool needsUpdate)
+void C::insert(bool needs_update)
 {
-    itsView.Add(*this);
+    view_.add(*this);
 
-    D1_ASSERT(&itsView.Club() == Element().Club());
+    D1_ASSERT(&view_.club() == element().club());
 
-    if (needsUpdate)
-        NeedsUpdate();
+    if (needs_update)
+        needsUpdate();
 }
 
 
-void C::ViewDeleted()
+void C::viewDeleted()
 {
-    auto& e = Element();
+    auto& e = element();
     e.Delete(*this);
 }
 
 
-bool C::IsInActiveView() const { return itsView.IsActive(); }
+bool C::isInActiveView() const { return view_.isActive(); }
 
 
-auto C::GetWeight(const d1::Point& pos, d1::int32 distance) const
+auto C::getWeight(const d1::Point& pos, d1::int32 distance) const
     -> Weight
 {
-    return Element().GetWeight(&itsView, pos, distance);
+    return element().getWeight(&view_, pos, distance);
 }
 
 
-bool C::IsSelected() const
+bool C::isSelected() const
 {
-    auto* sve = Selectable();
-    return sve && sve->IsSelected();
+    auto* sve = selectable();
+    return sve and sve->isSelected();
 }
 
 }

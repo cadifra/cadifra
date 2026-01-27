@@ -11,4 +11,4 @@
 //
 
 
-NearestRes FindNearestPointImpl(const d1::fPoint& p, bool horizontal) const override;
+NearestRes findNearestPointImpl(const d1::fPoint& p, bool horizontal) const override;

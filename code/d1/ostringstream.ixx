@@ -30,7 +30,7 @@ public:
 
     int_type overflow(int_type meta) override
     {
-        if (!traits_type::eq_int_type(meta, traits_type::eof()))
+        if (not traits_type::eq_int_type(meta, traits_type::eof()))
             str_.push_back(traits_type::to_char_type(meta));
         return meta;
     }

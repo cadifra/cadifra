@@ -11,7 +11,7 @@ namespace WinUtil
 export class IReadOnlyStateChange
 {
 public:
-    virtual void ReadOnlyStateChanged(bool IsReadOnly) = 0;
+    virtual void readOnlyStateChanged(bool IsReadOnly) = 0;
 
 protected:
     ~IReadOnlyStateChange() = default;

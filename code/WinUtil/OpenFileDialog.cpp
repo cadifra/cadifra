@@ -3,7 +3,7 @@
  */
 
 /*
-  Below you will find a call to the horrible ::GetOpenFileName(),
+  Below you will find a call to the horrible ::getOpenFileName(),
   which is a still a real pain to use.
 
   GetOpenFileName() has the following bug:
@@ -45,16 +45,16 @@ using StringVector = std::vector<std::wstring>;
 
 class FileNamesBuffer
 {
-    std::vector<TCHAR> itsBuf;
+    std::vector<TCHAR> buf_;
 
 public:
     FileNamesBuffer(DWORD size):
-        itsBuf(size)
+        buf_(size)
     {
     }
 
-    LPTSTR ptr() { return itsBuf.data(); }
-    DWORD size() const { return static_cast<DWORD>(itsBuf.size()); }
+    LPTSTR ptr() { return buf_.data(); }
+    DWORD size() const { return static_cast<DWORD>(buf_.size()); }
 
     enum class ParseResult
     {
@@ -62,10 +62,10 @@ public:
         UNEXPECTED_BUFFER_END = -1
     };
 
-    ParseResult Parse(StringVector& v) const
+    ParseResult parse(StringVector& v) const
     {
-        auto p = begin(itsBuf);
-        auto buf_end = end(itsBuf);
+        auto p = begin(buf_);
+        auto buf_end = end(buf_);
 
         while (*p != 0)
         {
@@ -87,15 +87,15 @@ public:
 };
 
 
-inline bool ContainsPath(const std::wstring& s)
+inline bool containsPath(const std::wstring& s)
 {
     return (s.find(L'\\') != std::string::npos);
 }
 
 
-inline bool HasBackslashAtEnd(const std::wstring& s)
+inline bool hasBackslashAtEnd(const std::wstring& s)
 {
-    return !s.empty() && (*rbegin(s) == L'\\');
+    return not s.empty() and (*rbegin(s) == L'\\');
 }
 
 struct HookInfo
@@ -130,7 +130,7 @@ OpenFileDialog::OpenFileDialog(
     const Flags* flags,
     const std::wstring* title)
 {
-    if (!flags)
+    if (not flags)
     {
         static const Flags default_flags;
         flags = &default_flags;
@@ -191,11 +191,11 @@ OpenFileDialog::OpenFileDialog(
             return;
         }
 
-        auto os = std::ostream(&WinUtil::ExceptionBox::Clear());
+        auto os = std::ostream(&WinUtil::ExceptionBox::clear());
         os
             << "error calling ::GetOpenFileName() in WinUtil::OpenFileDialog" << '\n'
             << "error code = 0x" << std::hex << error << '\n';
-        ExceptionBox::Show();
+        ExceptionBox::show();
         return; // failed
     }
 
@@ -203,7 +203,7 @@ OpenFileDialog::OpenFileDialog(
 
 
     auto sv = StringVector{};
-    auto parse_res = fnames.Parse(sv);
+    auto parse_res = fnames.parse(sv);
     if (parse_res == FileNamesBuffer::ParseResult::UNEXPECTED_BUFFER_END)
     {
         if (sv.size() < 2)
@@ -235,8 +235,7 @@ OpenFileDialog::OpenFileDialog(
 
     std::wstring directory_path;
 
-    bool first = true;
-    for (const std::wstring& s : sv)
+    for (bool first = true; const std::wstring& s : sv)
     {
         if (first)
         {
@@ -245,7 +244,7 @@ OpenFileDialog::OpenFileDialog(
             directory_path = s;
             first = false;
         }
-        else if (ContainsPath(s))
+        else if (containsPath(s))
         {
             // ## s contains a path character (backslash).
             //  In this case we must ignore directory_path. This situation occurs
@@ -256,7 +255,7 @@ OpenFileDialog::OpenFileDialog(
         else
         {
             // ## s contains _no_ path character (backslash).
-            const std::wstring file = (HasBackslashAtEnd(directory_path)
+            const std::wstring file = (hasBackslashAtEnd(directory_path)
                                            ? directory_path + s
                                            : directory_path + L'\\' + s);
             fileList.insert(file);

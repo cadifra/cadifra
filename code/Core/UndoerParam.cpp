@@ -19,63 +19,63 @@ using C = Undoer;
 
 
 C::Param::Param(IDiagram& d, Selection::Tracker& sc):
-    itsDiagram{ d },
-    itsSelectionTracker{ sc }
+    diagram_{ d },
+    selectionTracker_{ sc }
 {
 }
 
 
 C::Param::~Param()
 {
-    Finish();
+    finish();
 }
 
 
-void C::Param::Finish()
+void C::Param::finish()
 {
-    for (auto me : itsAddToDiagram)
+    for (auto me : addToDiagram_)
     {
-        D1_ASSERT(!me->IsInTrash());
-        itsDiagram.Insert(me);
-        itsDiagram.CreateViewElements(*me);
+        D1_ASSERT(not me->isInTrash());
+        diagram_.insert(me);
+        diagram_.createViewElements(*me);
     }
-    itsAddToDiagram.clear();
+    addToDiagram_.clear();
 
-    for (auto mi : itsRemoveFromDiagram)
+    for (auto mi : removeFromDiagram_)
     {
         IElement& me = *mi;
-        D1_ASSERT(me.IsInTrash());
-        itsDiagram.Remove(me);
-        itsDiagram.DestroyViewElements(me, itsSelectionTracker);
+        D1_ASSERT(me.isInTrash());
+        diagram_.remove(me);
+        diagram_.destroyViewElements(me, selectionTracker_);
     }
-    itsRemoveFromDiagram.clear();
+    removeFromDiagram_.clear();
 
-    for (auto mi : itsUpdateViews)
+    for (auto mi : updateViews_)
     {
         IElement& me = *mi;
-        if (me.IsInTrash())
+        if (me.isInTrash())
             continue;
-        me.ViewsNeedUpdate(itsDiagram);
+        me.viewsNeedUpdate(diagram_);
     }
-    itsUpdateViews.clear();
+    updateViews_.clear();
 }
 
 
-void C::Param::AddToDiagram(const IElementRef& me)
+void C::Param::addToDiagram(const IElementRef& me)
 {
-    itsAddToDiagram.insert(me);
+    addToDiagram_.insert(me);
 }
 
 
-void C::Param::RemoveFromDiagram(const IElementRef& me)
+void C::Param::removeFromDiagram(const IElementRef& me)
 {
-    itsRemoveFromDiagram.insert(me);
+    removeFromDiagram_.insert(me);
 }
 
 
-void C::Param::UpdateViews(const IElementRef& me)
+void C::Param::updateViews(const IElementRef& me)
 {
-    itsUpdateViews.insert(me);
+    updateViews_.insert(me);
 }
 
 }

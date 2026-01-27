@@ -18,12 +18,12 @@ public:
     class Control;
 
 private:
-    Control& itsControl;
-    bool itIsCaptured = false;
+    Control& control_;
+    bool isCaptured_ = false;
 
 public:
     MouseInputCapturer(Control& mic):
-        itsControl{ mic }
+        control_{ mic }
     {
     }
 
@@ -31,15 +31,15 @@ public:
 
     ~MouseInputCapturer()
     {
-        Release();
+        release();
     }
 
-    void Capture();
-    void Release();
+    void capture();
+    void release();
 
-    bool IsCaptured() const
+    bool isCaptured() const
     {
-        return itIsCaptured;
+        return isCaptured_;
     }
 };
 
@@ -48,53 +48,53 @@ class MouseInputCapturer::Control
 {
     friend class MouseInputCapturer;
 
-    d1::int32 itsNumCapture = 0;
+    d1::int32 numCapture_ = 0;
 
 private:
-    void CaptureMouseInput();
+    void captureMouseInput();
     // After calling CaptureMouseInput for the active Window, all mouse
     // input messages are delivered to the active window, even if the hot spot
     // is outside the window (normally, the active window receives only mouse
     // messages with hot spots inside the active window.
-    // Calling ReleaseMouseInput() reverts to normal behavior, as it was
-    // before calling CaptureMouseInput().
+    // Calling releaseMouseInput() reverts to normal behavior, as it was
+    // before calling captureMouseInput().
     // Every call to CaptureMouseInput must be balanced by a call to
     // ReleaseMouseInput.
 
-    void ReleaseMouseInput();
+    void releaseMouseInput();
 
 protected:
     ~Control() = default;
 
 private:
-    virtual void ImplSetCaptureMouseInput(bool) = 0;
+    virtual void implSetCaptureMouseInput(bool) = 0;
 };
 
 
 MouseInputCapturer::MouseInputCapturer(Control& mic, bool capture):
-    itsControl{ mic }, itIsCaptured{ capture }
+    control_{ mic }, isCaptured_{ capture }
 {
-    if (itIsCaptured)
-        itsControl.CaptureMouseInput();
+    if (isCaptured_)
+        control_.captureMouseInput();
 }
 
 
-void MouseInputCapturer::Capture()
+void MouseInputCapturer::capture()
 {
-    if (!itIsCaptured)
+    if (not isCaptured_)
     {
-        itsControl.CaptureMouseInput();
-        itIsCaptured = true;
+        control_.captureMouseInput();
+        isCaptured_ = true;
     }
 }
 
 
-void MouseInputCapturer::Release()
+void MouseInputCapturer::release()
 {
-    if (itIsCaptured)
+    if (isCaptured_)
     {
-        itsControl.ReleaseMouseInput();
-        itIsCaptured = false;
+        control_.releaseMouseInput();
+        isCaptured_ = false;
     }
 }
 

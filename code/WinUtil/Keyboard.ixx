@@ -8,10 +8,10 @@ export module WinUtil.Keyboard;
 export namespace WinUtil::Keyboard
 {
 
-bool ControlIsDown();
+bool controlIsDown();
 // returns true, if the control key is in downstate
 
-bool ShiftIsDown();
+bool shiftIsDown();
 // returns true, if a shift key is in downstate
 
 }

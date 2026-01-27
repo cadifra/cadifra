@@ -14,9 +14,9 @@ namespace WinUtil
 {
 
 #ifdef UNICODE
-#define GETPROCADDR(s) ::GetProcAddress(itsHModule, #s "W")
+#define GETPROCADDR(s) ::GetProcAddress(HModule_, #s "W")
 #else
-#define GETPROCADDR(s) ::GetProcAddress(itsHModule, #s "A")
+#define GETPROCADDR(s) ::GetProcAddress(HModule_, #s "A")
 #endif
 
 namespace
@@ -26,19 +26,19 @@ using C = MsiLib;
 
 
 C::MsiLib():
-    itsHModule{ ::LoadLibrary(TEXT("Msi.dll")) }
+    HModule_{ ::LoadLibrary(TEXT("Msi.dll")) }
 {
 }
 
 
 C::~MsiLib()
 {
-    if (itsHModule)
-        ::FreeLibrary(itsHModule);
+    if (HModule_)
+        ::FreeLibrary(HModule_);
 }
 
 
-UINT C::MsiProvideComponent(
+UINT C::msiProvideComponent(
     LPCTSTR szProduct,   // product code in case install required
     LPCTSTR szFeature,   // feature ID in case install required
     LPCTSTR szComponent, // component ID
@@ -53,7 +53,7 @@ UINT C::MsiProvideComponent(
 }
 
 
-INSTALLSTATE C::MsiGetComponentPath(
+INSTALLSTATE C::msiGetComponentPath(
     LPCTSTR szProduct,   // product code for client product
     LPCTSTR szComponent, // component ID
     LPTSTR lpPathBuf,    // returned path
@@ -66,7 +66,7 @@ INSTALLSTATE C::MsiGetComponentPath(
 }
 
 
-INSTALLSTATE C::MsiQueryFeatureState(
+INSTALLSTATE C::msiQueryFeatureState(
     LPCTSTR szProduct,
     LPCTSTR szFeature) const
 {
@@ -76,7 +76,7 @@ INSTALLSTATE C::MsiQueryFeatureState(
 }
 
 
-UINT C::MsiConfigureFeature(
+UINT C::msiConfigureFeature(
     LPCTSTR szProduct,
     LPCTSTR szFeature,
     INSTALLSTATE eInstallState) const
@@ -87,7 +87,7 @@ UINT C::MsiConfigureFeature(
 }
 
 
-UINT C::MsiGetProductInfo(
+UINT C::msiGetProductInfo(
     LPCTSTR szProduct,
     LPCTSTR szProperty,
     LPTSTR lpValueBuf,

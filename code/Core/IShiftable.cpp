@@ -14,30 +14,30 @@ using C = IShiftable;
 }
 
 
-void C::Shift(Env& e,
+void C::shift(Env& e,
     IElement* sender,
     const ShiftVector& sv,
     const ShiftSet& dss,
     bool shallow)
 {
-    if (IsInTrash())
+    if (isInTrash())
         return;
 
-    if (dss.IsDeferredShifting(*this))
+    if (dss.isDeferredShifting(*this))
         return;
 
-    ShiftImpl(e, sender, sv, dss, shallow);
+    shiftImpl(e, sender, sv, dss, shallow);
 }
 
 
-void C::DetachFromSource(Env&,
+void C::detachFromSource(Env&,
     const ShiftSet&, const ElementSet& selection)
 {
     // default: nothing to detach
 }
 
 
-void C::ExtendSelection(const ElementSet&, ElementSet&)
+void C::extendSelection(const ElementSet&, ElementSet&)
 {
 }
 

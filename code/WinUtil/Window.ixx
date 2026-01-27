@@ -40,11 +40,11 @@ public:
     // calls UnregisterClass
 
 
-    LPCTSTR GetAtom() const { return MAKEINTATOM(itsAtom); }
+    LPCTSTR getAtom() const { return MAKEINTATOM(atom_); }
 
 private:
-    ATOM itsAtom = {};
-    HINSTANCE itsInstance = {};
+    ATOM atom_ = {};
+    HINSTANCE instance_ = {};
 };
 
 
@@ -58,29 +58,29 @@ public:
 
     ~WindowDisabler(); // calls Enable()
 
-    void Enable(); // Reenables all previous disabled windows.
+    void enable(); // Reenables all previous disabled windows.
 
-    static void AddAndDisableIfNeeded(HWND);
+    static void addAndDisableIfNeeded(HWND);
 
 private:
-    HWND itsOldActive;
-    DWORD itsProcessId;
+    HWND oldActive_;
+    DWORD processId_;
 
     using Windows = std::vector<HWND>;
-    Windows itsWindows;
+    Windows windows_;
 
     using DisablerList = std::list<WindowDisabler*>;
     static DisablerList theDisablerList;
 
-    DisablerList::iterator itsListPos;
+    DisablerList::iterator listPos_;
 
-    static BOOL CALLBACK EnumWindowsProcNoThrow(HWND hwnd, LPARAM lParam);
-    static BOOL EnumWindowsProc(HWND hwnd, LPARAM lParam);
+    static BOOL CALLBACK enumWindowsProcNoThrow(HWND hwnd, LPARAM lParam);
+    static BOOL enumWindowsProc(HWND hwnd, LPARAM lParam);
 
-    static LRESULT CALLBACK SubClassWindowProcNoThrow(
+    static LRESULT CALLBACK subClassWindowProcNoThrow(
         HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    static LRESULT SubClassWindowProc(
+    static LRESULT subClassWindowProc(
         HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
@@ -94,7 +94,7 @@ public:
 };
 
 
-export auto CalcNewWindowPos(HWND w) -> WindowPlacement;
+export auto calcNewWindowPos(HWND w) -> WindowPlacement;
 
 // Calculates a reasonable window position for a new top level window
 // relative to an existing top level window "w".
@@ -115,7 +115,7 @@ export auto CalcNewWindowPos(HWND w) -> WindowPlacement;
 export class WindowPlacementHandler
 {
     using ImpPtr = std::unique_ptr<WindowPlacement>;
-    ImpPtr imp;
+    ImpPtr imp_;
 
 public:
     WindowPlacementHandler();
@@ -127,20 +127,20 @@ public:
 
     ~WindowPlacementHandler();
 
-    bool ok() const { return imp.get() != 0; }
+    bool ok() const { return imp_.get() != 0; }
 
-    void ChangeShowCmd(UINT flags);
+    void changeShowCmd(UINT flags);
 
-    void GetFrom(HWND w);
-    void SetTo(HWND w) const;
+    void getFrom(HWND w);
+    void setTo(HWND w) const;
 
     // Read and Write may throw a Registry::Exception
-    void Read(const Registry::Key& k, const std::wstring& valueName);
-    void Write(const Registry::Key& k, const std::wstring& valueName) const;
+    void read(const Registry::Key& k, const std::wstring& valueName);
+    void write(const Registry::Key& k, const std::wstring& valueName) const;
 };
 
 
-export LRESULT CALLBACK WindowStartupProc(HWND h, UINT uMsg, WPARAM wp, LPARAM lp);
+export LRESULT CALLBACK windowStartupProc(HWND h, UINT uMsg, WPARAM wp, LPARAM lp);
 
 // Use this function as the WNDPROC for windows you create with "CreateWindow"
 // or "CreateWindowEx" with the "lpParam" set to a WinUtil::Window pointer.
@@ -152,13 +152,13 @@ export LRESULT CALLBACK WindowStartupProc(HWND h, UINT uMsg, WPARAM wp, LPARAM l
 export class ChildWindowVisitor
 {
 public:
-    virtual bool Visit(HWND hwnd) = 0;
+    virtual bool visit(HWND hwnd) = 0;
 
 protected:
     ~ChildWindowVisitor() = default;
 };
 
-export void VisitChildWindows(HWND parent, ChildWindowVisitor* Visitor);
+export void visitChildWindows(HWND parent, ChildWindowVisitor* Visitor);
 // For every child window of parent, the member function Visitor->Visit
 // is called with the child window handle as parameter.
 // The Visit member function has to return false if it wants to stop
@@ -169,10 +169,10 @@ export void VisitChildWindows(HWND parent, ChildWindowVisitor* Visitor);
 //
 export class ChildWindowSender: public ChildWindowVisitor
 {
-    UINT itsMsg;
-    WPARAM itsWParam;
-    LPARAM itsLParam;
-    bool Visit(HWND hwnd) override; // calls SendMessage for hwnd
+    UINT msg_;
+    WPARAM WParam_;
+    LPARAM LParam_;
+    bool visit(HWND hwnd) override; // calls SendMessage for hwnd
 public:
     ChildWindowSender(UINT uMsg, WPARAM wParam, LPARAM lParam);
 };

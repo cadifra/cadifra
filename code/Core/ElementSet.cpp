@@ -8,6 +8,8 @@ module;
 
 module Core;
 
+import d1.algorithm;
+
 
 namespace Core
 {
@@ -18,40 +20,40 @@ using C = ElementSet;
 }
 
 
-bool C::Insert(IElement& m)
+bool C::insert(IElement& m)
 {
     D1_ASSERT(&m != nullptr);
 
-    if (Contains(m))
+    if (contains(m))
         return false;
 
     auto sp = m.shared_from_this();
     auto ms = std::dynamic_pointer_cast<IElement>(sp);
-    itsContents.push_back(ms);
+    contents_.push_back(ms);
     return true;
 }
 
 
 
-void C::Insert(const ElementSet& rhs)
+void C::insert(const ElementSet& rhs)
 {
     for (const auto& m : rhs)
     {
         D1_ASSERT(m.get() != nullptr);
 
-        if (Contains(*m.get()))
+        if (contains(*m.get()))
             continue;
-        itsContents.push_back(m);
+        contents_.push_back(m);
     }
 }
 
 
 
-bool C::Contains(const IElement& me) const
+bool C::contains(const IElement& me) const
 {
     D1_ASSERT(&me != nullptr);
 
-    for (auto& i : itsContents)
+    for (auto& i : contents_)
         if (i.get() == &me)
             return true;
 
@@ -59,30 +61,19 @@ bool C::Contains(const IElement& me) const
 }
 
 
-bool C::Remove(IElement& me)
+bool C::remove(IElement& me)
 {
     D1_ASSERT(&me != nullptr);
 
-    for (auto i = itsContents.begin();
-        i != itsContents.end();
-        ++i)
-    {
-        if (i->get() == &me)
-        {
-            itsContents.erase(i);
-            return true;
-        }
-    }
-
-    return false;
+    return d1::erase_first_with_get(contents_, me);
 }
 
 
 
-void C::Print(std::ostream& os) const
+void C::print(std::ostream& os) const
 {
 #ifdef _DEBUG
-    // PrintSortedIDs(os, begin(), end());
+    // printSortedIDs(os, begin(), end());
 #endif
 }
 

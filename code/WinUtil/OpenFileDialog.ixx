@@ -12,9 +12,8 @@ import std;
 namespace WinUtil
 {
 
-export class OpenFileDialog
+export struct OpenFileDialog
 {
-public:
     using FileList = std::set<std::wstring>;
 
     FileList fileList;

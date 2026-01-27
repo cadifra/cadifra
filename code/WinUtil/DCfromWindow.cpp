@@ -21,17 +21,17 @@ using C = DCfromWindow;
 
 
 C::DCfromWindow(d1::HWND w):
-    itsHwnd{ w },
-    itsDC{ ::GetDC(w) }
+    hwnd_{ w },
+    DC_{ ::GetDC(w) }
 {
-    D1_ASSERT(itsHwnd);
-    D1_ASSERT(itsDC);
+    D1_ASSERT(hwnd_);
+    D1_ASSERT(DC_);
 }
 
 
 C::~DCfromWindow()
 {
-    ::ReleaseDC(itsHwnd, itsDC);
+    ::ReleaseDC(hwnd_, DC_);
 }
 
 }

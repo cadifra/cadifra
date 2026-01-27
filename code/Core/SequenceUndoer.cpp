@@ -18,73 +18,73 @@ using C = SequenceUndoer;
 }
 
 
-void C::UndoImp(Param& p)
+void C::undoImp(Param& p)
 {
-    auto a = [&](const auto& u) { u.Undo(p); };
-    for_each(ItsUndoerList | std::views::reverse, a);
+    auto a = [&](const auto& u) { u.undo(p); };
+    for_each(undoerList_ | std::views::reverse, a);
 }
 
 
-void C::RedoImp(Param& p)
+void C::redoImp(Param& p)
 {
-    auto a = [&](const auto& u) { u.Redo(p); };
-    for_each(ItsUndoerList, a);
+    auto a = [&](const auto& u) { u.redo(p); };
+    for_each(undoerList_, a);
 }
 
 
-void C::Append(UndoerRef u)
+void C::append(UndoerRef u)
 {
-    if (!u.IsNull())
-        ItsUndoerList.push_back(u);
+    if (not u.isNull())
+        undoerList_.push_back(u);
 }
 
 
-bool C::IsNull() const
+bool C::isNull() const
 {
-    return ItsUndoerList.empty();
+    return undoerList_.empty();
 }
 
 
-bool C::Merge(Undoer& u)
+bool C::merge(Undoer& u)
 {
     auto* s = dynamic_cast<SequenceUndoer*>(&u);
 
-    if (!s)
+    if (not s)
         return false;
 
     UndoerListType non_merged;
 
-    for (auto iu : s->ItsUndoerList)
+    for (auto iu : s->undoerList_)
     {
         bool merged = false;
 
-        for (auto ju : ItsUndoerList)
+        for (auto ju : undoerList_)
         {
-            if (ju.Merge(iu))
+            if (ju.merge(iu))
             {
                 merged = true;
                 break;
             }
         }
 
-        if (!merged)
+        if (not merged)
             non_merged.push_back(iu);
     }
 
-    ItsUndoerList.insert(
-        end(ItsUndoerList), begin(non_merged), end(non_merged));
+    undoerList_.insert(
+        end(undoerList_), cbegin(non_merged), cend(non_merged));
 
     return true;
 }
 
 
-void C::Remove(IElement& me)
+void C::remove(IElement& me)
 {
-    for (auto i = begin(ItsUndoerList); i != end(ItsUndoerList);)
+    for (auto i = begin(undoerList_); i != end(undoerList_);)
     {
-        i->Remove(me);
-        if (i->IsNull())
-            i = ItsUndoerList.erase(i);
+        i->remove(me);
+        if (i->isNull())
+            i = undoerList_.erase(i);
         else
             ++i;
     }

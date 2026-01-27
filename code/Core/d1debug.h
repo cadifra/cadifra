@@ -12,7 +12,7 @@ import Core;
 #define D1_DEBUG_DEFINE_FLAG(category, flag) \
 namespace { \
   const bool d1DebugEnabled = \
-    (WinUtil::DebugEnv::Inst().GetInt(#category, #flag) != 0); \
+    (WinUtil::DebugEnv::inst().getInt(#category, #flag) != 0); \
 }
 #else
 #define D1_DEBUG_DEFINE_FLAG(category, flag)  
@@ -33,8 +33,8 @@ namespace { \
   #define D1_DEBUG_PREFIX(line)  \
     if (d1DebugEnabled) \
       WinUtil::dout  << d1module << " L" << line \
-                     << "(" << /*e.RefCount()*/0 << ")" \
-                     << " #" << this->GetID().val()
+                     << "(" << /*e.refCount()*/0 << ")" \
+                     << " #" << this->getID().val()
 
   #define D1_DEBUG_PREFIX_L  D1_DEBUG_PREFIX(__LINE__)
 #endif
@@ -70,7 +70,7 @@ namespace { \
 #ifdef _DEBUG
   #define D1_DEBUG_WATCH_ID(ptr) \
     D1_DEBUG_PREFIX_L << ": WATCH  " #ptr ": #" \
-                      << ((ptr) ? (ptr)->GetID().val() : 0) << std::endl;
+                      << ((ptr) ? (ptr)->getID().val() : 0) << std::endl;
 #else
   #define D1_DEBUG_WATCH_ID(ptr)
 #endif
@@ -86,7 +86,7 @@ namespace { \
       d1Exit(bool de, const char* mod, long line,
              Core::ObjectID id, Core::Env& e, const char* mf)
       : d1DebugEnabled(de), d1module(mod), line(line), id(id), e(e), mf(mf)  { }
-      Core::ObjectID GetID() const { return id; }
+      Core::ObjectID getID() const { return id; }
       ~d1Exit() {  D1_DEBUG_PREFIX(line) << ": EXIT " << mf << std::endl;  }
     };
   }
@@ -94,7 +94,7 @@ namespace { \
   #define D1_DEBUG_MEMFUN(name) \
     D1_DEBUG_PREFIX(__LINE__) << ": @@@ " << #name << std::endl; \
     d1Exit tmp_core_d1debug_d1exit( \
-      d1DebugEnabled, d1module, __LINE__, this->GetID(), e, #name);
+      d1DebugEnabled, d1module, __LINE__, this->getID(), e, #name);
 
 #else
   #define D1_DEBUG_MEMFUN(name)

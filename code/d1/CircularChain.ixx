@@ -12,32 +12,32 @@ namespace d1
 
 export class CircularChain
 {
-    CircularChain* itsNext = this;
-    CircularChain* itsPrev = this;
+    CircularChain* next_ = this;
+    CircularChain* prev_ = this;
 
 public:
     CircularChain() = default;
-    ~CircularChain() { Unlink(); }
+    ~CircularChain() { unlink(); }
 
     CircularChain(const CircularChain& r) = delete;
     CircularChain& operator=(const CircularChain&) = delete;
 
-    bool IsUnique() const { return itsNext == this; }
+    bool isUnique() const { return next_ == this; }
 
-    void Link(CircularChain& cc)
+    void link(CircularChain& cc)
     {
-        // symmetric: a.Link(b) and b.Link(a) do the same
-        std::swap(itsNext->itsPrev, cc.itsNext->itsPrev);
-        std::swap(itsNext, cc.itsNext);
+        // symmetric: a.link(b) and b.link(a) do the same
+        std::swap(next_->prev_, cc.next_->prev_);
+        std::swap(next_, cc.next_);
     }
 
-    void Unlink()
+    void unlink()
     {
         // doesn't change anything if it is already unique
-        itsPrev->itsNext = itsNext;
-        itsNext->itsPrev = itsPrev;
-        itsNext = this;
-        itsPrev = this;
+        prev_->next_ = next_;
+        next_->prev_ = prev_;
+        next_ = this;
+        prev_ = this;
     }
 };
 

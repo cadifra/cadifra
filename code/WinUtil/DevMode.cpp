@@ -23,9 +23,9 @@ using C = DevMode;
 
 
 C::DevMode(WORD dmDriverExtra):
-    itsBuf(sizeof(DEVMODE) + dmDriverExtra, 0)
+    buf_(sizeof(DEVMODE) + dmDriverExtra, 0)
 {
-    DEVMODE* d = reinterpret_cast<DEVMODE*>(itsBuf.data());
+    DEVMODE* d = reinterpret_cast<DEVMODE*>(buf_.data());
 
     d->dmSize = sizeof(DEVMODE);
     d->dmDriverExtra = dmDriverExtra;
@@ -33,16 +33,16 @@ C::DevMode(WORD dmDriverExtra):
 
 
 C::DevMode(const DEVMODE& d):
-    itsBuf(d.dmSize + d.dmDriverExtra, 0)
+    buf_(d.dmSize + d.dmDriverExtra, 0)
 {
-    ::CopyMemory(itsBuf.data(), &d, itsBuf.size());
+    ::CopyMemory(buf_.data(), &d, buf_.size());
 }
 
 
 C::DevMode(HGLOBAL g):
-    itsBuf(sizeof(DEVMODE), 0)
+    buf_(sizeof(DEVMODE), 0)
 {
-    DEVMODE* d = reinterpret_cast<DEVMODE*>(itsBuf.data());
+    DEVMODE* d = reinterpret_cast<DEVMODE*>(buf_.data());
     d->dmSize = sizeof(DEVMODE);
 
     if (::GlobalSize(g) < sizeof(DEVMODE))
@@ -50,12 +50,12 @@ C::DevMode(HGLOBAL g):
 
     auto l = GlobalLocker<DEVMODE>{ g };
 
-    if (!l.GetPtr())
+    if (not l.getPtr())
         return;
 
-    itsBuf.resize(l->dmSize + l->dmDriverExtra);
+    buf_.resize(l->dmSize + l->dmDriverExtra);
 
-    ::CopyMemory(itsBuf.data(), l.GetPtr(), itsBuf.size());
+    ::CopyMemory(buf_.data(), l.getPtr(), buf_.size());
 }
 
 
@@ -66,27 +66,27 @@ DevMode& C::operator=(HGLOBAL g)
 
     auto l = GlobalLocker<DEVMODE>{ g };
 
-    if (!l.GetPtr())
+    if (not l.getPtr())
         return *this;
 
-    itsBuf.resize(l->dmSize + l->dmDriverExtra);
+    buf_.resize(l->dmSize + l->dmDriverExtra);
 
-    ::CopyMemory(itsBuf.data(), l.GetPtr(), itsBuf.size());
+    ::CopyMemory(buf_.data(), l.getPtr(), buf_.size());
 
     return *this;
 }
 
 
-auto C::CreateHGLOBAL() const -> GlobalOwner
+auto C::createHGLOBAL() const -> GlobalOwner
 {
-    auto g = GlobalOwner{ ::GlobalAlloc(GHND, itsBuf.size()) };
-    D1_ASSERT(g.Get());
+    auto g = GlobalOwner{ ::GlobalAlloc(GHND, buf_.size()) };
+    D1_ASSERT(g.get());
 
-    auto l = GlobalLocker<DEVMODE>{ g.Get() };
+    auto l = GlobalLocker<DEVMODE>{ g.get() };
 
-    ::CopyMemory(l.GetPtr(), itsBuf.data(), itsBuf.size());
+    ::CopyMemory(l.getPtr(), buf_.data(), buf_.size());
 
-    return GlobalOwner{ g.Release() };
+    return GlobalOwner{ g.release() };
 }
 
 }

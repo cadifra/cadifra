@@ -22,7 +22,7 @@ using C = WM_CONTEXTMENU_Msg;
 }
 
 
-d1::Point C::GetClientCoordinates() const
+d1::Point C::getClientCoordinates() const
 {
     auto p = POINT{
         .x = xPos(),
@@ -35,9 +35,9 @@ d1::Point C::GetClientCoordinates() const
 }
 
 
-bool C::IsKeyboardGenerated() const
+bool C::isKeyboardGenerated() const
 {
-    return xPos() == -1 && yPos() == -1;
+    return xPos() == -1 and yPos() == -1;
     // According to MSDN documentation, message is caused by keyboard, not
     // by right mouse button.
     // Note: This is incompatible with multiple monitors, as the virtual

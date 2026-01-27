@@ -24,21 +24,21 @@ class C::Impl
 {
     using ProcessorMap = std::map<unsigned int, std::unique_ptr<IProcessor>>;
 
-    ProcessorMap itsProcessorMap;
-    IDispatcher& itsDispatcher;
-    ProcRegistrar* itsRegistrar = nullptr;
-    std::vector<std::shared_ptr<ISpy>> itsSpys;
-    IExceptionHandler* const itsExceptionHandler = nullptr; // may be zero, no ownership
+    ProcessorMap processorMap_;
+    IDispatcher& dispatcher_;
+    ProcRegistrar* registrar_ = nullptr;
+    std::vector<std::shared_ptr<ISpy>> spys_;
+    IExceptionHandler* const exceptionHandler_ = nullptr; // may be zero, no ownership
 
 public:
     Impl(IDispatcher&, ProcRegistrar*, IExceptionHandler*);
 
     ~Impl(); // intentionally not virtual
 
-    void Register(unsigned int msgId, std::unique_ptr<IProcessor> p);
-    IProcessor* GetProcessor(unsigned int msgId) const;
+    void add(unsigned int msgId, std::unique_ptr<IProcessor> p);
+    IProcessor* getProcessor(unsigned int msgId) const;
 
-    void RegisterSpy(unsigned int msgId, const std::shared_ptr<ISpy>&);
+    void add(unsigned int msgId, const std::shared_ptr<ISpy>&);
 };
 
 
@@ -47,58 +47,58 @@ C::Impl::Impl(
     ProcRegistrar* r,
     IExceptionHandler* eh):
 
-    itsDispatcher{ d },
-    itsRegistrar{ r },
-    itsExceptionHandler{ eh }
+    dispatcher_{ d },
+    registrar_{ r },
+    exceptionHandler_{ eh }
 {
-    itsDispatcher.Register(r);
+    dispatcher_.add(r);
 }
 
 
 C::Impl::~Impl()
 {
-    itsDispatcher.Unregister(itsRegistrar);
+    dispatcher_.forget(registrar_);
 }
 
 
-void C::Impl::Register(unsigned int msgId, std::unique_ptr<IProcessor> p)
+void C::Impl::add(unsigned int msgId, std::unique_ptr<IProcessor> p)
 {
-    auto i = itsProcessorMap.find(msgId);
-    if (i != end(itsProcessorMap))
+    auto i = processorMap_.find(msgId);
+    if (i != end(processorMap_))
     {
         D1_ASSERT(0); // id already registered
         return;
     }
 
-    p->SetExceptionHandler(itsExceptionHandler);
+    p->setExceptionHandler(exceptionHandler_);
 
-    itsProcessorMap[msgId] = std::move(p);
+    processorMap_[msgId] = std::move(p);
 
-    itsDispatcher.NewProcessor(msgId);
+    dispatcher_.newProcessor(msgId);
 }
 
 
-IProcessor* C::Impl::GetProcessor(unsigned int msgId) const
+IProcessor* C::Impl::getProcessor(unsigned int msgId) const
 {
-    if (auto i = itsProcessorMap.find(msgId); i != end(itsProcessorMap))
+    if (auto i = processorMap_.find(msgId); i != end(processorMap_))
         return i->second.get();
 
     return nullptr;
 }
 
 
-void C::Impl::RegisterSpy(unsigned int msgId, const std::shared_ptr<ISpy>& s)
+void C::Impl::add(unsigned int msgId, const std::shared_ptr<ISpy>& s)
 {
     D1_ASSERT(s);
 
-    itsSpys.push_back(s);
+    spys_.push_back(s);
 
-    itsDispatcher.NewSpy(msgId, s);
+    dispatcher_.newSpy(msgId, s);
 }
 
 
 C::ProcRegistrar(IDispatcher& d, IExceptionHandler* eh):
-    itsImpl{ std::make_unique<Impl>(d, this, eh) }
+    impl_{ std::make_unique<Impl>(d, this, eh) }
 {
 }
 
@@ -106,41 +106,41 @@ C::ProcRegistrar(IDispatcher& d, IExceptionHandler* eh):
 C::~ProcRegistrar() = default;
 
 
-void C::Register(unsigned int msgId, std::unique_ptr<IProcessor> p)
+void C::add(unsigned int msgId, std::unique_ptr<IProcessor> p)
 {
-    itsImpl->Register(msgId, std::move(p));
+    impl_->add(msgId, std::move(p));
 }
 
 
-IProcessor* C::GetProcessor(unsigned int msgId) const
+IProcessor* C::getProcessor(unsigned int msgId) const
 {
-    return itsImpl->GetProcessor(msgId);
+    return impl_->getProcessor(msgId);
 }
 
 
-void C::RegisterSpy(unsigned int msgId, const std::shared_ptr<ISpy>& s)
+void C::add(unsigned int msgId, const std::shared_ptr<ISpy>& s)
 {
-    itsImpl->RegisterSpy(msgId, s);
+    impl_->add(msgId, s);
 }
 
 
-void IProcessor::Process(Message& msg)
+void IProcessor::process(Message& msg)
 {
-    if (!itsExceptionHandler)
+    if (not exceptionHandler_)
     {
-        ProcessImp(msg);
+        processImp(msg);
         return;
     }
 
-    D1_ASSERT(itsExceptionHandler);
+    D1_ASSERT(exceptionHandler_);
 
     try
     {
-        ProcessImp(msg);
+        processImp(msg);
     }
     catch (...)
     {
-        itsExceptionHandler->HandleException();
+        exceptionHandler_->handleException();
         throw;
     }
 }

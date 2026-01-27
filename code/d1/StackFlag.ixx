@@ -18,7 +18,7 @@ public:
     class Ref;
 
 private:
-    Ref* itsRef;
+    Ref* ref_;
 
 public:
     StackFlag(Ref& r);
@@ -32,36 +32,36 @@ public:
 class StackFlag::Ref
 {
     friend class StackFlag;
-    StackFlag* itsStackFlag = nullptr;
+    StackFlag* stackFlag_ = nullptr;
 
 public:
     Ref() = default;
     Ref(const Ref& rhs) {}
     ~Ref();
 
-    operator bool() const { return itsStackFlag != nullptr; }
+    operator bool() const { return stackFlag_ != nullptr; }
 
     Ref& operator=(const Ref& rhs) = delete;
 };
 
 
 inline StackFlag::StackFlag(Ref& r):
-    itsRef{ &r }
+    ref_{ &r }
 {
-    D1_ASSERT(!itsRef->itsStackFlag);
-    itsRef->itsStackFlag = this;
+    D1_ASSERT(not ref_->stackFlag_);
+    ref_->stackFlag_ = this;
 }
 
 inline StackFlag::~StackFlag()
 {
-    if (itsRef)
-        itsRef->itsStackFlag = nullptr;
+    if (ref_)
+        ref_->stackFlag_ = nullptr;
 }
 
 inline StackFlag::Ref::~Ref()
 {
-    if (itsStackFlag)
-        itsStackFlag->itsRef = nullptr;
+    if (stackFlag_)
+        stackFlag_->ref_ = nullptr;
 }
 
 }

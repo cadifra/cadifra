@@ -27,7 +27,7 @@ export class ProcRegistrar;
 export class IExceptionHandler
 {
 public:
-    virtual void HandleException() = 0;
+    virtual void handleException() = 0;
     // PRECONDITION: uncaught_exception() == TRUE
 
 protected:
@@ -37,12 +37,12 @@ protected:
 
 class IProcessor
 {
-    const bool itIsAlwaysReady = false;
-    IExceptionHandler* itsExceptionHandler = nullptr; // may be zero, no ownership
+    const bool alwaysReady_ = false;
+    IExceptionHandler* exceptionHandler_ = nullptr; // may be zero, no ownership
 
 public:
-    IProcessor(bool isAlwaysReady):
-        itIsAlwaysReady{ isAlwaysReady }
+    IProcessor(bool alwaysReady):
+        alwaysReady_{ alwaysReady }
     {
     }
 
@@ -51,17 +51,17 @@ public:
 
     virtual ~IProcessor() = default;
 
-    bool IsAlwaysReady() const { return itIsAlwaysReady; }
+    bool isAlwaysReady() const { return alwaysReady_; }
 
-    void Process(Message&);
+    void process(Message&);
 
-    void SetExceptionHandler(IExceptionHandler* eh)
+    void setExceptionHandler(IExceptionHandler* eh)
     {
-        itsExceptionHandler = eh;
+        exceptionHandler_ = eh;
     }
 
 private:
-    virtual void ProcessImp(Message&) = 0;
+    virtual void processImp(Message&) = 0;
 };
 
 
@@ -75,7 +75,7 @@ public:
 
     virtual ~ISpy() = default;
 
-    virtual void Spy(Message&) const = 0;
+    virtual void spy(Message&) const = 0;
 };
 
 
@@ -85,11 +85,11 @@ public:
     IDispatcher() = default;
     virtual ~IDispatcher() = default;
 
-    virtual void Register(ProcRegistrar*) = 0;
-    virtual void Unregister(ProcRegistrar*) = 0;
+    virtual void add(ProcRegistrar*) = 0;
+    virtual void forget(ProcRegistrar*) = 0;
 
-    virtual void NewProcessor(unsigned int msgId) = 0;
-    virtual void NewSpy(unsigned int msgId, const std::weak_ptr<ISpy>&) = 0;
+    virtual void newProcessor(unsigned int msgId) = 0;
+    virtual void newSpy(unsigned int msgId, const std::weak_ptr<ISpy>&) = 0;
 
     IDispatcher(const IDispatcher&) = delete;
     IDispatcher& operator=(const IDispatcher&) = delete;
@@ -106,18 +106,18 @@ public:
 
     ~ProcRegistrar(); // intentionally not virtual
 
-    void Register(unsigned int msgId, std::unique_ptr<IProcessor>);
+    void add(unsigned int msgId, std::unique_ptr<IProcessor>);
 
-    IProcessor* GetProcessor(unsigned int msgId) const;
+    IProcessor* getProcessor(unsigned int msgId) const;
 
-    void RegisterSpy(unsigned int msgId, const std::shared_ptr<ISpy>&);
+    void add(unsigned int msgId, const std::shared_ptr<ISpy>&);
 
     template <class Target>
-    auto Helper(Target& t);
+    auto helper(Target& t);
 
 private:
     class Impl;
-    const std::unique_ptr<Impl> itsImpl;
+    const std::unique_ptr<Impl> impl_;
 };
 
 
@@ -127,14 +127,14 @@ auto make_processor(bool isAlwaysReady, Target& t, void (Target::*p)(MessageWrap
     class ProcessorImp: public IProcessor
     {
         using ProcessFun = void (Target::*)(MessageWrapper);
-        Target& itsTarget;
-        const ProcessFun itsProcessFun;
+        Target& target_;
+        const ProcessFun processFun_;
 
         //-- IProcessor
 
-        void ProcessImp(Message& msg) override
+        void processImp(Message& msg) override
         {
-            std::invoke(itsProcessFun, itsTarget, msg);
+            std::invoke(processFun_, target_, msg);
         }
 
         //--
@@ -142,8 +142,8 @@ auto make_processor(bool isAlwaysReady, Target& t, void (Target::*p)(MessageWrap
     public:
         ProcessorImp(bool isAlwaysReady, Target& t, ProcessFun p):
             IProcessor{ isAlwaysReady },
-            itsTarget{ t },
-            itsProcessFun{ p }
+            target_{ t },
+            processFun_{ p }
         {
         }
     };
@@ -158,17 +158,17 @@ auto make_spy(Target& t, void (Target::*p)(MessageWrapper))
     class SpyImp: public ISpy
     {
         using SpyFun = void (Target::*)(MessageWrapper);
-        Target& itsTarget;
-        const SpyFun itsSpyFun;
+        Target& target_;
+        const SpyFun spyFun_;
 
-        void Spy(Message& msg) const override
+        void spy(Message& msg) const override
         {
-            std::invoke(itsSpyFun, itsTarget, msg);
+            std::invoke(spyFun_, target_, msg);
         }
 
     public:
         SpyImp(Target& t, SpyFun p):
-            itsTarget{ t }, itsSpyFun{ p }
+            target_{ t }, spyFun_{ p }
         {
         }
     };
@@ -180,12 +180,12 @@ auto make_spy(Target& t, void (Target::*p)(MessageWrapper))
 template <class Target>
 class HelperType
 {
-    ProcRegistrar& itsRegistrar;
-    Target& itsTarget;
+    ProcRegistrar& registrar_;
+    Target& target_;
 
 public:
     HelperType(ProcRegistrar& r, Target& t):
-        itsRegistrar{ r }, itsTarget{ t }
+        registrar_{ r }, target_{ t }
     {
     }
 
@@ -193,43 +193,43 @@ public:
     using MessageMemfun = void (Target::*)(MessageWrapper);
 
     template <class MessageWrapper>
-    void Register(MessageMemfun<Target, MessageWrapper> f)
+    void add(MessageMemfun<Target, MessageWrapper> f)
     {
-        auto p = make_processor(false, itsTarget, f);
-        itsRegistrar.Register(MessageWrapper::GetMsgId(), std::move(p));
+        auto p = make_processor(false, target_, f);
+        registrar_.add(MessageWrapper::getMsgId(), std::move(p));
     }
 
     template <class MessageWrapper>
-    void RegisterAlwaysReady(MessageMemfun<Target, MessageWrapper> f)
+    void addAlwaysReady(MessageMemfun<Target, MessageWrapper> f)
     {
-        auto p = make_processor(true, itsTarget, f);
-        itsRegistrar.Register(MessageWrapper::GetMsgId(), std::move(p));
+        auto p = make_processor(true, target_, f);
+        registrar_.add(MessageWrapper::getMsgId(), std::move(p));
     }
 
     template <class MessageWrapper>
-    void RegisterSpy(MessageMemfun<Target, MessageWrapper> f)
+    void addSpy(MessageMemfun<Target, MessageWrapper> f)
     {
-        auto p = make_spy(itsTarget, f);
-        itsRegistrar.RegisterSpy(MessageWrapper::GetMsgId(), p);
+        auto p = make_spy(target_, f);
+        registrar_.add(MessageWrapper::getMsgId(), p);
     }
 };
 
 
 template <class Target>
-auto ProcRegistrar::Helper(Target& t)
+auto ProcRegistrar::helper(Target& t)
 {
-    return HelperType<Target>{ *this, t };
+    return HelperType{ *this, t };
 }
 
 
 export class IPrePostDispatchObserver
 {
 public:
-    virtual void PreDispatchNotification() = 0;
+    virtual void preDispatchNotification() = 0;
     // PreDispatchNotification is called before any function registered
     // for the dispatched message is called.
 
-    virtual void PostDispatchNotification() = 0;
+    virtual void postDispatchNotification() = 0;
     // PostDispatchNotification is called after the last function registered
     // for the dispatched message has called.
     // PostDispatchNotification is never called if not PreDispatchNotification
@@ -255,19 +255,19 @@ public:
 
     operator IDispatcher&() const;
 
-    void Dispatch(Message&, IPrePostDispatchObserver&) const;
+    void dispatch(Message&, IPrePostDispatchObserver&) const;
 
 private:
     class Impl;
-    std::shared_ptr<Impl> itsImpl;
+    std::shared_ptr<Impl> impl_;
 };
 
 }
 
 
 /*
-Register
-========
+add
+===
 An IDispatcher D1 sends a windows message M1 (WM_MOUSEMOVE etc.) only to the
 function f1 registered via the ProcRegistrar R1 if:
 
@@ -275,8 +275,8 @@ function f1 registered via the ProcRegistrar R1 if:
   - R1 was the last instantiated ProcRegistrar for the IDispatcher D1.
 
 
-RegisterAlwaysReady
-===================
+addAlwaysReady
+==============
 An IDispatcher D1 sends a windows message M1 (WM_MOUSEMOVE etc.) only to the
 function f1 registered via the ProcRegistrar R1 if:
 
@@ -285,15 +285,15 @@ function f1 registered via the ProcRegistrar R1 if:
     the instantiation of R1, has registered a function for M1.
 
 
-RegisterSpy
-===========
+addSpy
+======
 An IDispatcher sends a windows message first to all functions registered
-with RegisterSpy before it calls any function registered with "Register" or
-"RegisterAlwaysReady".
+with addSpy before it calls any function registered with "add" or
+"addAlwaysReady".
 
-"RegisterSpy" doesn't influence the rules for message dispatching for functions
-registered with "Register" or "RegisterAlwaysReady".
+"addSpy" doesn't influence the rules for message dispatching for functions
+registered with "add" or "addAlwaysReady".
 
-The function that is registered last via "RegisterSpy" will get the windows
-message before any other functions registered via "RegisterSpy".
+The function that is registered last via "addSpy" will get the windows
+message before any other functions registered via "addSpy".
 */

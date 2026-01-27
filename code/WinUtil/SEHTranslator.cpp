@@ -14,7 +14,7 @@ import WinUtil.CException;
 namespace WinUtil::SEHTranslator
 {
 
-void ThrowCException(const EXCEPTION_RECORD& er)
+void throwCException(const EXCEPTION_RECORD& er)
 {
     DWORD code = er.ExceptionCode;
 

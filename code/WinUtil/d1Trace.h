@@ -8,7 +8,7 @@
   #define D1_TRACE_DEFINE_FLAG(category, flag) \
   namespace \
   { \
-    static bool debugOut = WinUtil::DebugEnv::Inst().GetInt( \
+    static bool debugOut = WinUtil::DebugEnv::inst().getInt( \
       #category, #flag) != 0; \
   }
 

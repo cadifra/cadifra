@@ -408,7 +408,6 @@
     <ClCompile Include="OwnerSTGMEDIUM.ixx" />
     <ClCompile Include="PrivateClipFormat.cpp" />
     <ClCompile Include="PrivateMessage.cpp" />
-    <ClCompile Include="ProductVersion.cpp" />
     <ClCompile Include="ProductVersion.ixx">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </ForcedIncludeFiles>

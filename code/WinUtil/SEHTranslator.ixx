@@ -12,6 +12,6 @@ export module WinUtil.SEHTranslator;
 export namespace WinUtil::SEHTranslator
 {
 
-void ThrowCException(const EXCEPTION_RECORD& er);
+void throwCException(const EXCEPTION_RECORD& er);
 
 }

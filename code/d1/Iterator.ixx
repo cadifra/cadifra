@@ -37,16 +37,16 @@ public:
 
     bool operator==(const Iterator<T>& rhs) const;
 
-    // PRE: itsImp not zero
+    // PRE: imp_ not zero
     auto& operator++(); // prefix ++
 
     auto operator++(int); // postfix ++
 
-    // PRE: itsImp not zero
+    // PRE: imp_ not zero
     T operator*() const;
 
 private:
-    std::unique_ptr<Imp> itsImp;
+    std::unique_ptr<Imp> imp_;
 };
 
 
@@ -61,22 +61,22 @@ public:
 protected:
     using value_type = T;
 
-    virtual auto Clone() const -> std::unique_ptr<Imp> = 0;
+    virtual auto clone() const -> std::unique_ptr<Imp> = 0;
 
-    virtual bool IsEqual(const Imp& rhs) const = 0;
+    virtual bool isEqual(const Imp& rhs) const = 0;
     // true -> points to same element in container
 
-    virtual void Next() = 0;
+    virtual void next() = 0;
     // Advance Position by one
 
-    virtual T Val() const = 0;
+    virtual T val() const = 0;
     // Get Element at actual Position
 };
 
 
 template <class T>
 Iterator<T>::Iterator(std::unique_ptr<Imp> imp):
-    itsImp{ std::move(imp) }
+    imp_{ std::move(imp) }
 {
 }
 
@@ -84,7 +84,7 @@ Iterator<T>::Iterator(std::unique_ptr<Imp> imp):
 template <class T>
 Iterator<T>::Iterator(const Iterator<T>& rhs)
 {
-    itsImp = rhs.itsImp ? rhs.itsImp->Clone() : nullptr;
+    imp_ = rhs.imp_ ? rhs.imp_->clone() : nullptr;
 }
 
 
@@ -93,7 +93,7 @@ auto& Iterator<T>::operator=(const Iterator<T>& rhs)
 {
     if (this != &rhs)
     {
-        itsImp = rhs.itsImp ? rhs.itsImp->Clone() : nullptr;
+        imp_ = rhs.imp_ ? rhs.imp_->clone() : nullptr;
     }
     return *this;
 }
@@ -102,19 +102,19 @@ auto& Iterator<T>::operator=(const Iterator<T>& rhs)
 template <class T>
 bool Iterator<T>::operator==(const Iterator<T>& rhs) const
 {
-    if (!itsImp && !rhs.itsImp)
+    if (not imp_ and not rhs.imp_)
         return true;
-    if (!itsImp || !rhs.itsImp)
+    if (not imp_ or not rhs.imp_)
         return false;
-    return itsImp->IsEqual(*rhs.itsImp);
+    return imp_->isEqual(*rhs.imp_);
 }
 
 
 template <class T>
 auto& Iterator<T>::operator++() // prefix ++
 {
-    D1_ASSERT(itsImp);
-    itsImp->Next();
+    D1_ASSERT(imp_);
+    imp_->next();
     return *this;
 }
 
@@ -131,8 +131,8 @@ auto Iterator<T>::operator++(int) // postfix ++
 template <class T>
 T Iterator<T>::operator*() const
 {
-    D1_ASSERT(itsImp);
-    return itsImp->Val();
+    D1_ASSERT(imp_);
+    return imp_->val();
 }
 
 }

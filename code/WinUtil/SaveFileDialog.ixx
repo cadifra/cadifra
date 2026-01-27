@@ -12,7 +12,7 @@ import std;
 export namespace WinUtil::SaveFileDialog
 {
 
-bool Show(d1::HWND owner, const std::wstring& filter, int filterIndex,
+bool show(d1::HWND owner, const std::wstring& filter, int filterIndex,
     const std::wstring& defaultExtension, std::wstring& fileName);
 
 // Example for filter: "Code Files (*.h;*.cpp)\0*.h;*.cpp\0All Files\0*\0"

@@ -14,7 +14,7 @@ import std;
 namespace WinUtil
 {
 
-export d1::HGLOBAL CreateObjectDescriptor(
+export d1::HGLOBAL createObjectDescriptor(
     d1::CLSID clsid,
     d1::DWORD dwAspect,
     const d1::Size size,

@@ -21,7 +21,7 @@ namespace WinUtil
 export class DevMode
 {
 public:
-    std::vector<d1::BYTE> itsBuf;
+    std::vector<d1::BYTE> buf_;
 
 public:
     DevMode(d1::WORD dmDriverExtra = 0);
@@ -31,26 +31,26 @@ public:
     explicit DevMode(d1::HGLOBAL g);   // does not take ownership of g!
     DevMode& operator=(d1::HGLOBAL g); // does not take ownership of g!
 
-    GlobalOwner CreateHGLOBAL() const;
+    GlobalOwner createHGLOBAL() const;
 
     operator DEVMODE*()
     {
-        return reinterpret_cast<DEVMODE*>(itsBuf.data());
+        return reinterpret_cast<DEVMODE*>(buf_.data());
     }
 
     operator const DEVMODE*() const
     {
-        return reinterpret_cast<const DEVMODE*>(itsBuf.data());
+        return reinterpret_cast<const DEVMODE*>(buf_.data());
     }
 
     DEVMODE* operator->()
     {
-        return reinterpret_cast<DEVMODE*>(itsBuf.data());
+        return reinterpret_cast<DEVMODE*>(buf_.data());
     }
 
     const DEVMODE* operator->() const
     {
-        return reinterpret_cast<const DEVMODE*>(itsBuf.data());
+        return reinterpret_cast<const DEVMODE*>(buf_.data());
     }
 };
 

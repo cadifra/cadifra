@@ -20,7 +20,7 @@ namespace WinUtil
 {
 
 
-std::wstring ResolveLink(const std::wstring& path, HWND hwnd, bool fast)
+std::wstring resolveLink(const std::wstring& path, HWND hwnd, bool fast)
 {
     if (path.empty())
         return path;
@@ -48,7 +48,7 @@ std::wstring ResolveLink(const std::wstring& path, HWND hwnd, bool fast)
 
     QueryInterface(sl, pf);
 
-    if (!pf)
+    if (not pf)
         return path;
 
     res = pf->Load(path.c_str(), STGM_READWRITE);
@@ -56,7 +56,7 @@ std::wstring ResolveLink(const std::wstring& path, HWND hwnd, bool fast)
     if (FAILED(res))
         return path;
 
-    if (!fast)
+    if (not fast)
     {
         res = sl->Resolve(hwnd, SLR_ANY_MATCH | SLR_UPDATE);
 

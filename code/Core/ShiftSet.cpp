@@ -20,8 +20,8 @@ using C = ShiftSet;
 
 C::ShiftSet()
 {
-    itsActualShiftVector.shiftX = false;
-    itsActualShiftVector.shiftY = false;
+    actualShiftVector_.shiftX = false;
+    actualShiftVector_.shiftY = false;
 }
 
 
@@ -30,87 +30,87 @@ C::ShiftSet(
     IDiagram& d,
     IShiftable* theMasterMover):
 
-    itsMasterMover{ theMasterMover }
+    masterMover_{ theMasterMover }
 {
-    itsActualShiftVector.shiftX = false;
-    itsActualShiftVector.shiftY = false;
+    actualShiftVector_.shiftX = false;
+    actualShiftVector_.shiftY = false;
 
     for (auto me : d)
     {
         D1_ASSERT(me);
         if (auto s = dynamic_cast<IShiftable*>(me))
-            s->AddNormal(*this, selection);
+            s->addNormal(*this, selection);
     }
 
-    for (auto ds : itsDeferredShiftables)
+    for (auto ds : deferredShiftables_)
     {
-        itsActualSender = ds;
-        itsActualSender->AddDependents(*this);
+        actualSender_ = ds;
+        actualSender_->addDependents(*this);
     }
 
     for (auto me : selection)
     {
         D1_ASSERT(me);
         auto s = dynamic_cast<IShiftable*>(me.get());
-        if (s && !IsDeferredShifting(*s))
-            itsInstantShiftables.insert(s);
+        if (s and not isDeferredShifting(*s))
+            instantShiftables_.insert(s);
     }
 
-    itsActualSender = 0;
+    actualSender_ = 0;
 }
 
 
-void C::DeferredShift(
+void C::deferredShift(
     Env& e, const ShiftVector& sv, const d1::fPoint& mouse_pos)
 {
-    itsActualShiftVector = sv;
-    itsActualMousePos = mouse_pos;
+    actualShiftVector_ = sv;
+    actualMousePos_ = mouse_pos;
 
-    for (auto is : itsInstantShiftables)
-        is->Shift(e, 0, sv, *this, false /*not shallow*/);
+    for (auto is : instantShiftables_)
+        is->shift(e, 0, sv, *this, false /*not shallow*/);
 
-    for (auto& d : itsDependents)
-        d.second->ShiftImpl(e, d.first, sv, *this, false /*not shallow*/);
+    for (auto& d : dependents_)
+        d.second->shiftImpl(e, d.first, sv, *this, false /*not shallow*/);
 }
 
 
-void C::FinalShift(Env& e)
+void C::finalShift(Env& e)
 {
-    for (auto s : itsDeferredShiftables)
-        s->ShiftImpl(e, 0, itsActualShiftVector, *this, true /*shallow*/);
+    for (auto s : deferredShiftables_)
+        s->shiftImpl(e, 0, actualShiftVector_, *this, true /*shallow*/);
 }
 
 
-auto C::GetDeferredShift() const -> const ShiftVector&
+auto C::getDeferredShift() const -> const ShiftVector&
 {
-    return itsActualShiftVector;
+    return actualShiftVector_;
 }
 
 
-void C::AddNormal(IShiftable& s)
+void C::addNormal(IShiftable& s)
 {
-    itsDeferredShiftables.insert(&s);
+    deferredShiftables_.insert(&s);
 }
 
 
-void C::AddDependent(IShiftable& s)
+void C::addDependent(IShiftable& s)
 {
     D1_ASSERT(&s);
-    if (!IsDeferredShifting(s))
-        itsDependents.insert(std::make_pair(itsActualSender, &s));
+    if (not isDeferredShifting(s))
+        dependents_.insert(std::make_pair(actualSender_, &s));
 }
 
 
-bool C::IsDeferredShifting(const IShiftable& s) const
+bool C::isDeferredShifting(const IShiftable& s) const
 {
-    return itsDeferredShiftables.find(const_cast<IShiftable*>(&s)) != itsDeferredShiftables.end();
+    return deferredShiftables_.find(const_cast<IShiftable*>(&s)) != deferredShiftables_.end();
 }
 
 
-void C::Print(std::ostream& os) const
+void C::print(std::ostream& os) const
 {
 #ifdef _DEBUG
-    Core::PrintSortedIDs(os, itsDeferredShiftables);
+    Core::printSortedIDs(os, deferredShiftables_);
 #endif
 }
 

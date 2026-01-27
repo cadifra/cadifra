@@ -22,21 +22,21 @@ public:
     // calls Stop
     // intentionally not virtual
 
-    void Start(unsigned int milliseconds);
+    void start(unsigned int milliseconds);
     // calls Stop and starts the timer
 
-    void Stop();
+    void stop();
     // stops the timer if it's running
 
-    bool IsRunning() const { return itIsRunning; }
+    bool isRunning() const { return running_; }
 
 private:
     class Impl;
-    static Impl& Instance();
+    static Impl& instance();
 
-    bool itIsRunning = false;
-    unsigned int itsId = 0;
-    Client& itsClient;
+    bool running_ = false;
+    unsigned int id_ = 0;
+    Client& client_;
 };
 
 // Timer uses windows messages. The ITimerClient::TimerElapsed function
@@ -46,7 +46,7 @@ private:
 class Timer::Client
 {
 public:
-    virtual void TimerElapsed() = 0;
+    virtual void timerElapsed() = 0;
 
 protected:
     ~Client() = default;

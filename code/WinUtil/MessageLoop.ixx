@@ -15,18 +15,18 @@ namespace WinUtil
 export class MessageFilter
 {
 public:
-    static MessageFilter& Instance();
+    static MessageFilter& instance();
 
-    void Register(d1::HWND window);
+    void activate(d1::HWND window);
     // The first call of this function registers the message
     // filter in the OS. The window handle is used as the owner
     // of message boxes. You may exchange the window handle
-    // by calling Register again.
+    // by calling activate again.
 
-    void Unregister();
-    // After calling Register, call Unregister before OleUninitialize.
-    // It's allowed to call Unregister without a previous call to
-    // Register.
+    void deactivate();
+    // After calling activate, call deactivate before OleUninitialize.
+    // It's allowed to call deactivate without a previous call to
+    // activate.
 
     ~MessageFilter();
 
@@ -34,12 +34,12 @@ public:
 
 private:
     class Impl;
-    const std::unique_ptr<Impl> itsImpl;
+    const std::unique_ptr<Impl> impl_;
 
     MessageFilter();
 
-    void IncPostponeIncomingCalls();
-    void DecPostponeIncomingCalls();
+    void incPostponeIncomingCalls();
+    void decPostponeIncomingCalls();
 
     MessageFilter(const MessageFilter&) = delete;
     MessageFilter& operator=(const MessageFilter&) = delete;
@@ -49,8 +49,8 @@ private:
 class MessageFilter::PostponeIncomingCalls
 {
 public:
-    PostponeIncomingCalls() { Instance().IncPostponeIncomingCalls(); }
-    ~PostponeIncomingCalls() { Instance().DecPostponeIncomingCalls(); }
+    PostponeIncomingCalls() { instance().incPostponeIncomingCalls(); }
+    ~PostponeIncomingCalls() { instance().decPostponeIncomingCalls(); }
 };
 
 
@@ -70,13 +70,13 @@ public:
 
     ~MessageLoop(); // intentionally not virtual
 
-    int DoLoop();
+    int doLoop();
     // Stays in loop that processes messages as long as you do not
     // call ExitLoop or post a WM_QUIT message.
 
-    void ExitLoop();
+    void exitLoop();
 
-    void ProcessMessages();
+    void processMessages();
     // Processes all messages in the message queue and returns.
     // Functions that consume a lot of processing time should repeatedly
     // call this function if they do not want to block the message
@@ -88,77 +88,77 @@ public:
     // "print progress dialog".
 
 private:
-    vector<IPreProc*> itsPreProc;
-    vector<IOneTimePostProc*> itsOneTimePostProc;
-    vector<IIdleProc*> itsIdleProc;
+    vector<IPreProc*> preProc_;
+    vector<IOneTimePostProc*> oneTimePostProc_;
+    vector<IIdleProc*> idleProc_;
 
-    vector<IPreProc*> itsWaitForInsertPreProc;
-    vector<IOneTimePostProc*> itsWaitForInsertOneTimePostProc;
-    vector<IIdleProc*> itsWaitForInsertIdleProc;
+    vector<IPreProc*> waitForInsertPreProc_;
+    vector<IOneTimePostProc*> waitForInsertOneTimePostProc_;
+    vector<IIdleProc*> waitForInsertIdleProc_;
 
-    void Register(IPreProc&);
-    void Register(IOneTimePostProc&);
-    void Register(IIdleProc&);
+    void add(IPreProc&);
+    void add(IOneTimePostProc&);
+    void add(IIdleProc&);
 
-    void Unregister(IPreProc&);
-    void Unregister(IOneTimePostProc&);
-    void Unregister(IIdleProc&);
+    void forget(IPreProc&);
+    void forget(IOneTimePostProc&);
+    void forget(IIdleProc&);
 
-    bool CallPreProc(d1::MSG&);
-    void CallOneTimePostProc();
-    void CallIdleProc();
+    bool callPreProc(d1::MSG&);
+    void callOneTimePostProc();
+    void callIdleProc();
 
-    std::pair<bool, int> LoopImpl();
+    std::pair<bool, int> loopImpl();
 };
 
 
 class MessageLoop::IPreProc
 {
-    MessageLoop* itsMessageLoop = nullptr;
+    MessageLoop* messageLoop_ = nullptr;
 
 public:
     IPreProc();
-    void Register(MessageLoop&);
-    void Unregister();
-    virtual bool PreProcess(d1::MSG&) = 0 { return true; }
+    void set(MessageLoop&);
+    void clear();
+    virtual bool preProcess(d1::MSG&) = 0 { return true; }
     // Return true to stop processing of the message
 
 protected:
-    ~IPreProc() { Unregister(); }
+    ~IPreProc() { clear(); }
 };
 
 
 class MessageLoop::IOneTimePostProc
 {
-    MessageLoop* itsMessageLoop = nullptr;
+    MessageLoop* messageLoop_ = nullptr;
 
 public:
     IOneTimePostProc();
-    void Register(MessageLoop&);
-    void Unregister();
-    virtual void PostProcess() = 0
+    void set(MessageLoop&);
+    void clear();
+    virtual void postProcess() = 0
     { /*intentionally*/
     }
 
 protected:
-    ~IOneTimePostProc() { Unregister(); }
+    ~IOneTimePostProc() { clear(); }
 };
 
 
 class MessageLoop::IIdleProc
 {
-    MessageLoop* itsMessageLoop = nullptr;
+    MessageLoop* messageLoop_ = nullptr;
 
 public:
     IIdleProc();
-    void Register(MessageLoop&);
-    void Unregister();
-    virtual void IdleProcess() = 0
+    void set(MessageLoop&);
+    void clear();
+    virtual void idleProcess() = 0
     { /*intentionally*/
     }
 
 protected:
-    ~IIdleProc() { Unregister(); }
+    ~IIdleProc() { clear(); }
 };
 
 
@@ -178,9 +178,9 @@ which creates message numbers that are unique among all applications.
 export class PrivateMessage
 {
 public:
-    static PrivateMessage& Instance();
+    static PrivateMessage& instance();
 
-    virtual unsigned int Register() = 0;
+    virtual unsigned int getNumber() = 0;
     // returns a message number that is unique within the application
 
 protected:
@@ -201,8 +201,8 @@ public:
     ~SuspendQuit(); // intentionally not virtual
 
 private:
-    bool itRemovedQuitMessage = false;
-    int itsExitCode = -1;
+    bool removedQuitMessage_ = false;
+    int exitCode_ = -1;
 };
 
 }

@@ -53,7 +53,7 @@ export struct fSize
 
     bool operator==(const fSize& rhs) const
     {
-        return isEqual(w, rhs.w) && isEqual(h, rhs.h);
+        return isEqual(w, rhs.w) and isEqual(h, rhs.h);
     }
 };
 

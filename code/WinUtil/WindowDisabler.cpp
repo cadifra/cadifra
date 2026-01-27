@@ -30,127 +30,127 @@ C::DisablerList C::theDisablerList;
 
 
 C::WindowDisabler():
-    itsOldActive{ ::GetActiveWindow() },
-    itsProcessId{ ::GetCurrentProcessId() },
-    itsListPos{ end(theDisablerList) }
+    oldActive_{ ::GetActiveWindow() },
+    processId_{ ::GetCurrentProcessId() },
+    listPos_{ end(theDisablerList) }
 {
-    auto guard = d1::ScopeGuard{ [=] { Enable(); } };
+    auto guard = d1::ScopeGuard{ [=] { enable(); } };
 
-    itsListPos = theDisablerList.insert(begin(theDisablerList), this);
+    listPos_ = theDisablerList.insert(begin(theDisablerList), this);
 
     ::EnumThreadWindows(::GetCurrentThreadId(),
-        reinterpret_cast<WNDENUMPROC>(&EnumWindowsProcNoThrow),
+        reinterpret_cast<WNDENUMPROC>(&enumWindowsProcNoThrow),
         reinterpret_cast<LPARAM>(this)
     );
 
-    guard.Dismiss();
+    guard.dismiss();
 }
 
 
 C::~WindowDisabler()
 {
-    Enable();
+    enable();
 }
 
 
-void C::Enable()
+void C::enable()
 {
-    if (itsListPos == end(theDisablerList))
+    if (listPos_ == end(theDisablerList))
         return;
 
-    theDisablerList.erase(itsListPos);
-    itsListPos = end(theDisablerList);
+    theDisablerList.erase(listPos_);
+    listPos_ = end(theDisablerList);
 
-    for (HWND w : itsWindows)
+    for (HWND w : windows_)
     {
-        ::SetWindowLongPtr(w, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(theMap.Get(w)));
-        theMap.Erase(w);
+        ::SetWindowLongPtr(w, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(theMap.get(w)));
+        theMap.erase(w);
         ::EnableWindow(w, TRUE);
     }
 
-    if (!theDisablerList.empty())
+    if (not theDisablerList.empty())
     {
-        HWND w = theDisablerList.front()->itsOldActive;
+        HWND w = theDisablerList.front()->oldActive_;
         HWND p = ::GetLastActivePopup(w);
         ::SetActiveWindow(p);
     }
 }
 
 
-BOOL CALLBACK C::EnumWindowsProcNoThrow(HWND hwnd, LPARAM lParam)
+BOOL CALLBACK C::enumWindowsProcNoThrow(HWND hwnd, LPARAM lParam)
 {
     return GuardedCallHelpers::call("WindowDisabler::EnumWindowsProc",
-        &WindowDisabler::EnumWindowsProc, hwnd, lParam, FALSE);
+        &WindowDisabler::enumWindowsProc, hwnd, lParam, FALSE);
 }
 
 
-BOOL C::EnumWindowsProc(HWND hwnd, LPARAM lParam)
+BOOL C::enumWindowsProc(HWND hwnd, LPARAM lParam)
 {
     auto* wd = reinterpret_cast<WindowDisabler*>(lParam);
-    if (!wd)
+    if (not wd)
         return FALSE;
 
-    if (::IsWindowVisible(hwnd) && 0 == theMap.Get(hwnd))
+    if (::IsWindowVisible(hwnd) and 0 == theMap.get(hwnd))
     {
-        wd->itsWindows.push_back(hwnd);
+        wd->windows_.push_back(hwnd);
         ::EnableWindow(hwnd, FALSE);
 
-        theMap.Insert(hwnd, reinterpret_cast<WNDPROC>(
+        theMap.insert(hwnd, reinterpret_cast<WNDPROC>(
                                 ::GetWindowLongPtr(hwnd, GWLP_WNDPROC)));
 
         ::SetWindowLongPtr(
             hwnd,
             GWLP_WNDPROC,
-            reinterpret_cast<LONG_PTR>(&SubClassWindowProcNoThrow));
+            reinterpret_cast<LONG_PTR>(&subClassWindowProcNoThrow));
     }
 
     return TRUE;
 }
 
 
-void C::AddAndDisableIfNeeded(HWND hwnd)
+void C::addAndDisableIfNeeded(HWND hwnd)
 {
     if (theDisablerList.empty())
         return;
 
-    if (theMap.Get(hwnd))
+    if (theMap.get(hwnd))
         return;
 
     WindowDisabler* wd = theDisablerList.back();
 
-    wd->itsWindows.push_back(hwnd);
+    wd->windows_.push_back(hwnd);
     ::EnableWindow(hwnd, FALSE);
 
-    theMap.Insert(hwnd, reinterpret_cast<WNDPROC>(
+    theMap.insert(hwnd, reinterpret_cast<WNDPROC>(
                             ::GetWindowLongPtr(hwnd, GWLP_WNDPROC)));
 
     ::SetWindowLongPtr(
         hwnd,
         GWLP_WNDPROC,
-        reinterpret_cast<LONG_PTR>(&SubClassWindowProcNoThrow));
+        reinterpret_cast<LONG_PTR>(&subClassWindowProcNoThrow));
 }
 
 
-LRESULT CALLBACK C::SubClassWindowProcNoThrow(
+LRESULT CALLBACK C::subClassWindowProcNoThrow(
     HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     return GuardedCallHelpers::call("WindowDisabler::SubClassWindowProc",
-        &WindowDisabler::SubClassWindowProc, hwnd, uMsg, wParam, lParam,
+        &WindowDisabler::subClassWindowProc, hwnd, uMsg, wParam, lParam,
         static_cast<LRESULT>(0));
 }
 
 
-LRESULT C::SubClassWindowProc(
+LRESULT C::subClassWindowProc(
     HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    static unsigned int msgId = PrivateMessage::Instance().Register();
+    static unsigned int msgId = PrivateMessage::instance().getNumber();
 
     if (uMsg == WM_ACTIVATE)
     {
-        if ((wParam == WA_ACTIVE || wParam == WA_CLICKACTIVE) &&
-            !theDisablerList.empty())
+        if ((wParam == WA_ACTIVE or wParam == WA_CLICKACTIVE) and
+            not theDisablerList.empty())
         {
-            HWND w = theDisablerList.front()->itsOldActive;
+            HWND w = theDisablerList.front()->oldActive_;
             ::PostMessage(
                 hwnd,
                 msgId,
@@ -166,7 +166,7 @@ LRESULT C::SubClassWindowProc(
         ::SetActiveWindow(p);
     }
 
-    return CallWindowProc(theMap.Get(hwnd), hwnd, uMsg, wParam, lParam);
+    return CallWindowProc(theMap.get(hwnd), hwnd, uMsg, wParam, lParam);
 }
 
 }

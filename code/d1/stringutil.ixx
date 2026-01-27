@@ -13,7 +13,7 @@ export namespace d1
 inline size_t strnlen(const char* p, size_t max)
 {
     size_t n = 0;
-    while (n < max && (*p != 0))
+    while (n < max and (*p != 0))
     {
         ++n;
         ++p;
@@ -25,7 +25,7 @@ inline size_t strnlen(const char* p, size_t max)
 inline size_t strnlen(const wchar_t* p, size_t max)
 {
     size_t n = 0;
-    while (n < max && (*p != 0))
+    while (n < max and (*p != 0))
     {
         ++n;
         ++p;
@@ -34,14 +34,14 @@ inline size_t strnlen(const wchar_t* p, size_t max)
 }
 
 
-inline auto Cstring2string(const char* p, size_t max)
+inline auto cstring2string(const char* p, size_t max)
 {
     const auto res = std::string(p, strnlen(p, max));
     return res;
 }
 
 
-inline auto Cstring2string(const wchar_t* p, size_t max)
+inline auto cstring2string(const wchar_t* p, size_t max)
 {
     const auto res = std::wstring(p, strnlen(p, max));
     return res;

@@ -28,26 +28,26 @@ public:
     Impl(const Impl&) = delete;
     Impl& operator=(const Impl& rhs) = delete;
 
-    unsigned int Register() final;
+    unsigned int getNumber() final;
 
 private:
-    unsigned int itsNextNumber;
+    unsigned int nextNumber_;
 };
 
 Impl::Impl():
-    itsNextNumber{ First }
+    nextNumber_{ First }
 {
 }
 
-unsigned int Impl::Register()
+unsigned int Impl::getNumber()
 {
-    D1_ASSERT(itsNextNumber < Last);
-    return itsNextNumber++;
+    D1_ASSERT(nextNumber_ < Last);
+    return nextNumber_++;
 }
 
 }
 
-auto PrivateMessage::Instance() -> PrivateMessage&
+auto PrivateMessage::instance() -> PrivateMessage&
 {
     static Impl pm;
     return pm;

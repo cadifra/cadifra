@@ -20,9 +20,9 @@ using C = GlobalOwner;
 }
 
 
-HGLOBAL C::Copy(HGLOBAL g)
+HGLOBAL C::copy(HGLOBAL g)
 {
-    if (!g)
+    if (not g)
         return 0;
 
     DWORD size = static_cast<DWORD>(::GlobalSize(g));
@@ -48,38 +48,38 @@ HGLOBAL C::Copy(HGLOBAL g)
 
 GlobalOwner& C::operator=(const GlobalOwner& g)
 {
-    if (itsGlob == g.itsGlob)
+    if (glob_ == g.glob_)
         return *this;
-    Reset();
-    itsGlob = Copy(g.itsGlob);
+    reset();
+    glob_ = copy(g.glob_);
     return *this;
 }
 
 
 GlobalOwner& C::operator=(HGLOBAL g)
 {
-    if (itsGlob == g)
+    if (glob_ == g)
         return *this;
-    Reset();
-    itsGlob = g;
+    reset();
+    glob_ = g;
     return *this;
 }
 
 
 
-HGLOBAL C::Release()
+HGLOBAL C::release()
 {
-    HGLOBAL t = itsGlob;
-    itsGlob = 0;
+    HGLOBAL t = glob_;
+    glob_ = 0;
     return t;
 }
 
 
-void C::Reset()
+void C::reset()
 {
-    if (itsGlob)
-        itsGlob = ::GlobalFree(itsGlob);
-    D1_ASSERT(!itsGlob);
+    if (glob_)
+        glob_ = ::GlobalFree(glob_);
+    D1_ASSERT(not glob_);
 }
 
 }

@@ -26,9 +26,9 @@ using std::ranges::for_each;
 #ifdef _DEBUG
 namespace
 {
-int DebugOutputEnabled()
+int debugOutputEnabled()
 {
-    return WinUtil::DebugEnv::Inst().GetInt("Core", "Transaction::Debug");
+    return WinUtil::DebugEnv::inst().getInt("Core", "Transaction::Debug");
 }
 }
 #endif
@@ -47,50 +47,50 @@ using C = Transaction;
 C::Imp::Imp(
     IDiagram& d, IView* working_view, Transaction& trans):
 
-    itsTransaction{ trans },
-    itsDiagram{ d },
-    itsWorkingView{ working_view },
-    itsNumber{ ++GlobalTransactionCounter }
+    transaction_{ trans },
+    diagram_{ d },
+    workingView_{ working_view },
+    number_{ ++GlobalTransactionCounter }
 {
 #ifdef _DEBUG
-    if (DebugOutputEnabled())
+    if (debugOutputEnabled())
         WinUtil::dout
             << std::endl
             << "------- New Transaction "
             << GlobalTransactionCounter << std::endl;
 #endif
 
-    itsDiagram.Register(itsTransaction);
+    diagram_.add(transaction_);
 }
 
 
-void C::Imp::Destruct()
+void C::Imp::destruct()
 {
-    itsDiagram.Unregister(itsTransaction);
+    diagram_.forget(transaction_);
 
     class DiagramUpdater
     {
-        IDiagram& itsDiagram;
+        IDiagram& diagram_;
 
     public:
         DiagramUpdater(IDiagram& d):
-            itsDiagram{ d }
+            diagram_{ d }
         {
         }
-        ~DiagramUpdater() { itsDiagram.UpdateViews(); }
+        ~DiagramUpdater() { diagram_.updateViews(); }
 
-    } diagramUpdater{ itsDiagram };
+    } diagramUpdater{ diagram_ };
 
-    if (!itIsClosed)
+    if (not closed_)
     {
 #ifdef _DEBUG
-        if (DebugOutputEnabled())
+        if (debugOutputEnabled())
             WinUtil::dout
                 << std::endl
                 << "******* Warning: Forcing closure of Transaction "
                 << GlobalTransactionCounter << std::endl;
 #endif
-        Abort();
+        abort();
     }
 }
 
@@ -98,48 +98,48 @@ void C::Imp::Destruct()
 C::Imp::~Imp()
 {
     WinUtil::GuardedCallHelpers::call(
-        "Core::TransactionImp::~TransactionImp", *this, &Imp::Destruct);
+        "Core::TransactionImp::~TransactionImp", *this, &Imp::destruct);
 }
 
 
-bool C::Imp::Finalize(Selection::Tracker& sc, const IGrid& g)
+bool C::Imp::finalize(Selection::Tracker& sc, const IGrid& g)
 {
-    auto e = Env{ itsTransaction, sc, g };
+    auto e = Env{ transaction_, sc, g };
     // warning: *this may be changed through e
 
     unsigned int maxrepeat = 100000;
 
-    Finalizer::GetDock().ExecuteAll(e);
+    Finalizer::getDock().executeAll(e);
 
-    while (!itsFinalizeCandidates.empty())
+    while (not finalizeCandidates_.empty())
     {
-        if (!--maxrepeat)
+        if (not --maxrepeat)
         {
-            itsFinalizeCandidates.clear();
+            finalizeCandidates_.clear();
             return false;
         }
 
-        IElement* me = itsFinalizeCandidates.front().get();
+        IElement* me = finalizeCandidates_.front().get();
         D1_ASSERT(me);
 
-        me->Finalize(e);
-        d1::erase_first_with_get(itsFinalizeCandidates, *me);
+        me->finalize(e);
+        d1::erase_first_with_get(finalizeCandidates_, *me);
     }
 
     return true;
 }
 
 
-auto C::Imp::Close(Selection::Tracker& sc, const IGrid& g) -> UndoerRef
+auto C::Imp::close(Selection::Tracker& sc, const IGrid& g) -> UndoerRef
 {
-    D1_ASSERT(itsFinalizeCandidates.empty());
+    D1_ASSERT(finalizeCandidates_.empty());
 
     bool null_transaction = false;
     UndoerRef res;
 
-    if (itsTouchedElements.empty() &&
-        itsNewlyCreatedElements.empty() &&
-        itsTrashedElements.empty())
+    if (touchedElements_.empty() and
+        newlyCreatedElements_.empty() and
+        trashedElements_.empty())
     {
         null_transaction = true;
     }
@@ -147,11 +147,11 @@ auto C::Imp::Close(Selection::Tracker& sc, const IGrid& g) -> UndoerRef
     {
         null_transaction = false;
 
-        res = NonNullClose(sc, g);
+        res = nonNullClose(sc, g);
     }
 
 #ifdef _DEBUG
-    if (DebugOutputEnabled())
+    if (debugOutputEnabled())
     {
         WinUtil::dout
             << "------- " << (null_transaction ? "empty " : "") << "Transaction "
@@ -159,23 +159,23 @@ auto C::Imp::Close(Selection::Tracker& sc, const IGrid& g) -> UndoerRef
     }
 #endif
 
-    itIsClosed = true;
+    closed_ = true;
 
     return res;
 }
 
 
-auto C::Imp::NonNullClose(Selection::Tracker& sc, const IGrid& g) -> UndoerRef
+auto C::Imp::nonNullClose(Selection::Tracker& sc, const IGrid& g) -> UndoerRef
 {
-    auto res = CloseAllTouched();
+    auto res = closeAllTouched();
 
-    DisconnectAllNewlyCreated();
-    DisconnectAllTouched();
-    DisconnectAllTrashed(sc);
+    disconnectAllNewlyCreated();
+    disconnectAllTouched();
+    disconnectAllTrashed(sc);
 
-    itsTouchedElements.clear();
+    touchedElements_.clear();
 
-    itsToBeDeletedElements.clear();
+    toBeDeletedElements_.clear();
 
     return res;
 }
@@ -193,9 +193,9 @@ class ConvertPosUndoers
 public:
     ConvertPosUndoers() {}
 
-    bool Add(UndoerRef u)
+    bool add(UndoerRef u)
     {
-        if (u.get()->GetPosUndoer())
+        if (u.get()->getPosUndoer())
         {
             v_.push_back(u);
             return true;
@@ -203,20 +203,20 @@ public:
         return false;
     }
 
-    void GetResult(SequenceUndoer& su);
-    void GetSameOffset(const d1::Vector& offset, SequenceUndoer& su);
+    void getResult(SequenceUndoer& su);
+    void getSameOffset(const d1::Vector& offset, SequenceUndoer& su);
 };
 
 
-void ConvertPosUndoers::GetSameOffset(const d1::Vector& offset, SequenceUndoer& su)
+void ConvertPosUndoers::getSameOffset(const d1::Vector& offset, SequenceUndoer& su)
 {
     auto other_offset = V{};
     auto matched_offset = V{};
 
     for (auto iu : v_)
     {
-        auto* p = iu.get()->GetPosUndoer();
-        if (p->Offset() == offset)
+        auto* p = iu.get()->getPosUndoer();
+        if (p->offset() == offset)
             matched_offset.push_back(iu);
         else
             other_offset.push_back(iu);
@@ -226,7 +226,7 @@ void ConvertPosUndoers::GetSameOffset(const d1::Vector& offset, SequenceUndoer& 
 
     if (matched_offset.size() == 1)
     {
-        su.Append(matched_offset.front());
+        su.append(matched_offset.front());
         return;
     }
 
@@ -234,27 +234,27 @@ void ConvertPosUndoers::GetSameOffset(const d1::Vector& offset, SequenceUndoer& 
 
     for (auto iu : matched_offset)
     {
-        auto* p = iu.get()->GetPosUndoer();
-        pug->Add(p->Object());
+        auto* p = iu.get()->getPosUndoer();
+        pug->add(p->object());
     }
 
-    su.Append({ pug });
+    su.append({ pug });
 }
 
 
-void ConvertPosUndoers::GetResult(SequenceUndoer& su)
+void ConvertPosUndoers::getResult(SequenceUndoer& su)
 {
-    while (!v_.empty())
+    while (not v_.empty())
     {
-        auto* p = v_.front().get()->GetPosUndoer();
-        GetSameOffset(p->Offset(), su);
+        auto* p = v_.front().get()->getPosUndoer();
+        getSameOffset(p->offset(), su);
     }
 }
 
 }
 
 
-auto C::Imp::CloseAllTouched() -> UndoerRef
+auto C::Imp::closeAllTouched() -> UndoerRef
 {
     class UColl: public IUndoerCollector
     {
@@ -270,121 +270,121 @@ auto C::Imp::CloseAllTouched() -> UndoerRef
             su_ref_ = { su };
         }
 
-        void Add(UndoerRef u)
+        void add(UndoerRef u)
         {
-            if (cpu_.Add(u))
+            if (cpu_.add(u))
                 return;
-            su_->Append(u);
+            su_->append(u);
         }
 
-        auto GetResult() -> UndoerRef
+        auto getResult() -> UndoerRef
         {
-            cpu_.GetResult(*su_);
+            cpu_.getResult(*su_);
             return su_ref_;
         }
     } uc;
 
-    for (auto im : itsTouchedElements)
+    for (auto im : touchedElements_)
     {
         IElement* me = im.get();
         D1_ASSERT(me);
-        me->TransactionClosed(uc);
+        me->transactionClosed(uc);
     }
 
     auto su = std::make_shared<TransactionUndoer>(
-        uc.GetResult(), itsNewlyCreatedElements, itsTrashedElements, itsNumber);
+        uc.getResult(), newlyCreatedElements_, trashedElements_, number_);
 
     return { su };
 }
 
 
-void C::Imp::DisconnectAllTouched()
+void C::Imp::disconnectAllTouched()
 {
-    for (auto im : itsTouchedElements)
+    for (auto im : touchedElements_)
     {
         IElement& me = *im.get();
-        me.ViewsNeedUpdate(itsDiagram);
-        me.DisconnectTransaction();
+        me.viewsNeedUpdate(diagram_);
+        me.disconnectTransaction();
     }
 }
 
 
-void C::Imp::DisconnectAllTrashed(Selection::Tracker& sc)
+void C::Imp::disconnectAllTrashed(Selection::Tracker& sc)
 {
-    for (auto im : itsTrashedElements)
+    for (auto im : trashedElements_)
     {
         IElement& me = *im.get();
-        itsDiagram.DestroyViewElements(me, sc);
-        me.DisconnectTransaction();
+        diagram_.destroyViewElements(me, sc);
+        me.disconnectTransaction();
     }
 }
 
 
-void C::Imp::DisconnectAllNewlyCreated()
+void C::Imp::disconnectAllNewlyCreated()
 {
-    for (auto im : itsNewlyCreatedElements)
+    for (auto im : newlyCreatedElements_)
     {
         IElement& me = *im.get();
 
         // create view elements for newly created clients in all non-working views
-        itsDiagram.CreateViewElements(me);
-        me.ViewsNeedUpdate(itsDiagram);
-        me.DisconnectTransaction();
+        diagram_.createViewElements(me);
+        me.viewsNeedUpdate(diagram_);
+        me.disconnectTransaction();
     }
 }
 
 
-void C::Imp::Abort()
+void C::Imp::abort()
 {
-    itsFinalizeCandidates.clear();
-    auto sc = Selection::Tracker{ itsWorkingView };
+    finalizeCandidates_.clear();
+    auto sc = Selection::Tracker{ workingView_ };
 
-    for_each(itsTouchedElements,
+    for_each(touchedElements_,
         [](const IElementRef& me) {
-            IElement::PrivateAccess::TransactionAborted(*me.get());
+            IElement::PrivateAccess::transactionAborted(*me.get());
         });
 
-    AbortAllTrashed();
+    abortAllTrashed();
 
-    AbortAllNewlyCreated(sc);
+    abortAllNewlyCreated(sc);
 
     auto duv = [&](const IElementRef& me) {
-        IElement::PrivateAccess::DisconnectTransaction(*me.get());
-        me->ViewsNeedUpdate(itsDiagram);
+        IElement::PrivateAccess::disconnectTransaction(*me.get());
+        me->viewsNeedUpdate(diagram_);
     };
 
-    for_each(itsTrashedElements, duv);
-    for_each(itsTouchedElements, duv);
+    for_each(trashedElements_, duv);
+    for_each(touchedElements_, duv);
 
-    itsTouchedElements.clear();
-    itsNewlyCreatedElements.clear();
-    itsToBeDeletedElements.clear();
-    itsTrashedElements.clear();
-    itIsClosed = true;
+    touchedElements_.clear();
+    newlyCreatedElements_.clear();
+    toBeDeletedElements_.clear();
+    trashedElements_.clear();
+    closed_ = true;
 }
 
 
-void C::Imp::AbortAllNewlyCreated(Selection::Tracker& sc)
+void C::Imp::abortAllNewlyCreated(Selection::Tracker& sc)
 {
-    for (auto im : itsNewlyCreatedElements)
+    for (auto im : newlyCreatedElements_)
     {
         IElement& me = *im.get();
-        itsDiagram.DestroyViewElements(me, sc);
-        itsDiagram.Remove(me);
-        me.DisconnectTransaction();
+        diagram_.destroyViewElements(me, sc);
+        diagram_.remove(me);
+        me.disconnectTransaction();
     }
 }
 
 
-void C::Imp::AbortAllTrashed()
+void C::Imp::abortAllTrashed()
 {
-    for (const auto& im : itsTrashedElements)
+    for (const auto& im : trashedElements_)
     {
         IElement& me = *im.get();
-        me.TransactionAborted();
-        me.SetInTrashFlag(false);
-        itsDiagram.Insert(im);
-        itsDiagram.CreateViewElements(me, false);
+        me.transactionAborted();
+        me.setInTrashFlag(false);
+        diagram_.insert(im);
+        diagram_.createViewElements(me, false);
     }
 }
 
@@ -392,56 +392,56 @@ void C::Imp::AbortAllTrashed()
 namespace
 {
 template <class C>
-bool NotContains_(const C& cont, const IElement* ele)
+bool notContains_(const C& cont, const IElement* ele)
 {
-    auto i = std::find_if(
-        begin(cont), end(cont),
+    auto i = std::ranges::find_if(
+        cont,
         [=](auto& m) {
             return (m.get() == ele);
         });
     return (i == end(cont));
 }
 template <class C>
-bool Contains_(const C& cont, const IElement* ele)
+bool contains_(const C& cont, const IElement* ele)
 {
-    return !NotContains_(cont, ele);
+    return not notContains_(cont, ele);
 }
 }
 
 
-void C::Imp::AddTouched(IElement& me, bool update_view)
+void C::Imp::addTouched(IElement& me, bool update_view)
 {
     // some checks first
 
-    D1_ASSERT(!itIsClosed);
-    D1_ASSERT(!itsTrashedElements.Contains(me));
+    D1_ASSERT(not closed_);
+    D1_ASSERT(not trashedElements_.contains(me));
 
-    const bool touched = me.IsTouched();
-    const bool newly_created = me.IsNewlyCreated();
+    const bool touched = me.isTouched();
+    const bool newly_created = me.isNewlyCreated();
 
-    if (touched || newly_created)
+    if (touched or newly_created)
     {
-        D1_ASSERT(me.GetTransaction() == &itsTransaction);
+        D1_ASSERT(me.getTransaction() == &transaction_);
     }
 
     if (newly_created)
     {
-        D1_ASSERT(!touched);
-        D1_ASSERT(Contains_(itsNewlyCreatedElements, &me));
+        D1_ASSERT(not touched);
+        D1_ASSERT(contains_(newlyCreatedElements_, &me));
     }
     else
     {
-        D1_ASSERT(NotContains_(itsNewlyCreatedElements, &me));
+        D1_ASSERT(notContains_(newlyCreatedElements_, &me));
     }
 
     if (touched)
     {
-        D1_ASSERT(!newly_created);
-        D1_ASSERT(Contains_(itsTouchedElements, &me));
+        D1_ASSERT(not newly_created);
+        D1_ASSERT(contains_(touchedElements_, &me));
     }
     else
     {
-        D1_ASSERT(NotContains_(itsTouchedElements, &me));
+        D1_ASSERT(notContains_(touchedElements_, &me));
     }
 
     // ## checks passed
@@ -449,51 +449,51 @@ void C::Imp::AddTouched(IElement& me, bool update_view)
     auto sp = me.shared_from_this();
     auto sme = std::dynamic_pointer_cast<IElement>(sp);
 
-    if (!touched && !newly_created)
+    if (not touched and not newly_created)
     {
-        me.SetTransaction(&itsTransaction);
-        itsTouchedElements.push_back(sme);
-        D1_ASSERT(me.GetTransaction() == &itsTransaction);
-        me.SetTouched(true);
+        me.set(&transaction_);
+        touchedElements_.push_back(sme);
+        D1_ASSERT(me.getTransaction() == &transaction_);
+        me.setTouched(true);
     }
 
-    if (NotContains_(itsFinalizeCandidates, &me))
-        itsFinalizeCandidates.push_back(sme);
+    if (notContains_(finalizeCandidates_, &me))
+        finalizeCandidates_.push_back(sme);
 
     if (update_view)
-        me.ViewsNeedUpdate(itsDiagram);
+        me.viewsNeedUpdate(diagram_);
 }
 
 
-void C::Imp::PutIntoTrash(Selection::Tracker& sc, const IElementRef& me)
+void C::Imp::putIntoTrash(Selection::Tracker& sc, const IElementRef& me)
 {
-    D1_ASSERT(!itIsClosed);
+    D1_ASSERT(not closed_);
 
-    const bool newly_created = me->IsNewlyCreated();
+    const bool newly_created = me->isNewlyCreated();
 
-    d1::erase_first(itsFinalizeCandidates, me);
+    d1::erase_first(finalizeCandidates_, me);
 
     if (newly_created)
     {
-        itsToBeDeletedElements.push_back(me);
-        d1::erase_first(itsNewlyCreatedElements, me);
+        toBeDeletedElements_.push_back(me);
+        d1::erase_first(newlyCreatedElements_, me);
     }
     else
     {
-        itsTrashedElements.Insert(*me.get());
+        trashedElements_.insert(*me.get());
     }
 
-    me->SetInTrashFlag(true);
+    me->setInTrashFlag(true);
 
-    itsDiagram.Remove(*me.get());
+    diagram_.remove(*me.get());
 
     if (newly_created)
-        itsDiagram.DestroyViewElements(*me.get(), sc);
+        diagram_.destroyViewElements(*me.get(), sc);
     else
-        itsDiagram.DestroyViewElements(*me.get(), sc, itsWorkingView);
+        diagram_.destroyViewElements(*me.get(), sc, workingView_);
 
 #ifdef _DEBUG
-    if (DebugOutputEnabled() >= 2)
+    if (debugOutputEnabled() >= 2)
         WinUtil::dout
             << "      DEL " << typeid(me).name() << " "
             << &me
@@ -502,29 +502,29 @@ void C::Imp::PutIntoTrash(Selection::Tracker& sc, const IElementRef& me)
 }
 
 
-void C::Imp::AddNewlyCreated(IElementRef me)
+void C::Imp::addNewlyCreated(IElementRef me)
 {
-    D1_ASSERT(!itIsClosed);
+    D1_ASSERT(not closed_);
 
-    D1_ASSERT(NotContains_(itsTouchedElements, me.get()));
-    D1_ASSERT(NotContains_(itsTrashedElements, me.get()));
-    D1_ASSERT(NotContains_(itsNewlyCreatedElements, me.get()));
+    D1_ASSERT(notContains_(touchedElements_, me.get()));
+    D1_ASSERT(notContains_(trashedElements_, me.get()));
+    D1_ASSERT(notContains_(newlyCreatedElements_, me.get()));
 
-    D1_ASSERT(me->GetTransaction() == 0);
-    D1_ASSERT(!me->IsTouched());
-    D1_ASSERT(!me->IsNewlyCreated());
+    D1_ASSERT(me->getTransaction() == 0);
+    D1_ASSERT(not me->isTouched());
+    D1_ASSERT(not me->isNewlyCreated());
 
-    itsNewlyCreatedElements.push_back(me);
-    itsDiagram.Insert(me);
-    itsDiagram.CreateViewElements(*me.get(), false);
+    newlyCreatedElements_.push_back(me);
+    diagram_.insert(me);
+    diagram_.createViewElements(*me.get(), false);
 
-    me->SetNewlyCreated(true);
-    me->SetTransaction(&itsTransaction);
+    me->setNewlyCreated(true);
+    me->set(&transaction_);
 
-    itsFinalizeCandidates.push_back(me);
+    finalizeCandidates_.push_back(me);
 
 #ifdef _DEBUG
-    if (DebugOutputEnabled() >= 2)
+    if (debugOutputEnabled() >= 2)
         WinUtil::dout
             << "NEW " << typeid(*me.get()).name() << " "
             << me.get()
@@ -533,10 +533,10 @@ void C::Imp::AddNewlyCreated(IElementRef me)
 }
 
 
-bool C::Imp::HasNewlyCreated(const IElement& me) const
+bool C::Imp::hasNewlyCreated(const IElement& me) const
 {
-    D1_ASSERT(!itIsClosed);
-    return !NotContains_(itsNewlyCreatedElements, &me);
+    D1_ASSERT(not closed_);
+    return not notContains_(newlyCreatedElements_, &me);
 }
 
 }

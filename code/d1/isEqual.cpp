@@ -35,7 +35,7 @@ bool isEqual(const float64& f1, const float64& f2)
     else
         epsilon = ldexp(1.0, DBL_MIN_EXP + inexact_exp);
 
-    return (f1 < f2 + epsilon) && (f2 < f1 + epsilon);
+    return (f1 < f2 + epsilon) and (f2 < f1 + epsilon);
 }
 
 

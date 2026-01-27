@@ -12,16 +12,16 @@ module Core;
 namespace Core
 {
 
-auto CopyExtendSelection::Build(const ElementSet& selection, IDiagram& d)
+auto CopyExtendSelection::build(const ElementSet& selection, IDiagram& d)
     -> ElementSet
 {
     namespace ES = ExtendSelection;
 
     struct Caller: public ES::Param::ICaller
     {
-        ES::Result MakeCall(const IElement* target, ES::Param& p) const final
+        ES::Result makeCall(const IElement* target, ES::Param& p) const final
         {
-            return target->IsCopySelected(p);
+            return target->isCopySelected(p);
         }
     } caller;
 
@@ -32,8 +32,8 @@ auto CopyExtendSelection::Build(const ElementSet& selection, IDiagram& d)
     {
         D1_ASSERT(me);
 
-        if (p.Call(me) == ES::Result::yes)
-            me->DeepInsert(res);
+        if (p.call(me) == ES::Result::yes)
+            me->deepInsert(res);
     }
 
     return res;

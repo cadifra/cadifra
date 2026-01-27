@@ -14,7 +14,7 @@ import std;
 namespace WinUtil
 {
 
-bool FromCharset(CHARSETINFO& ci, DWORD charset)
+bool fromCharset(CHARSETINFO& ci, DWORD charset)
 {
     ci = {};
     return 0 != ::TranslateCharsetInfo(
@@ -23,7 +23,7 @@ bool FromCharset(CHARSETINFO& ci, DWORD charset)
 }
 
 
-bool FromCodepage(CHARSETINFO& ci, DWORD codepage)
+bool fromCodepage(CHARSETINFO& ci, DWORD codepage)
 {
     ci = {};
     return 0 != ::TranslateCharsetInfo(
@@ -32,7 +32,7 @@ bool FromCodepage(CHARSETINFO& ci, DWORD codepage)
 }
 
 
-bool FromLCID(CHARSETINFO& ci, LCID lcid)
+bool fromLCID(CHARSETINFO& ci, LCID lcid)
 {
     ci = {};
     return 0 != ::TranslateCharsetInfo(
@@ -41,7 +41,7 @@ bool FromLCID(CHARSETINFO& ci, LCID lcid)
 }
 
 
-bool FromLANGID(CHARSETINFO& ci, LANGID langid)
+bool fromLANGID(CHARSETINFO& ci, LANGID langid)
 {
     ci = {};
     return 0 != ::TranslateCharsetInfo(

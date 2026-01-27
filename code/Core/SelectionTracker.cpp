@@ -10,8 +10,8 @@ namespace Core
 
 Selection::Tracker::~Tracker()
 {
-    if (itsView && itsSelectionChanged)
-        itsView->NotifySelectionObservers();
+    if (view_ and selectionChanged_)
+        view_->notifySelectionObservers();
 }
 
 }

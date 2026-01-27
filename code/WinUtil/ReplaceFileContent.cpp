@@ -14,7 +14,7 @@ import WinUtil.UniqueHandle;
 namespace WinUtil
 {
 
-DWORD ReplaceFileContent(HANDLE source, HANDLE target)
+DWORD replaceFileContent(HANDLE source, HANDLE target)
 {
     const DWORD size = GetFileSize(source, 0);
 
@@ -30,7 +30,7 @@ DWORD ReplaceFileContent(HANDLE source, HANDLE target)
         0              // lpName
         ) };
 
-    if (!sm)
+    if (not sm)
         return GetLastError();
 
     LPCVOID v = MapViewOfFile(
@@ -41,18 +41,18 @@ DWORD ReplaceFileContent(HANDLE source, HANDLE target)
         0              // dwNumberOfBytesToMap
     );
 
-    if (!v)
+    if (not v)
         return GetLastError();
 
 
     class ViewUnmapper
     {
-        LPCVOID itsView;
+        LPCVOID view_;
 
     public:
         ViewUnmapper(LPCVOID v):
-            itsView{ v } {}
-        ~ViewUnmapper() { UnmapViewOfFile(itsView); }
+            view_{ v } {}
+        ~ViewUnmapper() { UnmapViewOfFile(view_); }
     };
 
     auto vu = ViewUnmapper{ v };
@@ -81,7 +81,7 @@ DWORD ReplaceFileContent(HANDLE source, HANDLE target)
 
         BOOL res = SetEndOfFile(target);
 
-        if (!res)
+        if (not res)
             return GetLastError();
     }
 
@@ -100,7 +100,7 @@ DWORD ReplaceFileContent(HANDLE source, HANDLE target)
         0     // lpOverlapped
     );
 
-    if (!res)
+    if (not res)
         return GetLastError();
 
     if (b != size)
@@ -110,13 +110,13 @@ DWORD ReplaceFileContent(HANDLE source, HANDLE target)
     {
         res = SetEndOfFile(target);
 
-        if (!res)
+        if (not res)
             return GetLastError();
     }
 
     res = FlushFileBuffers(target);
 
-    if (!res)
+    if (not res)
         return GetLastError();
 
     return ERROR_SUCCESS;

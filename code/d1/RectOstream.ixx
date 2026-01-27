@@ -14,10 +14,10 @@ namespace d1
 
 export inline auto& operator<<(std::ostream& s, const nRect& r)
 {
-    s << "(L=" << r.Left()
-      << ",T=" << r.Top()
-      << ",R=" << r.Right()
-      << ",B=" << r.Bottom()
+    s << "(L=" << r.left()
+      << ",T=" << r.top()
+      << ",R=" << r.right()
+      << ",B=" << r.bottom()
       << ")";
     return s;
 }

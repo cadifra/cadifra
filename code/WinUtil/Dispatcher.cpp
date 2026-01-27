@@ -19,7 +19,7 @@ namespace
 
 class NullProcessor: public IProcessor
 {
-    void ProcessImp(Message&) override {}
+    void processImp(Message&) override {}
 
 public:
     NullProcessor():
@@ -28,13 +28,13 @@ public:
     }
 };
 
-NullProcessor* Null()
+NullProcessor* null()
 {
     static NullProcessor p;
     return &p;
 }
 
-NullProcessor* Invalid()
+NullProcessor* invalid()
 {
     static NullProcessor p;
     return &p;
@@ -43,27 +43,27 @@ NullProcessor* Invalid()
 
 class ObserverHelper
 {
-    IPrePostDispatchObserver& itsObserver;
-    bool itsPreDispatchCalled = false;
+    IPrePostDispatchObserver& observer_;
+    bool preDispatchCalled_ = false;
 
 public:
     ObserverHelper(IPrePostDispatchObserver& o):
-        itsObserver{ o }
+        observer_{ o }
     {
     }
 
     ~ObserverHelper()
     {
-        if (itsPreDispatchCalled)
-            itsObserver.PostDispatchNotification();
+        if (preDispatchCalled_)
+            observer_.postDispatchNotification();
     }
 
-    void Notify()
+    void notify()
     {
-        if (!itsPreDispatchCalled)
+        if (not preDispatchCalled_)
         {
-            itsObserver.PreDispatchNotification();
-            itsPreDispatchCalled = true;
+            observer_.preDispatchNotification();
+            preDispatchCalled_ = true;
         }
     }
 };
@@ -77,87 +77,87 @@ class C::Impl:
     public std::enable_shared_from_this<Impl>
 {
 public:
-    void Register(ProcRegistrar*) final;
-    void Unregister(ProcRegistrar*) final;
+    void add(ProcRegistrar*) final;
+    void forget(ProcRegistrar*) final;
 
-    void NewProcessor(unsigned int msgId) final;
-    void NewSpy(unsigned int msgId, const std::weak_ptr<ISpy>&) final;
+    void newProcessor(unsigned int msgId) final;
+    void newSpy(unsigned int msgId, const std::weak_ptr<ISpy>&) final;
 
-    void Dispatch(Message&, IPrePostDispatchObserver&);
+    void dispatch(Message&, IPrePostDispatchObserver&);
 
 private:
     using ProcessorMap = std::map<unsigned int, IProcessor*>;
     using RegistrarVector = std::vector<ProcRegistrar*>;
 
-    ProcessorMap itsProcessorMap;
-    RegistrarVector itsRegistrars;
+    ProcessorMap processorMap_;
+    RegistrarVector registrars_;
 
     using SpyMap = std::map<unsigned int, std::list<std::weak_ptr<ISpy>>>;
 
-    SpyMap itsSpyMap;
+    SpyMap spyMap_;
 
-    void InvalidatePlugMap();
-    void DispatchSpy(Message&, ObserverHelper&);
+    void invalidatePlugMap();
+    void dispatchSpy(Message&, ObserverHelper&);
 };
 
 
-void C::Impl::InvalidatePlugMap()
+void C::Impl::invalidatePlugMap()
 {
-    for (auto& e : itsProcessorMap)
-        e.second = Invalid();
+    for (auto& e : processorMap_)
+        e.second = invalid();
 }
 
 
-void C::Impl::Register(ProcRegistrar* r)
+void C::Impl::add(ProcRegistrar* r)
 {
-    D1_ASSERT(std::ranges::find(itsRegistrars, r) == end(itsRegistrars));
+    D1_ASSERT(std::ranges::find(registrars_, r) == end(registrars_));
 
-    itsRegistrars.push_back(r);
+    registrars_.push_back(r);
 
-    InvalidatePlugMap();
+    invalidatePlugMap();
 }
 
 
-void C::Impl::Unregister(ProcRegistrar* r)
+void C::Impl::forget(ProcRegistrar* r)
 {
-    auto i = std::ranges::find(itsRegistrars, r);
+    auto i = std::ranges::find(registrars_, r);
 
-    D1_ASSERT(i != end(itsRegistrars));
+    D1_ASSERT(i != end(registrars_));
 
-    itsRegistrars.erase(i);
+    registrars_.erase(i);
 
-    if (itsRegistrars.empty())
-        itsProcessorMap.clear();
+    if (registrars_.empty())
+        processorMap_.clear();
     else
-        InvalidatePlugMap();
+        invalidatePlugMap();
 }
 
 
-void C::Impl::NewProcessor(unsigned int msgId)
+void C::Impl::newProcessor(unsigned int msgId)
 {
-    itsProcessorMap[msgId] = Invalid();
+    processorMap_[msgId] = invalid();
 }
 
 
-void C::Impl::NewSpy(unsigned int msgId, const std::weak_ptr<ISpy>& weak)
+void C::Impl::newSpy(unsigned int msgId, const std::weak_ptr<ISpy>& weak)
 {
-    itsSpyMap[msgId].push_front(weak);
+    spyMap_[msgId].push_front(weak);
 }
 
 
-void C::Impl::DispatchSpy(Message& m, ObserverHelper& oh)
+void C::Impl::dispatchSpy(Message& m, ObserverHelper& oh)
 {
-    auto i = itsSpyMap.find(m.GetMsgId());
-    if (i == end(itsSpyMap))
+    auto i = spyMap_.find(m.getMsgId());
+    if (i == end(spyMap_))
         return;
 
     auto& list = i->second;
 
-    oh.Notify();
+    oh.notify();
 
     for (const auto& weak : list)
-        if (!weak.expired())
-            weak.lock()->Spy(m); // may add or delete spy plugs
+        if (not weak.expired())
+            weak.lock()->spy(m); // may add or delete spy plugs
 
     // Don't care about empty lists or lists with many expired pointers:
     // 1. it doesn't hurt
@@ -165,57 +165,57 @@ void C::Impl::DispatchSpy(Message& m, ObserverHelper& oh)
 }
 
 
-void C::Impl::Dispatch(Message& m, IPrePostDispatchObserver& ppdo)
+void C::Impl::dispatch(Message& m, IPrePostDispatchObserver& ppdo)
 {
     auto delay_deletion = shared_from_this();
 
     auto oh = ObserverHelper{ ppdo };
-    DispatchSpy(m, oh);
+    dispatchSpy(m, oh);
 
-    auto i = itsProcessorMap.find(m.GetMsgId());
+    auto i = processorMap_.find(m.getMsgId());
 
-    if (i == end(itsProcessorMap))
+    if (i == end(processorMap_))
     {
-        m.EnableOS();
+        m.enableOS();
         return;
     }
 
-    if (i->second == Invalid())
+    if (i->second == invalid())
     {
-        D1_ASSERT(!itsRegistrars.empty());
+        D1_ASSERT(not registrars_.empty());
 
-        auto r = rbegin(itsRegistrars);
+        auto r = rbegin(registrars_);
 
-        IProcessor* p = (*r)->GetProcessor(m.GetMsgId());
+        IProcessor* p = (*r)->getProcessor(m.getMsgId());
 
         if (p)
             i->second = p;
         else
         {
-            i->second = Null();
+            i->second = null();
 
-            for (; (r != rend(itsRegistrars)) && !p; ++r)
-                p = (*r)->GetProcessor(m.GetMsgId());
+            for (; (r != rend(registrars_)) and not p; ++r)
+                p = (*r)->getProcessor(m.getMsgId());
 
-            if (!p)
+            if (not p)
             {
-                itsProcessorMap.erase(i);
-                m.EnableOS();
+                processorMap_.erase(i);
+                m.enableOS();
                 return;
             }
 
-            if (p->IsAlwaysReady())
+            if (p->isAlwaysReady())
                 i->second = p;
         }
     }
 
-    oh.Notify();
-    i->second->Process(m);
+    oh.notify();
+    i->second->process(m);
 }
 
 
 C::Dispatcher():
-    itsImpl{ std::make_shared<Impl>() }
+    impl_{ std::make_shared<Impl>() }
 {
 }
 
@@ -225,12 +225,12 @@ C::~Dispatcher() = default;
 
 C::operator IDispatcher&() const
 {
-    return *itsImpl;
+    return *impl_;
 }
 
-void C::Dispatch(Message& msg, IPrePostDispatchObserver& pp) const
+void C::dispatch(Message& msg, IPrePostDispatchObserver& pp) const
 {
-    itsImpl->Dispatch(msg, pp);
+    impl_->dispatch(msg, pp);
 }
 
 }

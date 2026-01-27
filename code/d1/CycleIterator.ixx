@@ -13,9 +13,9 @@ namespace d1
 export template <class Iter, class ValueType>
 class CycleIterator
 {
-    Iter itsBegin;
-    Iter itsEnd;
-    Iter itsCurrent;
+    Iter begin_;
+    Iter end_;
+    Iter current_;
 
 public:
     using value_type = ValueType;
@@ -25,23 +25,23 @@ public:
     using reference = ValueType&;
 
     CycleIterator():
-        itsEnd{ itsBegin }, itsCurrent{ itsBegin }
+        end_{ begin_ }, current_{ begin_ }
     {
     }
 
 
     explicit CycleIterator(
         const Iter& begin, const Iter& end):
-        itsBegin{ begin },
-        itsEnd{ end }, itsCurrent{ begin }
+        begin_{ begin },
+        end_{ end }, current_{ begin }
     {
     }
 
 
     explicit CycleIterator(
         const Iter& begin, const Iter& end, const Iter& current):
-        itsBegin{ begin },
-        itsEnd{ end }, itsCurrent{ current }
+        begin_{ begin },
+        end_{ end }, current_{ current }
     {
     }
 
@@ -54,23 +54,23 @@ public:
 
     value_type& operator*()
     {
-        return *itsCurrent;
+        return *current_;
     }
 
 
     auto& operator++()
     {
-        ++itsCurrent;
-        if (itsCurrent == itsEnd)
-            itsCurrent = itsBegin;
+        ++current_;
+        if (current_ == end_)
+            current_ = begin_;
         return *this;
     }
 
     /*
       CycleIterator& operator++(int) {
         CycleWriter temp = *this;
-        ++itsCurrent;
-        if(itsCurrent == itsEnd) itsCurrent = itsBegin;
+        ++current_;
+        if(current_ == end_) current_ = begin_;
         return temp;
       }
     */

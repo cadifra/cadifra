@@ -12,7 +12,7 @@ module WinUtil.Keyboard;
 namespace WinUtil::Keyboard
 {
 
-bool ControlIsDown()
+bool controlIsDown()
 {
     SHORT keystate = GetKeyState( // windows API function
                                   //  int nVirtKey   // virtual-key code
@@ -22,7 +22,7 @@ bool ControlIsDown()
 }
 
 
-bool ShiftIsDown()
+bool shiftIsDown()
 {
     SHORT keystate = GetKeyState( // windows API function
                                   //  int nVirtKey   // virtual-key code

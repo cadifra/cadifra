@@ -19,7 +19,7 @@ ExtractDROPFILES::ExtractDROPFILES(const ::_DROPFILES& df)
 {
     files.clear();
 
-    if (!df.pFiles)
+    if (not df.pFiles)
         return;
 
     const auto* p = reinterpret_cast<const std::string::value_type*>(&df);
@@ -34,7 +34,7 @@ ExtractDROPFILES::ExtractDROPFILES(const ::_DROPFILES& df)
         {
             auto s = std::wstring(f);
 
-            if (!s.size())
+            if (not s.size())
                 return;
 
             files.push_back(s);
@@ -50,7 +50,7 @@ ExtractDROPFILES::ExtractDROPFILES(const ::_DROPFILES& df)
         {
             auto s = std::string(f);
 
-            if (!s.size())
+            if (not s.size())
                 return;
 
             files.push_back(d1::string2wstring(s));

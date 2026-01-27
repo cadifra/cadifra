@@ -10,6 +10,6 @@ export import d1.Date;
 export namespace WinUtil::Date
 {
 
-d1::Date GetLocalDate();
+d1::Date getLocalDate();
 
 }

@@ -34,32 +34,32 @@ public:
     {
     }
 
-    void Add(d1::uint32 line_number, const wstring& prefix, const wstring& value);
+    void add(d1::uint32 line_number, const wstring& prefix, const wstring& value);
 };
 
 
-void C::Rep::Add(d1::uint32 line_number, const wstring& prefix, const wstring& value)
+void C::Rep::add(d1::uint32 line_number, const wstring& prefix, const wstring& value)
 {
     const bool inserted = map_.insert(std::make_pair(prefix, value)).second;
 
-    if (!inserted)
+    if (not inserted)
         throw Exceptions::DuplicateNamespace(line_number);
 }
 
 
 C::Namespaces():
-    rep{ std::make_unique<Rep>(nullptr) }
+    rep_{ std::make_unique<Rep>(nullptr) }
 {
 }
 
 
 C::Namespaces(const Namespaces& master):
-    rep{ std::make_unique<Rep>(&master) }
+    rep_{ std::make_unique<Rep>(&master) }
 {
 }
 
 
-auto C::Root() -> const Namespaces&
+auto C::root() -> const Namespaces&
 {
     static Namespaces root;
     return root;
@@ -69,36 +69,34 @@ auto C::Root() -> const Namespaces&
 C::~Namespaces() = default;
 
 
-void C::Add(d1::uint32 line_number, const wstring& prefix, const wstring& value)
+void C::add(d1::uint32 line_number, const wstring& prefix, const wstring& value)
 {
-    if ((prefix.size() >= 3) &&
-        (prefix[0] == 'x' || prefix[0] == 'X') &&
-        (prefix[1] == 'm' || prefix[1] == 'M') &&
-        (prefix[2] == 'l' || prefix[2] == 'L'))
+    if ((prefix.size() >= 3) and
+        (prefix[0] == 'x' or prefix[0] == 'X') and
+        (prefix[1] == 'm' or prefix[1] == 'M') and
+        (prefix[2] == 'l' or prefix[2] == 'L'))
         throw Exceptions::PrefixXMLnotAllowed{ line_number };
-    rep->Add(line_number, prefix, value);
+    rep_->add(line_number, prefix, value);
 }
 
 
-void C::AddDefault(d1::uint32 line_number, const wstring& value)
+void C::addDefault(d1::uint32 line_number, const wstring& value)
 {
     if (has_default())
         throw Exceptions::DuplicateNamespace{ line_number };
 
-    rep->has_default_ = true;
-    rep->default_ = value;
+    rep_->has_default_ = true;
+    rep_->default_ = value;
 }
 
 
 auto C::get_ns(const wstring& prefix) const -> const wstring*
 {
-    auto i = rep->map_.find(prefix);
-
-    if (i != end(rep->map_))
+    if (auto i = rep_->map_.find(prefix); i != end(rep_->map_))
         return &i->second;
 
-    if (rep->master_)
-        return rep->master_->get_ns(prefix);
+    if (rep_->master_)
+        return rep_->master_->get_ns(prefix);
 
     return nullptr;
 }
@@ -115,13 +113,13 @@ auto C::get_ns(d1::uint32 n, const wstring& prefix) const -> const wstring&
 
 bool C::has_default() const
 {
-    return rep->has_default_;
+    return rep_->has_default_;
 }
 
 
 auto C::get_default() const -> const std::wstring&
 {
-    return rep->default_;
+    return rep_->default_;
 }
 
 }

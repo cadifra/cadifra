@@ -50,18 +50,18 @@ struct RectBase
         value_type left{}, top{}, right{}, bottom{};
     };
 
-    value_type Left() const { return l; }
-    value_type Top() const { return t; }
-    value_type Right() const { return r; }
-    value_type Bottom() const { return b; }
+    value_type left() const { return l; }
+    value_type top() const { return t; }
+    value_type right() const { return r; }
+    value_type bottom() const { return b; }
 
-    P Center() const
+    P center() const
     {
         return { (r + l) / 2, (t + b) / 2 };
     }
 
     template <class V>
-    void Translate(const V& v)
+    void translate(const V& v)
     {
         l += v.dx;
         r += v.dx;
@@ -126,19 +126,19 @@ public:
 
     bool operator==(const Rect& x) const
     {
-        return (l == x.l) && (t == x.t) && (r == x.r) && (b == x.b);
+        return (l == x.l) and (t == x.t) and (r == x.r) and (b == x.b);
     }
 
-    auto& Translate(const Vector& v)
+    auto& translate(const Vector& v)
     {
-        B::Translate(v);
+        B::translate(v);
         return *this;
     }
 
-    friend auto Translate(const Rect& r, const Vector& v)
+    friend auto translate(const Rect& r, const Vector& v)
     {
         auto res = r;
-        return res.Translate(v);
+        return res.translate(v);
     }
 };
 
@@ -168,9 +168,9 @@ public:
 
     bool operator==(const fRect& rhs) const
     {
-        return isEqual(l, rhs.l) &&
-               isEqual(t, rhs.t) &&
-               isEqual(r, rhs.r) &&
+        return isEqual(l, rhs.l) and
+               isEqual(t, rhs.t) and
+               isEqual(r, rhs.r) and
                isEqual(b, rhs.b);
     }
 };
@@ -189,7 +189,7 @@ public:
     using value_type = B::value_type;
     using B::l, B::t, B::r, B::b;
 
-    void Normalize()
+    void normalize()
     {
         if (l > r)
             std::swap(l, r);
@@ -197,20 +197,20 @@ public:
             std::swap(b, t);
     }
 
-    bool IsNormalized() const { return (l <= r) && (b <= t); }
+    bool isNormalized() const { return (l <= r) and (b <= t); }
 
-    value_type Width() const { return r - l; }
-    value_type Height() const { return t - b; }
+    value_type width() const { return r - l; }
+    value_type height() const { return t - b; }
 
-    P TopLeft() const { return { l, t }; }
-    P TopRight() const { return { r, t }; }
-    P BottomLeft() const { return { l, b }; }
-    P BottomRight() const { return { r, b }; }
+    P topLeft() const { return { l, t }; }
+    P topRight() const { return { r, t }; }
+    P bottomLeft() const { return { l, b }; }
+    P bottomRight() const { return { r, b }; }
 
     // PRE: this must be normalized
-    void Enlarge(value_type delta)
+    void enlarge(value_type delta)
     {
-        D1_ASSERT(IsNormalized());
+        D1_ASSERT(isNormalized());
         l -= delta;
         r += delta;
         t += delta;
@@ -218,18 +218,18 @@ public:
     }
 
     // PRE: this must be normalized
-    bool Encloses(const P& p) const
+    bool encloses(const P& p) const
     {
-        D1_ASSERT(IsNormalized());
-        return ((l <= p.x) && (r >= p.x) && (t >= p.y) && (b <= p.y));
+        D1_ASSERT(isNormalized());
+        return ((l <= p.x) and (r >= p.x) and (t >= p.y) and (b <= p.y));
     }
 
     // PRE: this and rhs must be normalized
-    bool Encloses(const nRectBase& rhs) const
+    bool encloses(const nRectBase& rhs) const
     {
-        D1_ASSERT(IsNormalized());
-        D1_ASSERT(rhs.IsNormalized());
-        return ((l <= rhs.l) && (r >= rhs.r) && (t >= rhs.t) && (b <= rhs.b));
+        D1_ASSERT(isNormalized());
+        D1_ASSERT(rhs.isNormalized());
+        return ((l <= rhs.l) and (r >= rhs.r) and (t >= rhs.t) and (b <= rhs.b));
     }
 
     nRectBase() {}
@@ -241,7 +241,7 @@ public:
         value_type bottom):
         B{ left, top, right, bottom }
     {
-        Normalize();
+        normalize();
     }
 };
 
@@ -313,36 +313,36 @@ public:
 
     bool operator==(const nRect& x) const
     {
-        return (l == x.l) && (t == x.t) && (r == x.r) && (b == x.b);
+        return (l == x.l) and (t == x.t) and (r == x.r) and (b == x.b);
     }
 
     nRect& operator+=(this nRect&, const nRect&);
 
-    Size Size() const
+    Size size() const
     {
         return { r - l, t - b };
     }
 
-    auto& Translate(const Vector& v)
+    auto& translate(const Vector& v)
     {
-        B::Translate(v);
+        B::translate(v);
         return *this;
     }
 
-    auto& Enlarge(value_type d)
+    auto& enlarge(value_type d)
     {
-        B::Enlarge(d);
+        B::enlarge(d);
         return *this;
     }
 
-    bool Encloses(const d1::Point& p) const
+    bool encloses(const d1::Point& p) const
     {
-        return B::Encloses(p);
+        return B::encloses(p);
     }
 
-    bool Encloses(const d1::nRect& rhs) const
+    bool encloses(const d1::nRect& rhs) const
     {
-        return B::Encloses(rhs);
+        return B::encloses(rhs);
     }
 };
 
@@ -420,40 +420,40 @@ public:
     {
     }
 
-    fSize Size() const
+    fSize size() const
     {
         return { r - l, t - b };
     }
 
     fnRect& operator+=(const fnRect& rect);
 
-    auto& Translate(const fVector& v)
+    auto& translate(const fVector& v)
     {
-        B::Translate(v);
+        B::translate(v);
         return *this;
     }
 
-    auto& Enlarge(value_type d)
+    auto& enlarge(value_type d)
     {
-        B::Enlarge(d);
+        B::enlarge(d);
         return *this;
     }
 
-    bool Encloses(const fnRect& rhs) const
+    bool encloses(const fnRect& rhs) const
     {
-        return B::Encloses(rhs);
+        return B::encloses(rhs);
     }
 
-    bool Encloses(const fPoint& p) const
+    bool encloses(const fPoint& p) const
     {
-        return B::Encloses(p);
+        return B::encloses(p);
     }
 
     bool operator==(const fnRect& rhs) const
     {
-        return isEqual(l, rhs.l) &&
-               isEqual(t, rhs.t) &&
-               isEqual(r, rhs.r) &&
+        return isEqual(l, rhs.l) and
+               isEqual(t, rhs.t) and
+               isEqual(r, rhs.r) and
                isEqual(b, rhs.b);
     }
 
@@ -494,8 +494,8 @@ inline fnRect& fnRect::operator+=(const fnRect& rect)
 {
     D1_ASSERT(*this != fnRect{});
     D1_ASSERT(rect != fnRect{});
-    D1_ASSERT(IsNormalized());
-    D1_ASSERT(rect.IsNormalized());
+    D1_ASSERT(isNormalized());
+    D1_ASSERT(rect.isNormalized());
 
     l = std::min(rect.l, l);
     t = std::max(rect.t, t);
@@ -568,13 +568,13 @@ auto copy(const fnRect& r)
 
 auto pos(const nRect& r)
 {
-    return r.TopLeft();
+    return r.topLeft();
 }
 
 
 auto pos(const fnRect& r)
 {
-    return r.TopLeft();
+    return r.topLeft();
 }
 }
 

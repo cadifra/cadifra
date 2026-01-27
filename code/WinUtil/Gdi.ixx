@@ -39,21 +39,21 @@ using GdiObjectOwner = std::unique_ptr<T, GdiObjectOwnerDel<T>>;
 export template <class T> // HFONT, HPEN etc.
 class GdiObjectSelector
 {
-    HDC itsDC = {};        // no ownership
-    HGDIOBJ itsOld = {};   // no ownership
-    T itsSelected = { 0 }; // no ownership
+    HDC DC_ = {};        // no ownership
+    HGDIOBJ old_ = {};   // no ownership
+    T selected_ = { 0 }; // no ownership
 
 public:
     GdiObjectSelector(HDC dc):
-        itsDC{ dc }
+        DC_{ dc }
     {
     }
 
-    ~GdiObjectSelector() { Unselect(); }
+    ~GdiObjectSelector() { unselect(); }
 
-    HDC Select(T t);
-    void Unselect(T t);
-    void Unselect() { Unselect(itsSelected); }
+    HDC select(T t);
+    void unselect(T t);
+    void unselect() { unselect(selected_); }
 
     GdiObjectSelector(const GdiObjectSelector&) = delete;
     GdiObjectSelector& operator=(const GdiObjectSelector&) = delete;
@@ -62,28 +62,28 @@ public:
 
 
 template <class T>
-HDC GdiObjectSelector<T>::Select(T t)
+HDC GdiObjectSelector<T>::select(T t)
 {
-    if (itsSelected == t || t == 0)
-        return itsDC;
+    if (selected_ == t or t == 0)
+        return DC_;
 
-    HGDIOBJ old = ::SelectObject(itsDC, t);
-    if (itsOld == 0)
-        itsOld = old;
+    HGDIOBJ old = ::SelectObject(DC_, t);
+    if (old_ == 0)
+        old_ = old;
 
-    itsSelected = t;
-    return itsDC;
+    selected_ = t;
+    return DC_;
 }
 
 
 template <class T>
-void GdiObjectSelector<T>::Unselect(T t)
+void GdiObjectSelector<T>::unselect(T t)
 {
-    if (itsSelected != t || t == 0)
+    if (selected_ != t or t == 0)
         return;
 
-    ::SelectObject(itsDC, itsOld);
-    itsSelected = 0;
+    ::SelectObject(DC_, old_);
+    selected_ = 0;
 }
 
 export class GdiplusException: public d1::Exception
@@ -95,7 +95,7 @@ public:
 
     //--
 
-    static void Check(Gdiplus::Status s)
+    static void check(Gdiplus::Status s)
     {
         if (s == Gdiplus::Win32Error)
             throw ComException(::GetLastError());
@@ -105,16 +105,16 @@ public:
     }
 
     GdiplusException(Gdiplus::Status s):
-        itsStatus{ s }
+        status_{ s }
     {
     }
 
-    Gdiplus::Status GetStatus() const { return itsStatus; }
+    Gdiplus::Status GetStatus() const { return status_; }
 
     // uses compiler generated copy ctor and assignment operator
 
 private:
-    Gdiplus::Status itsStatus;
+    Gdiplus::Status status_;
 };
 
 }

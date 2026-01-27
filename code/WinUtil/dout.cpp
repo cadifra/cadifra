@@ -23,14 +23,14 @@ namespace
 constexpr int BuffSize = 1024;
 
 
-bool GetDebugEnv(const std::string& s)
+bool getDebugEnv(const std::string& s)
 {
-    return DebugEnv::Inst().GetInt("dout", s) != 0;
+    return DebugEnv::inst().getInt("dout", s) != 0;
 }
 
-bool ToConsole() { return GetDebugEnv("WriteToConsole"); }
-bool ToConsoleAndDebugger() { return GetDebugEnv("WriteToConsoleAndDebugger"); }
-bool CloseConsoleOnExit() { return GetDebugEnv("CloseConsoleOnExit"); }
+bool toConsole() { return getDebugEnv("WriteToConsole"); }
+bool toConsoleAndDebugger() { return getDebugEnv("WriteToConsoleAndDebugger"); }
+bool closeConsoleOnExit() { return getDebugEnv("CloseConsoleOnExit"); }
 
 }
 
@@ -49,20 +49,20 @@ protected:
 
 private:
     using Buffer = std::basic_string<DebugOstream::char_type>;
-    Buffer itsBuf;
+    Buffer buf_;
     const bool itWritesToConsole;
     const bool itWritesToDebugger;
 };
 
 
 DebugOstream::Buf::Buf():
-    itsBuf(BuffSize, 0),
-    itWritesToConsole{ ToConsole() || ToConsoleAndDebugger() },
-    itWritesToDebugger{ !ToConsole() || ToConsoleAndDebugger() }
+    buf_(BuffSize, 0),
+    itWritesToConsole{ toConsole() or toConsoleAndDebugger() },
+    itWritesToDebugger{ not toConsole() or toConsoleAndDebugger() }
 {
     if (itWritesToConsole)
         ::AllocConsole();
-    setp(&*std::begin(itsBuf), &*(std::end(itsBuf) - 1));
+    setp(&*std::begin(buf_), &*(std::end(buf_) - 1));
 }
 
 
@@ -70,7 +70,7 @@ DebugOstream::Buf::~Buf()
 {
     sync();
 
-    if (itWritesToConsole && !CloseConsoleOnExit())
+    if (itWritesToConsole and not closeConsoleOnExit())
     {
         auto s = STARTUPINFO{};
         s.cb = sizeof(s);
@@ -90,10 +90,10 @@ auto DebugOstream::Buf::overflow(Buf::int_type c) -> int_type
         *pptr() = c;
 
         if (itWritesToConsole)
-            ::_cputs(itsBuf.c_str());
+            ::_cputs(buf_.c_str());
 
         if (itWritesToDebugger)
-            ::OutputDebugStringA(itsBuf.c_str());
+            ::OutputDebugStringA(buf_.c_str());
 
         pbump(-static_cast<int>(pptr() - pbase()));
     }
@@ -106,10 +106,10 @@ int DebugOstream::Buf::sync()
     *pptr() = 0;
 
     if (itWritesToConsole)
-        ::_cputs(itsBuf.c_str());
+        ::_cputs(buf_.c_str());
 
     if (itWritesToDebugger)
-        ::OutputDebugStringA(itsBuf.c_str());
+        ::OutputDebugStringA(buf_.c_str());
 
     pbump(-static_cast<int>(pptr() - pbase()));
 
@@ -122,7 +122,7 @@ auto dout = DebugOstream{ std::make_unique<DebugOstream::Buf>() };
 
 DebugOstream::DebugOstream(std::unique_ptr<Buf> buf):
     inherited{ buf.get() },
-    itsBuf{ std::move(buf) }
+    buf_{ std::move(buf) }
 {
 }
 

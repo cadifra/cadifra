@@ -86,9 +86,9 @@ which creates clipboard format numbers that are unique among all applications.
 export class PrivateClipFormat
 {
 public:
-    static auto Instance() -> PrivateClipFormat&;
+    static auto instance() -> PrivateClipFormat&;
 
-    virtual CLIPFORMAT Register() = 0;
+    virtual CLIPFORMAT getCLIPFORMAT() = 0;
     // returns a clipboard format number that is unique
     // within the application
 

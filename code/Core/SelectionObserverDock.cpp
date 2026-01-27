@@ -20,26 +20,26 @@ using C = ISelectionObserver;
 }
 
 
-void C::Dock::Attach(ISelectionObserver& obs)
+void C::Dock::attach(ISelectionObserver& obs)
 {
-    itsObservers.push_back(&obs);
-    obs.SetDock(this);
+    observers_.push_back(&obs);
+    obs.setDock(this);
 }
 
 
-void C::Dock::Detach(ISelectionObserver& obs)
+void C::Dock::detach(ISelectionObserver& obs)
 {
-    d1::erase_first(itsObservers, &obs);
-    obs.SetDock(0);
+    d1::erase_first(observers_, &obs);
+    obs.setDock(nullptr);
 }
 
 
-void C::Dock::Notify() const
+void C::Dock::notify() const
 {
-    for (auto* obs : itsObservers)
+    for (auto* obs : observers_)
     {
         D1_ASSERT(obs);
-        obs->SelectionChanged();
+        obs->selectionChanged();
     }
 }
 

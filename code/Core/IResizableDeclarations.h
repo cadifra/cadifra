@@ -11,9 +11,9 @@
 //
 
 
-void Resize(Core::Env&, const d1::nRect&, const ResizeMode*) override;
-void SetPosition(Core::Env&, const d1::Point&) override;
-d1::Point Pos() const override;
-d1::Point OldPos() const override;
-d1::Size Size() const override;
-d1::Size OldSize() const override;
+void resize(Core::Env&, const d1::nRect&, const ResizeMode*) override;
+void setPosition(Core::Env&, const d1::Point&) override;
+d1::Point pos() const override;
+d1::Point oldPos() const override;
+d1::Size size() const override;
+d1::Size oldSize() const override;

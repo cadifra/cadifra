@@ -22,116 +22,116 @@ public:
     Message(const Message&) = delete;
     Message& operator=(const Message&) = delete;
 
-    d1::UINT GetMsgId() const { return itsMessage; }
-    d1::WPARAM GetWParam() const { return itsWParam; }
-    d1::LPARAM GetLParam() const { return itsLParam; }
-    d1::LRESULT GetLResult() const { return itsLResult; }
+    d1::UINT getMsgId() const { return message_; }
+    d1::WPARAM getWParam() const { return WParam_; }
+    d1::LPARAM getLParam() const { return LParam_; }
+    d1::LRESULT getLResult() const { return LResult_; }
 
-    void SetResult(d1::LRESULT result);
+    void setResult(d1::LRESULT result);
     // Sets the result that will be returned to the system, when
     // this message has been executed.
     // If this function is not called, GetLResult will return 0.
     // PRE: EnableOS has not been called
     //      SetDefProcCalled has not been called
 
-    bool ResultSet() const { return itsSetResultCalled; }
+    bool resultSet() const { return setResultCalled_; }
     // Returns true if SetResult was called.
 
-    void EnableOS();
+    void enableOS();
     // Permits the OS to process the message (Default = disabled)
     // When this message has been executed, the executer will
     // call the corresponding DefProc for this message.
     // PRE: SetResult has not been called.
     //      SetDefProcCalled has not been called.
 
-    bool OSisEnabled() const { return itsOSisEnabledFlag; }
+    bool OSisEnabled() const { return OSisEnabledFlag_; }
     // Returns true, if EnableOS has been called
 
-    void DefProcCalled(d1::LRESULT result);
+    void defProcCalled(d1::LRESULT result);
     // This function is called by WinUtil::CallDefProcNow, when the
     // DefProc for this message has been called.
     // PRE: DefProcCalled has not been called.
 
-    bool DefProcCalled() const { return itsDefProcCalled; }
+    bool defProcCalled() const { return defProcCalled_; }
     // Returns true, if SetDefProcCalled has been called.
 
     class Wrapper;
 
 private:
-    bool itsOSisEnabledFlag = false;
-    d1::UINT itsMessage = {};
-    d1::WPARAM itsWParam = {};
-    d1::LPARAM itsLParam = {};
-    d1::LRESULT itsLResult = 0;
-    bool itsSetResultCalled = false;
-    bool itsDefProcCalled = false;
+    bool OSisEnabledFlag_ = false;
+    d1::UINT message_ = {};
+    d1::WPARAM WParam_ = {};
+    d1::LPARAM LParam_ = {};
+    d1::LRESULT LResult_ = 0;
+    bool setResultCalled_ = false;
+    bool defProcCalled_ = false;
 };
 
 
 
 inline Message::Message(d1::UINT message, d1::WPARAM wParam, d1::LPARAM lParam):
-    itsMessage{ message },
-    itsWParam{ wParam },
-    itsLParam{ lParam }
+    message_{ message },
+    WParam_{ wParam },
+    LParam_{ lParam }
 {
 }
 
-inline void Message::SetResult(d1::LRESULT result)
+inline void Message::setResult(d1::LRESULT result)
 {
-    D1_ASSERT(!itsOSisEnabledFlag);
-    D1_ASSERT(!itsDefProcCalled);
-    itsLResult = result;
-    itsSetResultCalled = true;
+    D1_ASSERT(not OSisEnabledFlag_);
+    D1_ASSERT(not defProcCalled_);
+    LResult_ = result;
+    setResultCalled_ = true;
 }
 
-inline void Message::EnableOS()
+inline void Message::enableOS()
 {
-    D1_ASSERT(!itsSetResultCalled);
-    D1_ASSERT(!itsDefProcCalled);
-    itsOSisEnabledFlag = true;
+    D1_ASSERT(not setResultCalled_);
+    D1_ASSERT(not defProcCalled_);
+    OSisEnabledFlag_ = true;
 }
 
-inline void Message::DefProcCalled(d1::LRESULT result)
+inline void Message::defProcCalled(d1::LRESULT result)
 {
-    D1_ASSERT(!itsDefProcCalled);
-    itsLResult = result;
-    itsDefProcCalled = true;
+    D1_ASSERT(not defProcCalled_);
+    LResult_ = result;
+    defProcCalled_ = true;
 }
 
 
 export class Message::Wrapper
 {
 public:
-    void EnableOS() const
+    void enableOS() const
     {
-        itsMsg.EnableOS();
+        msg_.enableOS();
     }
 
     bool OSisEnabled() const
     {
-        return itsMsg.OSisEnabled();
+        return msg_.OSisEnabled();
     }
 
-    void SetResult(d1::LRESULT result) const
+    void setResult(d1::LRESULT result) const
     {
-        itsMsg.SetResult(result);
+        msg_.setResult(result);
     }
 
 
-    d1::WPARAM GetWParam() const { return itsMsg.GetWParam(); }
-    d1::LPARAM GetLParam() const { return itsMsg.GetLParam(); }
+    d1::WPARAM getWParam() const { return msg_.getWParam(); }
+    d1::LPARAM getLParam() const { return msg_.getLParam(); }
 
-    Message& GetWinMsg() { return itsMsg; }
+    Message& getWinMsg() { return msg_; }
 
 protected:
     Wrapper(Message& msg, d1::UINT check):
-        itsMsg{ msg }
+        msg_{ msg }
     {
-        D1_ASSERT(msg.GetMsgId() == check);
+        D1_ASSERT(msg.getMsgId() == check);
     }
 
 private:
-    Message& itsMsg;
+    Message& msg_;
 
     // uses compiler generated copy ctor and assignment operator
 };
@@ -145,7 +145,7 @@ export template <d1::UINT MsgId>
 class StaticWinMsgWrapper: public Message::Wrapper
 {
 public:
-    static d1::UINT GetMsgId() { return MsgId; }
+    static d1::UINT getMsgId() { return MsgId; }
 
 protected:
     StaticWinMsgWrapper(Message& msg):

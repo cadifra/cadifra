@@ -45,7 +45,7 @@ bool erase_first_with_get(auto& container, auto& v)
 
 void push_back_all(auto& c1, const auto& c2)
 {
-    c1.insert(end(c1), begin(c2), end(c2));
+    c1.insert(end(c1), cbegin(c2), cend(c2));
 }
 
 

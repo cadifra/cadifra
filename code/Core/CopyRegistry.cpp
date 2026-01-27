@@ -19,13 +19,13 @@ namespace
 class CRimp: public CopyRegistry
 {
     using Map = std::map<const IElement*, IElement*>;
-    Map itsMap;
+    Map map_;
 
 public:
     //-- CopyRegistry
 
-    void Register(const IElement* original, IElement* copy) final;
-    IElement* FindCopy(const IElement* original) const  final;
+    void addMapping(const IElement* original, IElement* copy) final;
+    IElement* findCopy(const IElement* original) const  final;
 
     //--
 
@@ -35,19 +35,19 @@ public:
 }
 
 
-void CRimp::Register(const IElement* original, IElement* copy)
+void CRimp::addMapping(const IElement* original, IElement* copy)
 {
     D1_ASSERT(original);
     D1_ASSERT(copy);
-    const bool inserted = itsMap.insert(std::make_pair(original, copy)).second;
+    const bool inserted = map_.insert(std::make_pair(original, copy)).second;
     D1_ASSERT(inserted);
 }
 
 
-IElement* CRimp::FindCopy(const IElement* original) const
+IElement* CRimp::findCopy(const IElement* original) const
 {
-    auto i = itsMap.find(original);
-    if (i == end(itsMap))
+    auto i = map_.find(original);
+    if (i == end(map_))
         return nullptr;
 
     D1_ASSERT((*i).first == original);
@@ -60,7 +60,7 @@ IElement* CRimp::FindCopy(const IElement* original) const
 }
 
 
-auto CopyRegistry::MakeNew() -> std::unique_ptr<CopyRegistry>
+auto CopyRegistry::makeNew() -> std::unique_ptr<CopyRegistry>
 {
     return std::make_unique<CRimp>();
 }

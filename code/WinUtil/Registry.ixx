@@ -24,39 +24,39 @@ using ValueName = const std::wstring&;
 // -----------------------------------------------------------------------------
 // The functions Open, Create, Query and Set may throw "Exception"
 
-Key Open(HKEY, SubKeyName, REGSAM = KEY_QUERY_VALUE);
-Key Create(HKEY, SubKeyName, REGSAM = KEY_WRITE);
+Key open(HKEY, SubKeyName, REGSAM = KEY_QUERY_VALUE);
+Key create(HKEY, SubKeyName, REGSAM = KEY_WRITE);
 
 
 // If the value does not exist or has not the expected type, Query returns
 // false and leaves 'val' unchanged.
-bool Query(HKEY, ValueName, std::wstring& val);
-bool Query(HKEY, ValueName, std::vector<std::wstring>& val);
-bool Query(HKEY, ValueName, d1::int32& val);
-bool Query(HKEY, ValueName, bool& val);
-bool Query(HKEY, ValueName, d1::bytestring& val);
-bool Query(HKEY, ValueName, HGLOBAL& val, UINT uFlags); // uFlags see GlobalAlloc
-bool Query(HKEY, ValueName, LPBYTE val, DWORD size);
+bool query(HKEY, ValueName, std::wstring& val);
+bool query(HKEY, ValueName, std::vector<std::wstring>& val);
+bool query(HKEY, ValueName, d1::int32& val);
+bool query(HKEY, ValueName, bool& val);
+bool query(HKEY, ValueName, d1::bytestring& val);
+bool query(HKEY, ValueName, HGLOBAL& val, UINT uFlags); // uFlags see GlobalAlloc
+bool query(HKEY, ValueName, LPBYTE val, DWORD size);
 
 template <class T>
-bool QueryBinary(HKEY k, ValueName name, T& val)
+bool queryBinary(HKEY k, ValueName name, T& val)
 {
-    return Query(k, name, reinterpret_cast<LPBYTE>(&val), sizeof(T));
+    return query(k, name, reinterpret_cast<LPBYTE>(&val), sizeof(T));
 }
 
 
-void Set(HKEY, ValueName, const std::wstring& val);
-void Set(HKEY, ValueName, const std::vector<std::wstring>& val);
-void Set(HKEY, ValueName, const d1::int32 val);
-void Set(HKEY, ValueName, const bool val);
-void Set(HKEY, ValueName, const d1::bytestring& val);
-void Set(HKEY, ValueName, const HGLOBAL val);
-void Set(HKEY, ValueName, const BYTE* val, DWORD size);
+void set(HKEY, ValueName, const std::wstring& val);
+void set(HKEY, ValueName, const std::vector<std::wstring>& val);
+void set(HKEY, ValueName, const d1::int32 val);
+void set(HKEY, ValueName, const bool val);
+void set(HKEY, ValueName, const d1::bytestring& val);
+void set(HKEY, ValueName, const HGLOBAL val);
+void set(HKEY, ValueName, const BYTE* val, DWORD size);
 
 template <class T>
-void SetBinary(HKEY k, ValueName name, const T& val)
+void setBinary(HKEY k, ValueName name, const T& val)
 {
-    Set(k, name, reinterpret_cast<const BYTE*>(&val), sizeof(T));
+    set(k, name, reinterpret_cast<const BYTE*>(&val), sizeof(T));
 }
 
 
@@ -69,18 +69,18 @@ class Key
 public:
     explicit Key(HKEY); // takes ownership of the key-handle
 
-    operator HKEY() const { return itsLetter->itsKey; }
+    operator HKEY() const { return letter_->key_; }
 
     // uses compiler generated copy-ctor, dtor and assignment-operator
 
 private:
     struct Letter // Key uses envelope-letter pattern
     {
-        HKEY itsKey;
+        HKEY key_;
         Letter(HKEY k);
         ~Letter();
     };
-    std::shared_ptr<Letter> itsLetter;
+    std::shared_ptr<Letter> letter_;
 };
 
 
@@ -88,13 +88,13 @@ private:
 
 class Exception: public d1::Exception
 {
-    LONG itsError;
-    std::string itsString;
+    LONG error_;
+    std::string string_;
 
 public:
     Exception(LONG err);
     const char* what() const;
-    LONG GetError() const { return itsError; }
+    LONG getError() const { return error_; }
 };
 
 }

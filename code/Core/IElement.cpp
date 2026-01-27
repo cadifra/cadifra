@@ -21,9 +21,9 @@ namespace Core
 #ifdef _DEBUG
 namespace
 {
-bool DebugCreation()
+bool debugCreation()
 {
-    return (WinUtil::DebugEnv::Inst().GetInt("Core", "IElement::DebugCreation") != 0);
+    return (WinUtil::DebugEnv::inst().getInt("Core", "IElement::DebugCreation") != 0);
 }
 }
 #endif
@@ -35,19 +35,18 @@ using C = IElement;
 }
 
 
-class C::Rep
+struct C::Rep
 {
-public:
-    Transaction* itsTransaction = nullptr; // reference only, may be zero
-    bool itIsNewlyCreated = false;
-    bool itIsTouched = false;
-    bool itIsInTrash = false;
-    mutable d1::StackFlag::Ref itsViewNeedsUpdateCallIsRunning;
-    mutable d1::StackFlag::Ref itsCompletelySelectedCallIsRunning;
+    Transaction* transaction = nullptr; // reference only, may be zero
+    bool newlyCreated = false;
+    bool touched = false;
+    bool inTrash = false;
+    mutable d1::StackFlag::Ref viewNeedsUpdateCallIsRunning;
+    mutable d1::StackFlag::Ref completelySelectedCallIsRunning;
 
-    std::vector<std::unique_ptr<IViewElement>> itsViewElements;
+    std::vector<std::unique_ptr<IViewElement>> viewElements;
 
-    IClub* itsClub = nullptr;
+    IClub* club = nullptr;
 
     ~Rep();
 };
@@ -55,15 +54,15 @@ public:
 
 C::Rep::~Rep()
 {
-    D1_ASSERT(itsViewElements.empty());
+    D1_ASSERT(viewElements.empty());
 }
 
 
 C::IElement():
-    itsRep{ std::make_unique<Rep>() }
+    rep_{ std::make_unique<Rep>() }
 {
 #ifdef _DEBUG
-    if (DebugCreation())
+    if (debugCreation())
         WinUtil::dout
             << "New Core::IElement " << this << std::endl;
 #endif
@@ -71,10 +70,10 @@ C::IElement():
 
 
 C::IElement(const IElement& me):
-    itsRep{ std::make_unique<Rep>() }
+    rep_{ std::make_unique<Rep>() }
 {
 #ifdef _DEBUG
-    if (DebugCreation())
+    if (debugCreation())
         WinUtil::dout
             << "New Core::IElement " << this
             << ", copied from " << &me << std::endl;
@@ -84,51 +83,51 @@ C::IElement(const IElement& me):
 
 C::~IElement()
 {
-    D1_ASSERT(itsRep->itsViewElements.empty());
+    D1_ASSERT(rep_->viewElements.empty());
 
 #ifdef _DEBUG
-    if (DebugCreation())
+    if (debugCreation())
         WinUtil::dout
             << "Destroyed Core::IElement " << this << std::endl;
 #endif
 }
 
 
-void C::ViewsNeedUpdate(const IDiagram& d) const
+void C::viewsNeedUpdate(const IDiagram& d) const
 {
-    if (itsRep->itsViewNeedsUpdateCallIsRunning)
+    if (rep_->viewNeedsUpdateCallIsRunning)
         return;
 
-    auto stackFlag = d1::StackFlag{ itsRep->itsViewNeedsUpdateCallIsRunning };
+    auto stackFlag = d1::StackFlag{ rep_->viewNeedsUpdateCallIsRunning };
 
-    for (const auto& ve : itsRep->itsViewElements)
+    for (const auto& ve : rep_->viewElements)
     {
         D1_ASSERT(ve);
-        ve->NeedsUpdate();
+        ve->needsUpdate();
     }
 
-    ExtendViewsNeedUpdate(d);
+    extendViewsNeedUpdate(d);
 }
 
 
-auto C::MakeViewElement(IView& v) -> IViewElement*
+auto C::makeViewElement(IView& v) -> IViewElement*
 {
     // lets see, if we already have a view element in v
-    auto* ve = ViewElement(&v);
+    auto* ve = viewElement(&v);
 
     if (ve)
         return ve; // we do already have a view element in this view
 
-    D1_ASSERT(!ve);
+    D1_ASSERT(not ve);
 
     // ## this model element does not have a view element in v
 
-    auto res = MakeViewElementImp(v);
+    auto res = makeViewElementImp(v);
     ve = res.get();
     if (ve)
     {
-        D1_ASSERT(&ve->Element() == this);
-        itsRep->itsViewElements.push_back(std::move(res));
+        D1_ASSERT(&ve->element() == this);
+        rep_->viewElements.push_back(std::move(res));
     }
 
     return ve;
@@ -137,40 +136,40 @@ auto C::MakeViewElement(IView& v) -> IViewElement*
 
 void C::Delete(IViewElement& e)
 {
-    D1_VERIFY(d1::erase_first_with_get(itsRep->itsViewElements, e));
+    D1_VERIFY(d1::erase_first_with_get(rep_->viewElements, e));
 }
 
 
-void C::DeleteViewElements(Selection::Tracker& st, IView* v)
+void C::deleteViewElements(Selection::Tracker& st, IView* v)
 {
-    for (auto i = begin(itsRep->itsViewElements);
-        i != end(itsRep->itsViewElements);
+    for (auto i = begin(rep_->viewElements);
+        i != end(rep_->viewElements);
         /* intentionally no ++i here */)
     {
         IViewElement& ve = **i;
-        if (v && (&ve.GetView() != v))
+        if (v and (&ve.getView() != v))
         {
             // do not delete
             ++i;
         }
         else
         {
-            if (ve.IsSelected())
-                st.Changed();
-            i = itsRep->itsViewElements.erase(i); // does a ++i !!!!
+            if (ve.isSelected())
+                st.changed();
+            i = rep_->viewElements.erase(i);
         }
     }
 }
 
 
-auto C::ViewElement(const IView* theView) const -> IViewElement*
+auto C::viewElement(const IView* theView) const -> IViewElement*
 {
-    if (!theView)
+    if (not theView)
         return nullptr;
 
-    for (const auto& ve : itsRep->itsViewElements)
+    for (const auto& ve : rep_->viewElements)
     {
-        auto& v = ve->GetView();
+        auto& v = ve->getView();
         if (&v == theView)
             return ve.get();
     }
@@ -179,71 +178,71 @@ auto C::ViewElement(const IView* theView) const -> IViewElement*
 }
 
 
-void C::PutIntoTrash(Env& e)
+void C::putIntoTrash(Env& e)
 {
-    if (!itsRep->itIsInTrash)
+    if (not rep_->inTrash)
     {
         auto sp = this->shared_from_this();
         auto me = std::dynamic_pointer_cast<IElement>(sp);
-        e.transaction.PutIntoTrash(e.sel_tracker, me);
+        e.transaction.putIntoTrash(e.sel_tracker, me);
     }
 }
 
 
-void C::Finalize(Env& e)
+void C::finalize(Env& e)
 {
     // by default: nothing to finalize
 }
 
 
-void C::DisconnectTransaction()
+void C::disconnectTransaction()
 {
-    itsRep->itsTransaction = 0;
-    itsRep->itIsNewlyCreated = false;
-    itsRep->itIsTouched = false;
+    rep_->transaction = 0;
+    rep_->newlyCreated = false;
+    rep_->touched = false;
 
-    Lock();
-    TransactionDone();
+    lock();
+    transactionDone();
 
-    for (const auto& v : itsRep->itsViewElements)
+    for (const auto& v : rep_->viewElements)
     {
         D1_ASSERT(v);
-        v->TransactionDone();
+        v->transactionDone();
     }
 }
 
 
-void C::SetSelectionState(Selection::Tracker& sc, bool new_state, IView& v)
+void C::setSelectionState(Selection::Tracker& sc, bool new_state, IView& v)
 {
-    auto* ve = ViewElement(&v);
-    if (!ve)
+    auto* ve = viewElement(&v);
+    if (not ve)
         return;
 
-    auto sve = ve->Selectable();
-    if (!sve)
+    auto sve = ve->selectable();
+    if (not sve)
         return;
 
-    sve->SetSelectionState(sc, new_state);
+    sve->setSelectionState(sc, new_state);
 }
 
 
-bool C::IsSelected(const IView* v) const
+bool C::isSelected(const IView* v) const
 {
-    auto* ve = ViewElement(v);
-    if (!ve)
+    auto* ve = viewElement(v);
+    if (not ve)
         return false;
 
-    auto sve = ve->Selectable();
-    if (!sve)
+    auto sve = ve->selectable();
+    if (not sve)
         return false;
 
-    return sve->IsSelected();
+    return sve->isSelected();
 }
 
 
-bool C::IsCompletelySelected(const ElementSet& selection) const
+bool C::isCompletelySelected(const ElementSet& selection) const
 {
-    if (itsRep->itsCompletelySelectedCallIsRunning)
+    if (rep_->completelySelectedCallIsRunning)
     {
         // recursion detected: this can happen with recursive data structures
         // created by the user (absolutely legal).
@@ -256,111 +255,111 @@ bool C::IsCompletelySelected(const ElementSet& selection) const
         return true;
     }
 
-    auto stackFlag = d1::StackFlag{ itsRep->itsCompletelySelectedCallIsRunning };
+    auto stackFlag = d1::StackFlag{ rep_->completelySelectedCallIsRunning };
 
-    return IsCompletelySelectedImp(selection);
+    return isCompletelySelectedImp(selection);
 }
 
 
-bool C::IsCompletelySelectedImp(const ElementSet& selection) const
+bool C::isCompletelySelectedImp(const ElementSet& selection) const
 {
     // ## Default implementation. Often not appropriate.
-    return selection.Contains(*this);
+    return selection.contains(*this);
 }
 
 
-auto C::IsCopySelected(ExtendSelection::Param& p) const
+auto C::isCopySelected(ExtendSelection::Param& p) const
     -> ExtendSelection::Result
 {
     // ## Default implementation.
-    return p.Selection().Contains(*this)
+    return p.selection().contains(*this)
                ? ExtendSelection::Result::yes
                : ExtendSelection::Result::no;
 }
 
 
-auto C::GetTransaction() const -> Transaction*
+auto C::getTransaction() const -> Transaction*
 {
-    return itsRep->itsTransaction;
+    return rep_->transaction;
 }
 
 
-bool C::IsInTransaction() const
+bool C::isInTransaction() const
 {
-    return itsRep->itsTransaction != 0;
+    return rep_->transaction != 0;
 }
 
 
-bool C::IsNewlyCreated() const
+bool C::isNewlyCreated() const
 {
-    return itsRep->itIsNewlyCreated;
+    return rep_->newlyCreated;
 }
 
 
-bool C::IsTouched() const
+bool C::isTouched() const
 {
-    return itsRep->itIsTouched;
+    return rep_->touched;
 }
 
 
-bool C::IsInTrash() const
+bool C::isInTrash() const
 {
-    return itsRep->itIsInTrash;
+    return rep_->inTrash;
 }
 
 
-void C::SetInTrashFlag(bool f)
+void C::setInTrashFlag(bool f)
 {
-    itsRep->itIsInTrash = f;
+    rep_->inTrash = f;
 }
 
 
-void C::SetTransaction(Transaction* t)
+void C::set(Transaction* t)
 {
-    itsRep->itsTransaction = t;
+    rep_->transaction = t;
 }
 
 
-void C::SetNewlyCreated(bool nc)
+void C::setNewlyCreated(bool nc)
 {
-    itsRep->itIsNewlyCreated = nc;
+    rep_->newlyCreated = nc;
 }
 
 
-void C::SetTouched(bool t)
+void C::setTouched(bool t)
 {
-    itsRep->itIsTouched = t;
+    rep_->touched = t;
 }
 
 
-auto C::MakeViewElementImp(IView& v) -> std::unique_ptr<IViewElement>
+auto C::makeViewElementImp(IView& v) -> std::unique_ptr<IViewElement>
 {
     return nullptr;
 }
 
 
-void C::SetClub(IClub* c)
+void C::setClub(IClub* c)
 {
-    itsRep->itsClub = c;
+    rep_->club = c;
 }
 
 
-IClub* C::Club() const
+IClub* C::club() const
 {
-    return itsRep->itsClub;
+    return rep_->club;
 }
 
 
-void C::ExtendViewsNeedUpdate(const IDiagram&) const
+void C::extendViewsNeedUpdate(const IDiagram&) const
 {
 }
 
 
-void C::DeepInsert(ElementSet& s)
+void C::deepInsert(ElementSet& s)
 {
-    if (IsInTrash())
+    if (isInTrash())
         return;
-    s.Insert(*this);
+    s.insert(*this);
 }
 
 

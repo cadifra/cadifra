@@ -22,9 +22,9 @@ namespace Core
 #ifdef _DEBUG
 namespace
 {
-bool DebugOutputEnabled()
+bool debugOutputEnabled()
 {
-    return (WinUtil::DebugEnv::Inst().GetInt("Core", "Transaction::Debug") != 0);
+    return (WinUtil::DebugEnv::inst().getInt("Core", "Transaction::Debug") != 0);
 }
 }
 #endif
@@ -41,142 +41,143 @@ C::TransactionUndoer(
     ElementSet theTrashedElements,
     d1::uint32 theTransactionNo):
 
-    itsTouchedUndoers{ theTouchedUndoer },
-    itsNewlyCreatedElements{ theNewlyCreatedElements },
-    itsTrashedElements{ theTrashedElements },
-    itsTransactionNo{ theTransactionNo }
+    touchedUndoers_{ theTouchedUndoer },
+    newlyCreatedElements_{ theNewlyCreatedElements },
+    trashedElements_{ theTrashedElements },
+    transactionNo_{ theTransactionNo }
 {
 }
 
 
-void C::UndoImp(Param& p)
+void C::undoImp(Param& p)
 {
-    for (auto me : itsTrashedElements)
+    for (auto me : trashedElements_)
     {
         D1_ASSERT(me);
-        me->SetInTrashFlag(false);
-        p.AddToDiagram(me);
-        itsUntrashedClients.push_back(me);
+        me->setInTrashFlag(false);
+        p.addToDiagram(me);
+        untrashedClients_.push_back(me);
     }
 
-    itsTrashedElements.clear();
+    trashedElements_.clear();
 
-    itsTouchedUndoers.Undo(p);
+    touchedUndoers_.undo(p);
 
-    while (!itsNewlyCreatedElements.empty())
+    while (not newlyCreatedElements_.empty())
     {
-        IElementRef me = itsNewlyCreatedElements.back();
+        IElementRef me = newlyCreatedElements_.back();
         D1_ASSERT(me);
-        itsNewlyCreatedElements.pop_back();
-        itsUncreatedClients.Insert(*me.get());
-        me->SetInTrashFlag(true);
-        p.RemoveFromDiagram(me);
+        newlyCreatedElements_.pop_back();
+        uncreatedClients_.insert(*me.get());
+        me->setInTrashFlag(true);
+        p.removeFromDiagram(me);
     }
 
 
 #ifdef _DEBUG
-    if (DebugOutputEnabled())
+    if (debugOutputEnabled())
         WinUtil::dout
-            << "Undone Transaction " << itsTransactionNo << std::endl;
+            << "Undone Transaction " << transactionNo_ << std::endl;
 #endif
 }
 
 
-void C::RedoImp(Param& p)
+void C::redoImp(Param& p)
 {
-    for (auto me : itsUncreatedClients)
+    for (auto me : uncreatedClients_)
     {
         D1_ASSERT(me);
-        itsNewlyCreatedElements.push_back(me);
-        me->SetInTrashFlag(false);
-        p.AddToDiagram(me);
+        newlyCreatedElements_.push_back(me);
+        me->setInTrashFlag(false);
+        p.addToDiagram(me);
     }
 
-    itsUncreatedClients.clear();
+    uncreatedClients_.clear();
 
-    itsTouchedUndoers.Redo(p);
+    touchedUndoers_.redo(p);
 
-    while (!itsUntrashedClients.empty())
+    while (not untrashedClients_.empty())
     {
-        auto me = itsUntrashedClients.back();
+        auto me = untrashedClients_.back();
         D1_ASSERT(me);
-        itsUntrashedClients.pop_back();
-        itsTrashedElements.Insert(*me);
-        me->SetInTrashFlag(true);
-        p.RemoveFromDiagram(me);
+        untrashedClients_.pop_back();
+        trashedElements_.insert(*me);
+        me->setInTrashFlag(true);
+        p.removeFromDiagram(me);
     }
 
 #ifdef _DEBUG
-    if (DebugOutputEnabled())
+    if (debugOutputEnabled())
         WinUtil::dout
-            << "Redone Transaction " << itsTransactionNo << std::endl;
+            << "Redone Transaction " << transactionNo_ << std::endl;
 #endif
 }
 
 
-bool C::IsNull() const
+bool C::isNull() const
 {
-    return itsTouchedUndoers.IsNull() &&
-           itsNewlyCreatedElements.empty() &&
-           itsTrashedElements.empty() &&
-           itsUntrashedClients.empty() &&
-           itsUncreatedClients.empty();
+    return touchedUndoers_.isNull() and
+           newlyCreatedElements_.empty() and
+           trashedElements_.empty() and
+           untrashedClients_.empty() and
+           uncreatedClients_.empty();
 }
 
 
-bool C::Merge(Undoer& u)
+bool C::merge(Undoer& u)
 {
     auto* t = dynamic_cast<TransactionUndoer*>(&u);
 
-    if (!t)
+    if (not t)
         return false;
 
-    if (!itsTouchedUndoers.Merge(t->itsTouchedUndoers))
+    if (not touchedUndoers_.merge(t->touchedUndoers_))
         return false;
 
-    for (auto me : t->itsNewlyCreatedElements)
-        d1::push_back_if_missing(itsNewlyCreatedElements, me);
+    for (auto me : t->newlyCreatedElements_)
+        d1::push_back_if_missing(newlyCreatedElements_, me);
 
-    t->itsNewlyCreatedElements.clear();
-
-
-    itsTrashedElements.Insert(t->itsTrashedElements);
+    t->newlyCreatedElements_.clear();
 
 
-    for (auto me : t->itsUntrashedClients)
-        d1::push_back_if_missing(itsUntrashedClients, me);
-
-    t->itsUntrashedClients.clear();
+    trashedElements_.insert(t->trashedElements_);
 
 
-    itsUncreatedClients.Insert(t->itsUncreatedClients);
+    for (auto me : t->untrashedClients_)
+        d1::push_back_if_missing(untrashedClients_, me);
 
-    MESet remove;
-    FindCommonElements(remove, itsNewlyCreatedElements, itsTrashedElements);
-    FindCommonElements(remove, itsUntrashedClients, itsUncreatedClients);
+    t->untrashedClients_.clear();
 
-    for (auto me : remove)
-        Remove(*me.get());
+
+    uncreatedClients_.insert(t->uncreatedClients_);
+
+    MESet r;
+    findCommonElements(r, newlyCreatedElements_, trashedElements_);
+    findCommonElements(r, untrashedClients_, uncreatedClients_);
+
+    for (auto me : r)
+        remove(*me.get());
 
     return true;
 }
 
 
-void C::Remove(IElement& me)
+void C::remove(IElement& me)
 {
-    itsTouchedUndoers.Remove(me);
-    d1::erase_first_with_get(itsNewlyCreatedElements, me);
-    itsTrashedElements.Remove(me);
-    d1::erase_first_with_get(itsUntrashedClients, me);
-    itsUncreatedClients.Remove(me);
+    touchedUndoers_.remove(me);
+    d1::erase_first_with_get(newlyCreatedElements_, me);
+    trashedElements_.remove(me);
+    d1::erase_first_with_get(untrashedClients_, me);
+    uncreatedClients_.remove(me);
 }
 
 
-void C::FindCommonElements(MESet& res, const MESet& a, const ElementSet& b)
+void C::findCommonElements(MESet& res, const MESet& a, const ElementSet& b)
 {
-    for (auto mi : a)
-        if (b.Contains(*mi.get()))
-            res.push_back(mi);
+    auto f = [&](auto& m) { return b.contains(*m.get()); };
+
+    for (auto& m : a | std::views::filter(f))
+        res.push_back(m);
 }
 
 }

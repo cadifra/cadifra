@@ -16,36 +16,36 @@ using C = Selection::Hider;
 
 C::~Hider()
 {
-    if (itsServerImp)
-        itsServerImp->RemoveHider();
+    if (serverImp_)
+        serverImp_->removeHider();
 }
 
 
 C::Hider(const Hider& rhs):
-    itsServerImp{ rhs.itsServerImp }
+    serverImp_{ rhs.serverImp_ }
 {
-    if (itsServerImp)
-        itsServerImp->AddHider();
+    if (serverImp_)
+        serverImp_->addHider();
 }
 
 
 auto C::operator=(const Hider& rhs) -> Hider&
 {
-    if (rhs.itsServerImp)
-        rhs.itsServerImp->AddHider();
-    if (itsServerImp)
-        itsServerImp->RemoveHider();
-    itsServerImp = rhs.itsServerImp;
+    if (rhs.serverImp_)
+        rhs.serverImp_->addHider();
+    if (serverImp_)
+        serverImp_->removeHider();
+    serverImp_ = rhs.serverImp_;
     return *this;
 }
 
 
 C::Hider(const std::shared_ptr<VS::Imp>& server):
 
-    itsServerImp{ server }
+    serverImp_{ server }
 {
-    if (itsServerImp)
-        itsServerImp->AddHider();
+    if (serverImp_)
+        serverImp_->addHider();
 }
 
 }

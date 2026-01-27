@@ -18,7 +18,7 @@ namespace Core
 export class IFollowUpJob
 {
 public:
-    virtual void DoFollowUpJob(Env& e) = 0;
+    virtual void doFollowUpJob(Env& e) = 0;
 
 protected:
     ~IFollowUpJob() = default;
@@ -29,32 +29,32 @@ export class FollowUpJob // has value semantics
 {
     using SharedPtr = std::shared_ptr<d1::Shared>;
 
-    IFollowUpJob* itsJob = nullptr;
-    SharedPtr itsShared; // controls lifetime
+    IFollowUpJob* job_ = nullptr;
+    SharedPtr shared_; // controls lifetime
 
 public:
     FollowUpJob() {}
 
     FollowUpJob(IFollowUpJob* j, const SharedPtr& r):
-        itsJob{ j }, itsShared{ r }
+        job_{ j }, shared_{ r }
     {
     }
 
     template <class T>
     FollowUpJob(T* t):
-        itsJob{ t }, itsShared{ t->shared_from_this() }
+        job_{ t }, shared_{ t->shared_from_this() }
     {
     }
 
     bool operator==(const FollowUpJob& rhs) const
     {
-        return rhs.itsJob == itsJob;
+        return rhs.job_ == job_;
     }
 
     void Do(Env& e)
     {
-        if (itsJob)
-            itsJob->DoFollowUpJob(e);
+        if (job_)
+            job_->doFollowUpJob(e);
     }
 };
 
@@ -65,10 +65,10 @@ export class Transaction
 
 	class Imp;
 
-    IDiagram& itsDiagram;
-    IView* itsWorkingView; // may be 0
-    std::unique_ptr<Imp> itsImp;
-    FollowUps itsFollowUps;
+    IDiagram& diagram_;
+    IView* workingView_; // may be 0
+    std::unique_ptr<Imp> imp_;
+    FollowUps followUps_;
 
 public:
     Transaction(IDiagram& d, IView* working_view);
@@ -79,22 +79,22 @@ public:
 
     ~Transaction(); // intentionally NOT virtual
 
-    auto Diagram() const -> IDiagram& { return itsDiagram; }
-    auto WorkingView() const -> IView* { return itsWorkingView; }
+    auto diagram() const -> IDiagram& { return diagram_; }
+    auto workingView() const -> IView* { return workingView_; }
 
-    auto Close(Selection::Tracker&, const IGrid&) -> UndoerRef;
+    auto close(Selection::Tracker&, const IGrid&) -> UndoerRef;
     // Closes this transaction and returns a ref to an undoer that
     // is capable of undoing/redoing this transaction. This includes
-    // changes made to clients that were added with AddTouched(),
-    // trashed clients that were trashed using PutIntoTrash() and
-    // newly created clients added with AddNewlyCreated().
+    // changes made to clients that were added with addTouched(),
+    // trashed clients that were trashed using putIntoTrash() and
+    // newly created clients added with addNewlyCreated().
     // Close updates the views of all touched clients.
 
-    void Abort();
+    void abort();
     // Terminates this transaction and reverts all modifications
     // made so far.
 
-    void AddTouched(IElement& me, bool update_view);
+    void addTouched(IElement& me, bool update_view);
     // me may already have been added. If it is readded, its view
     // will be updated on the next UpdateViews call or when the
     // transaction is closed. If newly created model elements are AddTouched,
@@ -102,25 +102,25 @@ public:
     // inserted into the needs update view set.
     // PRE: me is not in trash.
 
-    void PutIntoTrash(Selection::Tracker&, const IElementRef& me);
+    void putIntoTrash(Selection::Tracker&, const IElementRef& me);
     // Trashes me and takes ownership over me. me may have been
-    // AddTouched() and AddNewlyCreated() to this same transaction.
+    // addTouched() and addNewlyCreated() to this same transaction.
 
-    void AddNewlyCreated(IElementRef me);
+    void addNewlyCreated(IElementRef me);
     // me was newly created during this transaction. The Transaction
-    // ensures, that me will be trashed when someone calls Undo()
-    // on the undoer that is returned by Close().
+    // ensures, that me will be trashed when someone calls undo()
+    // on the undoer that is returned by close().
 
-    bool HasNewlyCreated(const IElement& me) const;
+    bool hasNewlyCreated(const IElement& me) const;
     // returns true, if this Transaction has me registered as a newly
     // created client.
 
-    void ScheduleFollowUpJob(FollowUpJob);
+    void scheduleFollowUpJob(FollowUpJob);
 
 private:
-    auto SubTransactionClose(Selection::Tracker&, const IGrid&) -> UndoerRef;
+    auto subTransactionClose(Selection::Tracker&, const IGrid&) -> UndoerRef;
 
-    void MakeNew();
+    void makeNew();
 };
 
 
@@ -131,16 +131,16 @@ class Transaction::Imp
     using MESet = std::vector<IElementRef>;
     using FinalizeDeque = std::deque<IElementRef>;
 
-    Transaction& itsTransaction;
-    MESet itsTouchedElements;
-    ElementSet itsTrashedElements;
-    MESet itsToBeDeletedElements;
-    MESet itsNewlyCreatedElements;
-    IDiagram& itsDiagram;
-    IView* itsWorkingView = nullptr; // ref only, may be zero
-    d1::uint32 itsNumber = 0;
-    bool itIsClosed = false;
-    FinalizeDeque itsFinalizeCandidates;
+    Transaction& transaction_;
+    MESet touchedElements_;
+    ElementSet trashedElements_;
+    MESet toBeDeletedElements_;
+    MESet newlyCreatedElements_;
+    IDiagram& diagram_;
+    IView* workingView_ = nullptr; // ref only, may be zero
+    d1::uint32 number_ = 0;
+    bool closed_ = false;
+    FinalizeDeque finalizeCandidates_;
 
 
 public:
@@ -153,34 +153,34 @@ public:
     ~Imp();
 
 private:
-    bool Finalize(Selection::Tracker&, const IGrid&);
-    auto Close(Selection::Tracker&, const IGrid&) -> UndoerRef;
-    void Abort();
-    void AddTouched(IElement& me, bool update_view);
-    void PutIntoTrash(Selection::Tracker&, const IElementRef& me);
-    void AddNewlyCreated(IElementRef me);
-    bool HasNewlyCreated(const IElement& me) const;
+    bool finalize(Selection::Tracker&, const IGrid&);
+    auto close(Selection::Tracker&, const IGrid&) -> UndoerRef;
+    void abort();
+    void addTouched(IElement& me, bool update_view);
+    void putIntoTrash(Selection::Tracker&, const IElementRef& me);
+    void addNewlyCreated(IElementRef me);
+    bool hasNewlyCreated(const IElement& me) const;
 
 private:
-    auto NonNullClose(Selection::Tracker& sc, const IGrid& g) -> UndoerRef;
+    auto nonNullClose(Selection::Tracker& sc, const IGrid& g) -> UndoerRef;
 
-    auto CloseAllTouched() -> UndoerRef;
+    auto closeAllTouched() -> UndoerRef;
 
-    void DisconnectAllNewlyCreated();
-    void DisconnectAllTrashed(Selection::Tracker& sc);
-    void DisconnectAllTouched();
+    void disconnectAllNewlyCreated();
+    void disconnectAllTrashed(Selection::Tracker& sc);
+    void disconnectAllTouched();
 
-    void AbortAllTrashed();
-    void AbortAllNewlyCreated(Selection::Tracker& sc);
+    void abortAllTrashed();
+    void abortAllNewlyCreated(Selection::Tracker& sc);
 
-    void Destruct();
+    void destruct();
 };
 
 
 export template <class Data>
 class TransactionDataPtr
 {
-    std::unique_ptr<Data> itsData;
+    std::unique_ptr<Data> data_;
 
 public:
     TransactionDataPtr()
@@ -188,7 +188,7 @@ public:
     }
 
     TransactionDataPtr(const TransactionDataPtr&):
-        itsData{} // Data is not copied!
+        data_{} // Data is not copied!
     {
     }
 
@@ -199,19 +199,19 @@ public:
 
     void reset()
     {
-        itsData.reset();
+        data_.reset();
     }
 
     void assign(std::unique_ptr<Data> d)
     {
-        itsData = std::move(d);
+        data_ = std::move(d);
     }
 
-    Data* get() const { return itsData.get(); }
-    Data& operator*() const { return *itsData; }
-    operator bool() const { return itsData.get() != nullptr; }
+    Data* get() const { return data_.get(); }
+    Data& operator*() const { return *data_; }
+    operator bool() const { return data_.get() != nullptr; }
 
-    Data* operator->() const { return itsData.get(); }
+    Data* operator->() const { return data_.get(); }
 };
 
 
@@ -224,19 +224,19 @@ public:
     Finalizer(const Finalizer&) = delete;
     Finalizer& operator=(const Finalizer& rhs) = delete;
 
-    virtual void Execute(Env&) = 0;
+    virtual void execute(Env&) = 0;
 
     class Dock;
-    static auto GetDock() -> Dock&;
+    static auto getDock() -> Dock&;
 };
 
 
 class Finalizer::Dock
 {
 public:
-    virtual void Add(std::unique_ptr<Finalizer>) = 0;
+    virtual void add(std::unique_ptr<Finalizer>) = 0;
 
-    virtual void ExecuteAll(Env&) = 0;
+    virtual void executeAll(Env&) = 0;
 
 protected:
     ~Dock() = default;

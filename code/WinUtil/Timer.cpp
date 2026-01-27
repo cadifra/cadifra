@@ -28,28 +28,28 @@ class DeallocIdMsg: public Message::Wrapper
 {
 public:
     DeallocIdMsg(Message& m):
-        Wrapper{ m, GetMsgId() }
+        Wrapper{ m, getMsgId() }
     {
     }
 
-    unsigned int Id() const { return static_cast<unsigned int>(GetWParam()); }
+    unsigned int id() const { return static_cast<unsigned int>(getWParam()); }
 
-    static UINT GetMsgId(); // message constant
+    static UINT getMsgId(); // message constant
 
-    static void Post(HWND window, unsigned int id);
+    static void post(HWND window, unsigned int id);
 };
 
 
-UINT DeallocIdMsg::GetMsgId()
+UINT DeallocIdMsg::getMsgId()
 {
-    static unsigned int m = WinUtil::PrivateMessage::Instance().Register();
+    static unsigned int m = WinUtil::PrivateMessage::instance().getNumber();
     return m;
 }
 
 
-void DeallocIdMsg::Post(HWND window, unsigned int id)
+void DeallocIdMsg::post(HWND window, unsigned int id)
 {
-    D1_VERIFY(::PostMessage(window, GetMsgId(), id, 0));
+    D1_VERIFY(::PostMessage(window, getMsgId(), id, 0));
 }
 
 using C = Timer;
@@ -60,46 +60,46 @@ class C::Impl: private WinUtil::Window
 {
     using This = Impl;
 
-    ProcRegistrar itsProcReg;
-    void OnTimer(WM_TIMER_Msg);
-    void OnDeallocId(DeallocIdMsg);
+    ProcRegistrar procReg_;
+    void onTimer(WM_TIMER_Msg);
+    void onDeallocId(DeallocIdMsg);
 
     using Ids = std::set<unsigned int>;
-    Ids itsUnusedIds;
-    unsigned int itsMaxId = 0;
+    Ids unusedIds_;
+    unsigned int maxId_ = 0;
 
     using IdMap = std::map<unsigned int, Client*>;
-    IdMap itsIdMap;
+    IdMap idMap_;
 
 public:
     Impl();
 
-    unsigned int SetTimer(
+    unsigned int setTimer(
         Client*, unsigned int milliseconds); // returns id
 
-    void KillTimer(unsigned int& id);
+    void killTimer(unsigned int& id);
     // Kills the timer and sets id = 0
 };
 
 
 C::Impl::Impl():
-    itsProcReg{ GetDispatcher(), 0 }
+    procReg_{ getDispatcher(), 0 }
 {
-    auto ph = itsProcReg.Helper(*this);
+    auto ph = procReg_.helper(*this);
 
-    ph.Register(&This::OnTimer);
-    ph.Register(&This::OnDeallocId);
+    ph.add(&This::onTimer);
+    ph.add(&This::onDeallocId);
 
     HINSTANCE i = ::GetModuleHandle(0);
 
     static auto wc = WinUtil::WindowClass{
         TEXT("Cadifra Timer"),       // lpszClassName
-        &WinUtil::WindowStartupProc, // lpfnWndProc
+        &WinUtil::windowStartupProc, // lpfnWndProc
         i                            // hInstance
     };
 
     ::CreateWindow(
-        wc.GetAtom(),                       // lpClassName
+        wc.getAtom(),                       // lpClassName
         0,                                  // lpWindowName
         WS_DISABLED,                        // dwStyle
         0, 0,                               // x, y
@@ -112,31 +112,31 @@ C::Impl::Impl():
 }
 
 
-void C::Impl::OnTimer(WM_TIMER_Msg m)
+void C::Impl::onTimer(WM_TIMER_Msg m)
 {
-    auto i = itsIdMap.find(m.wTimerID());
+    auto i = idMap_.find(m.wTimerID());
 
-    if (i != end(itsIdMap))
-        i->second->TimerElapsed();
+    if (i != end(idMap_))
+        i->second->timerElapsed();
 }
 
 
-void C::Impl::OnDeallocId(DeallocIdMsg m)
+void C::Impl::onDeallocId(DeallocIdMsg m)
 {
-    itsUnusedIds.insert(m.Id());
+    unusedIds_.insert(m.id());
 }
 
 
-void C::Impl::KillTimer(unsigned int& id)
+void C::Impl::killTimer(unsigned int& id)
 {
-    D1_ASSERT(itsIdMap.find(id) != end(itsIdMap));
-    itsIdMap.erase(id);
+    D1_ASSERT(idMap_.find(id) != end(idMap_));
+    idMap_.erase(id);
 
     D1_VERIFY(::KillTimer(
-        GetWindowHandle(),
+        getWindowHandle(),
         id));
 
-    DeallocIdMsg::Post(GetWindowHandle(), id);
+    DeallocIdMsg::post(getWindowHandle(), id);
     // Posting a message guarantees that the id is not deallocated
     // while a WM_TIMER message using this id is still in the message
     // queue (this situation is possible when you call KillTimer).
@@ -145,26 +145,26 @@ void C::Impl::KillTimer(unsigned int& id)
 }
 
 
-unsigned int C::Impl::SetTimer(Client* c, unsigned int milliseconds)
+unsigned int C::Impl::setTimer(Client* c, unsigned int milliseconds)
 {
     D1_ASSERT(c);
     unsigned int id = 0;
 
-    if (itsUnusedIds.size())
+    if (unusedIds_.size())
     {
-        id = *begin(itsUnusedIds);
-        itsUnusedIds.erase(begin(itsUnusedIds));
+        id = *begin(unusedIds_);
+        unusedIds_.erase(begin(unusedIds_));
     }
     else
-        id = ++itsMaxId;
+        id = ++maxId_;
 
     D1_ASSERT(id);
 
-    const bool inserted = itsIdMap.insert(std::make_pair(id, c)).second;
+    const bool inserted = idMap_.insert(std::make_pair(id, c)).second;
     D1_ASSERT(inserted);
 
     D1_VERIFY(::SetTimer(
-        GetWindowHandle(),
+        getWindowHandle(),
         id,
         milliseconds,
         0));
@@ -173,7 +173,7 @@ unsigned int C::Impl::SetTimer(Client* c, unsigned int milliseconds)
 }
 
 
-auto C::Instance() -> Impl&
+auto C::instance() -> Impl&
 {
     static Impl singleton;
     return singleton;
@@ -181,38 +181,38 @@ auto C::Instance() -> Impl&
 
 
 C::Timer(Client& c):
-    itsClient{ c }
+    client_{ c }
 {
 }
 
 
 C::Timer(Client& c, unsigned int milliseconds):
-    itsClient{ c }
+    client_{ c }
 {
-    Start(milliseconds);
+    start(milliseconds);
 }
 
 
 C::~Timer()
 {
-    Stop();
+    stop();
 }
 
 
-void C::Start(unsigned int milliseconds)
+void C::start(unsigned int milliseconds)
 {
-    Stop();
-    itsId = Instance().SetTimer(&itsClient, milliseconds);
-    itIsRunning = true;
+    stop();
+    id_ = instance().setTimer(&client_, milliseconds);
+    running_ = true;
 }
 
 
-void C::Stop()
+void C::stop()
 {
-    if (itIsRunning)
+    if (running_)
     {
-        Instance().KillTimer(itsId),
-            itIsRunning = false;
+        instance().killTimer(id_),
+            running_ = false;
     }
 }
 

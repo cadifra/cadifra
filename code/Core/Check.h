@@ -9,4 +9,4 @@
 
 #define D1_CHECK_PTR(p)     \
     D1_ASSERT((p) != 0);    \
-    D1_ASSERT(!(p)->IsInTrash());
+    D1_ASSERT(not (p)->isInTrash());

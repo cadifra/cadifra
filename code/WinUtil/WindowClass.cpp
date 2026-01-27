@@ -33,7 +33,7 @@ C::WindowClass(
     int cbClsExtra,
     int cbWndExtra):
 
-    itsInstance{ hInstance }
+    instance_{ hInstance }
 {
     auto wc = WNDCLASSEX{};
 
@@ -50,14 +50,14 @@ C::WindowClass(
     wc.lpszClassName = lpszClassName;
     wc.hIconSm = hIconSm;
 
-    itsAtom = ::RegisterClassEx(&wc);
-    D1_ASSERT(itsAtom);
+    atom_ = ::RegisterClassEx(&wc);
+    D1_ASSERT(atom_);
 }
 
 
 C::~WindowClass()
 {
-    D1_VERIFY(::UnregisterClass(MAKEINTATOM(itsAtom), itsInstance));
+    D1_VERIFY(::UnregisterClass(MAKEINTATOM(atom_), instance_));
 }
 
 }

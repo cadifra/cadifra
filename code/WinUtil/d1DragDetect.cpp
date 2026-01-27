@@ -34,15 +34,15 @@ namespace
 
 
 #ifdef _DEBUG
-bool DebugEnabled()
+bool debugEnabled()
 {
-    return (WinUtil::DebugEnv::Inst().GetInt(
+    return (WinUtil::DebugEnv::inst().getInt(
                 "WinUtil", "d1DragDetect") != 0);
 }
 #endif
 
 
-#if defined(_DEBUG) && D1_DRAG_DETECT_TEST
+#if defined(_DEBUG) and D1_DRAG_DETECT_TEST
 constexpr LONGLONG DRAG_DETECT_TIMEOUT = -4000 * 10000;
 #else
 constexpr LONGLONG DRAG_DETECT_TIMEOUT = -500 * 10000; // time in 100ns, negative means relative
@@ -55,7 +55,7 @@ enum class UpDown
     down
 };
 
-UINT ButtonMessageCode(const d1::MouseButton mb, const UpDown ud)
+UINT buttonMessageCode(const d1::MouseButton mb, const UpDown ud)
 {
     switch (mb)
     {
@@ -84,7 +84,7 @@ struct MouseState
     {
     }
 
-    void EvalMouseMsg(const MSG& msg)
+    void evalMouseMsg(const MSG& msg)
     {
         leftButtonDown = (msg.wParam & MK_LBUTTON) != 0;
         middleButtonDown = (msg.wParam & MK_MBUTTON) != 0;
@@ -93,7 +93,7 @@ struct MouseState
         pos.y = GET_Y_LPARAM(msg.lParam);
     }
 
-    bool IsButtonDown(d1::MouseButton mb) const
+    bool isButtonDown(d1::MouseButton mb) const
     {
         switch (mb)
         {
@@ -114,40 +114,40 @@ struct MouseState
 
 class TestEnlargeDragRect
 {
-    const int itsSaved_SM_CXDRAG;
-    const int itsSaved_SM_CYDRAG;
-    int itsFactor;
+    const int saved_SM_CXDRAG_;
+    const int saved_SM_CYDRAG_;
+    int factor_;
 
 public:
     TestEnlargeDragRect(int factor = 8):
-        itsSaved_SM_CXDRAG{ ::GetSystemMetrics(SM_CXDRAG) },
-        itsSaved_SM_CYDRAG{ ::GetSystemMetrics(SM_CYDRAG) },
-        itsFactor{ 1 }
+        saved_SM_CXDRAG_{ ::GetSystemMetrics(SM_CXDRAG) },
+        saved_SM_CYDRAG_{ ::GetSystemMetrics(SM_CYDRAG) },
+        factor_{ 1 }
     {
-        EnlargeDragRect(factor);
+        enlargeDragRect(factor);
     }
     ~TestEnlargeDragRect()
     {
-        RestoreInitialDragRect();
+        restoreInitialDragRect();
     }
-    int GetFactor() const { return itsFactor; }
+    int getFactor() const { return factor_; }
 
 private:
-    static void SetDragRect(int width, int height)
+    static void setDragRect(int width, int height)
     {
         D1_VERIFY(0 != ::SystemParametersInfo(SPI_SETDRAGWIDTH, width, 0, 0));
         D1_VERIFY(0 != ::SystemParametersInfo(SPI_SETDRAGHEIGHT, height, 0, 0));
     }
-    void RestoreInitialDragRect() const
+    void restoreInitialDragRect() const
     {
-        SetDragRect(itsSaved_SM_CXDRAG, itsSaved_SM_CYDRAG);
+        setDragRect(saved_SM_CXDRAG_, saved_SM_CYDRAG_);
     }
-    void EnlargeDragRect(int factor)
+    void enlargeDragRect(int factor)
     {
-        SetDragRect(
+        setDragRect(
             factor * ::GetSystemMetrics(SM_CXDRAG),
             factor * ::GetSystemMetrics(SM_CYDRAG));
-        itsFactor *= factor;
+        factor_ *= factor;
     }
 };
 
@@ -156,24 +156,24 @@ private:
 
 class Imp
 {
-    const HWND itsWindow = {};
-    const POINT itsInitPosScreen = {};
-    const POINT itsInitPos = {}; // in client coordinates
-    const d1::MouseButton itsButton;
+    const HWND window_ = {};
+    const POINT initPosScreen_ = {};
+    const POINT initPos_ = {}; // in client coordinates
+    const d1::MouseButton button_;
 
-    MouseState itsMouseState;
+    MouseState mouseState_;
 
-    bool itsDragDetected = false;
+    bool dragDetected_ = false;
 
 #ifdef _DEBUG
-    const bool itsDebugEnabled{ DebugEnabled() };
+    const bool debugEnabled_{ debugEnabled() };
 #if D1_DRAG_DETECT_TEST
-    TestEnlargeDragRect itsTestEnlargeDragRect;
+    TestEnlargeDragRect testEnlargeDragRect_;
 #endif
 #endif
 
-    const int itsSM_CXDRAG;
-    const int itsSM_CYDRAG;
+    const int SM_CXDRAG_;
+    const int SM_CYDRAG_;
 
 public:
     Imp(
@@ -183,30 +183,30 @@ public:
 
     ~Imp();
 
-    bool Result() const { return itsDragDetected; }
+    bool result() const { return dragDetected_; }
 
-    POINT GetMousePos() const { return itsMouseState.pos; }
+    POINT getMousePos() const { return mouseState_.pos; }
 
-    bool OutsideDragRectangle(const POINT& p) const;
+    bool outsideDragRectangle(const POINT& p) const;
     // returns true, if p is outside drag rectangle defined by system metrics.
     // p is in client coordinates.
 
-    bool OutsideDragRectangle() const
+    bool outsideDragRectangle() const
     {
-        return OutsideDragRectangle(GetMousePos());
+        return outsideDragRectangle(getMousePos());
     }
 
 private:
-    void Work();
+    void work();
 
-    bool IsButtonDown() const
+    bool isButtonDown() const
     {
-        return itsMouseState.IsButtonDown(itsButton);
+        return mouseState_.isButtonDown(button_);
     }
 
-    UINT ButtonMsgCode(UpDown ud) const
+    UINT buttonMsgCode(UpDown ud) const
     {
-        return ButtonMessageCode(itsButton, ud);
+        return buttonMessageCode(button_, ud);
     }
 
 #ifdef _DEBUG
@@ -214,7 +214,7 @@ private:
     template <class T>
     void DBG(int line, const char* text, const T& t) const
     {
-        if (itsDebugEnabled)
+        if (debugEnabled_)
             WinUtil::dout
                 << "@@@ WinUtil::d1DragDetect #" << line
                 << ": " << text << t << std::endl;
@@ -222,7 +222,7 @@ private:
 
     void DBG(int line, const char* text) const
     {
-        if (itsDebugEnabled)
+        if (debugEnabled_)
             WinUtil::dout
                 << "@@@ WinUtil::d1DragDetect #" << line << ": " << text << std::endl;
     }
@@ -239,13 +239,13 @@ private:
 };
 
 
-bool DoPostMessage(HWND hWnd, const MSG& msg)
+bool doPostMessage(HWND hWnd, const MSG& msg)
 {
     return ::PostMessage(hWnd, msg.message, msg.wParam, msg.lParam) != 0;
 }
 
 
-POINT ToClient(HWND hwnd, POINT pos)
+POINT toClient(HWND hwnd, POINT pos)
 {
     D1_VERIFY(::ScreenToClient(hwnd, &pos));
     return pos;
@@ -257,15 +257,15 @@ Imp::Imp(
     POINT init_pos,
     d1::MouseButton mb):
 
-    itsWindow{ hwnd },
-    itsInitPosScreen{ init_pos },
-    itsInitPos{ ToClient(hwnd, init_pos) },
-    itsButton{ mb },
-    itsSM_CXDRAG{ ::GetSystemMetrics(SM_CXDRAG) },
-    itsSM_CYDRAG{ ::GetSystemMetrics(SM_CYDRAG) }
+    window_{ hwnd },
+    initPosScreen_{ init_pos },
+    initPos_{ toClient(hwnd, init_pos) },
+    button_{ mb },
+    SM_CXDRAG_{ ::GetSystemMetrics(SM_CXDRAG) },
+    SM_CYDRAG_{ ::GetSystemMetrics(SM_CYDRAG) }
 {
-    ::SetCapture(itsWindow);
-    Work();
+    ::SetCapture(window_);
+    work();
 }
 
 
@@ -273,40 +273,40 @@ Imp::~Imp()
 {
     D1_VERIFY(::ReleaseCapture() != 0);
 
-    if (itsDragDetected)
+    if (dragDetected_)
         DBG(__LINE__, "### DRAG DETECTED ###");
     else
         DBG(__LINE__, "--- finished. no drag ---");
 }
 
 
-bool Imp::OutsideDragRectangle(const POINT& p) const
+bool Imp::outsideDragRectangle(const POINT& p) const
 {
-    if (itsSM_CXDRAG < 2 * abs(p.x - itsInitPos.x))
+    if (SM_CXDRAG_ < 2 * abs(p.x - initPos_.x))
         return true;
 
-    if (itsSM_CYDRAG < 2 * abs(p.y - itsInitPos.y))
+    if (SM_CYDRAG_ < 2 * abs(p.y - initPos_.y))
         return true;
 
     return false;
 }
 
 
-void Imp::Work()
+void Imp::work()
 {
-    DBG(__LINE__, "started. Button=", (int)itsButton);
-    DBG(__LINE__, "SM_CXDRAG=", itsSM_CXDRAG);
-    DBG(__LINE__, "SM_CYDRAG=", itsSM_CYDRAG);
-    if (!itsWindow)
+    DBG(__LINE__, "started. Button=", (int)button_);
+    DBG(__LINE__, "SM_CXDRAG=", SM_CXDRAG_);
+    DBG(__LINE__, "SM_CYDRAG=", SM_CYDRAG_);
+    if (not window_)
     {
-        DBG(__LINE__, "!window. returning false.");
+        DBG(__LINE__, "not window. returning false.");
         return;
     }
 
-    if (itsButton == d1::MouseButton::left)
+    if (button_ == d1::MouseButton::left)
     {
         DBG(__LINE__, "calling API DragDetect");
-        itsDragDetected = (::DragDetect(itsWindow, itsInitPosScreen) != 0);
+        dragDetected_ = (::DragDetect(window_, initPosScreen_) != 0);
         return;
     }
 
@@ -336,23 +336,23 @@ void Imp::Work()
         if (wmo_res == WAIT_OBJECT_0)
         {
             DBG(__LINE__, "timer expired");
-            itsDragDetected = true;
+            dragDetected_ = true;
             return;
         }
 
         auto msg = MSG{};
 
-        const UINT up_msg_id = ButtonMsgCode(UpDown::up);
-        if (0 != ::PeekMessage(&msg, itsWindow, up_msg_id, up_msg_id, PM_NOREMOVE))
+        const UINT up_msg_id = buttonMsgCode(UpDown::up);
+        if (0 != ::PeekMessage(&msg, window_, up_msg_id, up_msg_id, PM_NOREMOVE))
         {
             DBG(__LINE__, "WM_XBUTTONUP. message=", msg.message);
             return;
         }
 
-        if (0 != ::PeekMessage(&msg, itsWindow, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE))
+        if (0 != ::PeekMessage(&msg, window_, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE))
         {
             DBG(__LINE__, "WM_KEY. message=", msg.message);
-            if ((msg.message == WM_KEYDOWN) && (msg.wParam == VK_ESCAPE))
+            if ((msg.message == WM_KEYDOWN) and (msg.wParam == VK_ESCAPE))
             {
                 DBG(__LINE__, "ESC Key pressed.");
                 return;
@@ -360,19 +360,19 @@ void Imp::Work()
             // discard all other key messages
         }
 
-        while (0 != ::PeekMessage(&msg, itsWindow, WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE))
+        while (0 != ::PeekMessage(&msg, window_, WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE))
         {
             DBG(__LINE__, "WM_MOUSEMOVE.");
-            itsMouseState.EvalMouseMsg(msg);
-            if (!IsButtonDown())
+            mouseState_.evalMouseMsg(msg);
+            if (not isButtonDown())
             {
                 DBG(__LINE__, "Button released.");
                 return;
             }
-            if (OutsideDragRectangle())
+            if (outsideDragRectangle())
             {
                 DBG(__LINE__, "outside drag rectangle.");
-                itsDragDetected = true;
+                dragDetected_ = true;
                 return;
             }
             // discard mouse move
@@ -389,7 +389,7 @@ bool d1DragDetect(
     d1::POINT init_pos, // initial position, in screen coordinates
     d1::MouseButton mb)
 {
-    bool res = Imp(hwnd, init_pos, mb).Result();
+    bool res = Imp(hwnd, init_pos, mb).result();
     return res;
 }
 

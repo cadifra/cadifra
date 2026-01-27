@@ -19,41 +19,41 @@ export class IUpdateContainer: public virtual IShiftable
 public:
     class Param;
 
-    void UpdateContainer(Env&, Param& p);
+    void update(Env&, Param& p);
 
 private:
-    virtual void UpdateContainerImpl(Env&, Param& p) = 0;
+    virtual void updateImpl(Env&, Param& p) = 0;
 };
 
 
 class IUpdateContainer::Param
 {
-    std::set<const IUpdateContainer*> itsSet;
+    std::set<const IUpdateContainer*> set_;
 
 public:
     Param() {}
     Param(const Param&) = delete;
     Param& operator=(const Param&) = delete;
 
-    bool Add(const IUpdateContainer* c) { return (itsSet.insert(c)).second; }
+    bool add(const IUpdateContainer* c) { return (set_.insert(c)).second; }
 };
 
 
 export class IContainable: public IUpdateContainer, public IDeletable
 {
 public:
-    virtual void SetContainer(Env&, IContainer*) = 0;
-    virtual auto GetContainer() const -> IContainer* = 0;
+    virtual void setContainer(Env&, IContainer*) = 0;
+    virtual auto getContainer() const -> IContainer* = 0;
 };
 
 
 export class IContainer: public virtual IElement
 {
 public:
-    virtual void Add(Env&, IContainable&) = 0;
-    virtual void Forget(Env&, const IContainable&) = 0;
-    virtual bool Has(const IContainable&) const = 0;
-    virtual void InitialAdd(Env&, IContainable&) = 0;
+    virtual void add(Env&, IContainable&) = 0;
+    virtual void forget(Env&, const IContainable&) = 0;
+    virtual bool has(const IContainable&) const = 0;
+    virtual void initialAdd(Env&, IContainable&) = 0;
 };
 
 }

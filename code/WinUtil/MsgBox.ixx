@@ -14,7 +14,7 @@ import std;
 export namespace WinUtil::MsgBox
 {
 
-int Show(
+int show(
     const std::wstring& title,
     const std::wstring& text,
     UINT uType = MB_OK | MB_ICONWARNING | MB_TASKMODAL);

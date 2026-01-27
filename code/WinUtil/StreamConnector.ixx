@@ -18,10 +18,10 @@ namespace WinUtil
 
 export class StreamConnector: public ::IStream
 {
-    d1::RefCounter<StreamConnector> itsRefCounter;
-    std::wostream& itsOStream;
-    ULONGLONG itsPosition = {};
-    ULONGLONG itsSize= {};
+    d1::RefCounter<StreamConnector> refCounter_;
+    std::wostream& OStream_;
+    ULONGLONG position_ = {};
+    ULONGLONG size_= {};
 
 public:
     StreamConnector(std::wostream& os);

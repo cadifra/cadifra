@@ -14,9 +14,8 @@ import std;
 namespace WinUtil
 {
 
-export class ExtractDROPFILES
+export struct ExtractDROPFILES
 {
-public:
     ExtractDROPFILES(const ::_DROPFILES&);
 
     using Cont = std::vector<std::wstring>;

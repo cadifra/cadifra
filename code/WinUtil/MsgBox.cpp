@@ -14,7 +14,7 @@ import WinUtil.CursorManager;
 namespace WinUtil::MsgBox
 {
 
-int Show(
+int show(
     const std::wstring& title,
     const std::wstring& text,
     UINT uType)

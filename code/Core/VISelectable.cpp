@@ -18,36 +18,36 @@ using C = VISelectable;
 }
 
 
-void C::Insert(bool needsUpdate)
+void C::insert(bool needs_update)
 {
-    GetView().Add(*this);
+    getView().add(*this);
 
-    if (needsUpdate)
-        NeedsUpdate();
+    if (needs_update)
+        needsUpdate();
 }
 
 
-void C::SetSelectionState(Selection::Tracker& st, bool newstate)
+void C::setSelectionState(Selection::Tracker& st, bool newstate)
 {
-    bool change = itIsSelected != newstate;
+    bool change = selected_ != newstate;
 
     if (change)
     {
-        itIsSelected = newstate;
-        st.Changed();
+        selected_ = newstate;
+        st.changed();
     }
 
-    auto& me = Element();
+    auto& me = element();
     D1_ASSERT(&me);
 
     if (change)
-        SelectionNeedsUpdate();
+        selectionNeedsUpdate();
 
 #ifdef _DEBUG
     // some consistency checks
     {
-        IView& view_of_this = GetView();
-        IViewElement* ve_of_me = me.ViewElement(&view_of_this);
+        IView& view_of_this = getView();
+        IViewElement* ve_of_me = me.viewElement(&view_of_this);
         D1_ASSERT(ve_of_me);
         D1_ASSERT(ve_of_me == this);
     }
@@ -55,13 +55,13 @@ void C::SetSelectionState(Selection::Tracker& st, bool newstate)
 }
 
 
-bool C::SelectionIsVisible() const
+bool C::selectionIsVisible() const
 {
-    return GetView().SelectionIsVisible();
+    return getView().selectionIsVisible();
 }
 
 
-auto C::FindControl(const d1::Point& p, d1::int32 distance) -> VIPointable*
+auto C::findControl(const d1::Point& p, d1::int32 distance) -> VIPointable*
 {
     return nullptr;
 }

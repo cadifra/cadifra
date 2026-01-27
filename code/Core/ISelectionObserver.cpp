@@ -10,10 +10,10 @@ namespace Core
 
 ISelectionObserver::~ISelectionObserver()
 {
-    if (itsDock)
+    if (dock_)
     {
-        itsDock->Detach(*this);
-        itsDock = nullptr;
+        dock_->detach(*this);
+        dock_ = nullptr;
     }
 }
 

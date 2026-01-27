@@ -26,9 +26,9 @@ struct UTF8byteEndByteTag
         TotalPayloadBitCount = 0,
         TotalByteCount = 0
     };
-    static void OutImpl(wchar_t, char*&) {}
-    static bool RecursiveInCheck(const char*) { return true; }
-    static wchar_t InImpl(const char*&) { return 0; }
+    static void outImpl(wchar_t, char*&) {}
+    static bool recursiveInCheck(const char*) { return true; }
+    static wchar_t inImpl(const char*&) { return 0; }
 };
 
 
@@ -49,20 +49,20 @@ public:
         TotalByteCount = 1 + NextByte::TotalByteCount
     };
 
-    static void OutImpl(wchar_t c, char*& to_next)
+    static void outImpl(wchar_t c, char*& to_next)
     {
         *to_next = Marker | c >> PayloadShift & PayloadMask;
-        NextByte::OutImpl(c, ++to_next);
+        NextByte::outImpl(c, ++to_next);
     }
 
-    static bool Out(
-        const wchar_t* from_end, const wchar_t*& from_next,
+    static bool out(
+        const wchar_t* froend_, const wchar_t*& fronext_,
         char* to_limit, char*& to_next,
         result& res)
     {
-        D1_ASSERT(from_end - from_next >= 1);
+        D1_ASSERT(froend_ - fronext_ >= 1);
 
-        if (*from_next >= 1 << TotalPayloadBitCount)
+        if (*fronext_ >= 1 << TotalPayloadBitCount)
             return false;
 
         if (to_limit - to_next < TotalByteCount)
@@ -71,45 +71,45 @@ public:
             return true;
         }
 
-        OutImpl(*from_next, to_next);
-        from_next++;
+        outImpl(*fronext_, to_next);
+        fronext_++;
         return true;
     }
 
 
-    static bool InCheck(const char* from_next)
+    static bool inCheck(const char* fronext_)
     {
-        return (*from_next & MarkerMask) == Marker;
+        return (*fronext_ & MarkerMask) == Marker;
     }
 
-    static bool RecursiveInCheck(const char* from_next)
+    static bool recursiveInCheck(const char* fronext_)
     {
-        return InCheck(from_next) && NextByte::RecursiveInCheck(from_next + 1);
+        return inCheck(fronext_) and NextByte::recursiveInCheck(fronext_ + 1);
     }
 
-    static wchar_t InImpl(const char*& from_next)
+    static wchar_t inImpl(const char*& fronext_)
     {
-        const char c = *from_next++;
-        return ((c & PayloadMask) << PayloadShift) | NextByte::InImpl(from_next);
+        const char c = *fronext_++;
+        return ((c & PayloadMask) << PayloadShift) | NextByte::inImpl(fronext_);
     }
 
-    static bool In(
+    static bool in(
         wchar_t* to_limit, wchar_t*& to_next,
-        const char* from_end, const char*& from_next,
+        const char* froend_, const char*& fronext_,
         result& res)
     {
-        D1_ASSERT(from_end - from_next >= 1);
+        D1_ASSERT(froend_ - fronext_ >= 1);
 
-        if (!InCheck(from_next))
+        if (not inCheck(fronext_))
             return false;
 
-        if (from_end - from_next < TotalByteCount)
+        if (froend_ - fronext_ < TotalByteCount)
         {
             res = std::codecvt_base::partial;
             return true;
         }
 
-        if (!NextByte::RecursiveInCheck(from_next + 1))
+        if (not NextByte::recursiveInCheck(fronext_ + 1))
         {
             res = std::codecvt_base::error;
             return true;
@@ -121,19 +121,19 @@ public:
             return true;
         }
 
-        *to_next = InImpl(from_next);
+        *to_next = inImpl(fronext_);
         to_next++;
         return true;
     }
 
 
-    static bool Advance(const char* from_end, const char*& from_next)
+    static bool advance(const char* froend_, const char*& fronext_)
     {
-        if (from_end - from_next < TotalByteCount)
+        if (froend_ - fronext_ < TotalByteCount)
             return false;
-        if (!RecursiveInCheck(from_next))
+        if (not recursiveInCheck(fronext_))
             return false;
-        from_next += TotalByteCount;
+        fronext_ += TotalByteCount;
         return true;
     }
 };
@@ -149,8 +149,8 @@ constexpr int MaxByteCount = 4;
 
 bool eatBOM(
     UTF8cvt::state_type& state,
-    const UTF8cvt::extern_type* from_end,
-    const UTF8cvt::extern_type*& from_next,
+    const UTF8cvt::extern_type* froend_,
+    const UTF8cvt::extern_type*& fronext_,
     std::codecvt_base::result& res)
 {
     enum
@@ -163,9 +163,9 @@ bool eatBOM(
         return false;
 
     const UTF8cvt::extern_type* bom = "\xEF\xBB\xBF";
-    const UTF8cvt::extern_type* i = from_next;
+    const UTF8cvt::extern_type* i = fronext_;
 
-    for (; *bom && i < from_end; ++i, ++bom)
+    for (; *bom and i < froend_; ++i, ++bom)
     {
         if (*bom != *i)
         {
@@ -179,7 +179,7 @@ bool eatBOM(
         return true;
 
     state._State = StreamContent;
-    from_next = i;
+    fronext_ = i;
     return false;
 }
 
@@ -197,22 +197,22 @@ UTF8cvt::UTF8cvt(size_t ref):
 UTF8cvt::result UTF8cvt::do_out(
     state_type& state,
     const intern_type* from,
-    const intern_type* from_end,
-    const intern_type*& from_next,
+    const intern_type* froend_,
+    const intern_type*& fronext_,
     extern_type* to,
     extern_type* to_limit,
     extern_type*& to_next) const
 {
     to_next = to;
-    from_next = from;
+    fronext_ = from;
     result res = ok;
 
-    while (from_next < from_end && res == ok)
+    while (fronext_ < froend_ and res == ok)
     {
-        if (!OneUTF8byte::Out(from_end, from_next, to_limit, to_next, res))
-            if (!TwoUTF8bytes::Out(from_end, from_next, to_limit, to_next, res))
-                if (!ThreeUTF8bytes::Out(from_end, from_next, to_limit, to_next, res))
-                    if (!FourUTF8bytes::Out(from_end, from_next, to_limit, to_next, res))
+        if (not OneUTF8byte::out(froend_, fronext_, to_limit, to_next, res))
+            if (not TwoUTF8bytes::out(froend_, fronext_, to_limit, to_next, res))
+                if (not ThreeUTF8bytes::out(froend_, fronext_, to_limit, to_next, res))
+                    if (not FourUTF8bytes::out(froend_, fronext_, to_limit, to_next, res))
                         res = error;
     }
     return res;
@@ -222,25 +222,25 @@ UTF8cvt::result UTF8cvt::do_out(
 UTF8cvt::result UTF8cvt::do_in(
     state_type& state,
     const extern_type* from,
-    const extern_type* from_end,
-    const extern_type*& from_next,
+    const extern_type* froend_,
+    const extern_type*& fronext_,
     intern_type* to,
     intern_type* to_limit,
     intern_type*& to_next) const
 {
     to_next = to;
-    from_next = from;
+    fronext_ = from;
     result res = ok;
 
-    if (eatBOM(state, from_end, from_next, res))
+    if (eatBOM(state, froend_, fronext_, res))
         return res;
 
-    while (from_next < from_end && res == ok)
+    while (fronext_ < froend_ and res == ok)
     {
-        if (!OneUTF8byte::In(to_limit, to_next, from_end, from_next, res))
-            if (!TwoUTF8bytes::In(to_limit, to_next, from_end, from_next, res))
-                if (!ThreeUTF8bytes::In(to_limit, to_next, from_end, from_next, res))
-                    if (!FourUTF8bytes::In(to_limit, to_next, from_end, from_next, res))
+        if (not OneUTF8byte::in(to_limit, to_next, froend_, fronext_, res))
+            if (not TwoUTF8bytes::in(to_limit, to_next, froend_, fronext_, res))
+                if (not ThreeUTF8bytes::in(to_limit, to_next, froend_, fronext_, res))
+                    if (not FourUTF8bytes::in(to_limit, to_next, froend_, fronext_, res))
                         res = error;
     }
     return res;
@@ -276,25 +276,25 @@ int UTF8cvt::do_length(
     const extern_type* end,
     size_t len) const
 {
-    const extern_type* from_next = from;
+    const extern_type* fronext_ = from;
 
     // According to the ISO C++ Standard, Second edition 2003-10-15, the state
     // parameter should not be const. But the std library from dinkum asks for a
     // do_length function with a "const state_type&" (this seems to be a bug).
     state_type state_copy = state;
     result dummy = ok;
-    if (eatBOM(state_copy, end, from_next, dummy))
-        return static_cast<int>(from_next - from);
+    if (eatBOM(state_copy, end, fronext_, dummy))
+        return static_cast<int>(fronext_ - from);
 
     for (; len > 0; len--)
     {
-        if (!OneUTF8byte::Advance(end, from_next))
-            if (!TwoUTF8bytes::Advance(end, from_next))
-                if (!ThreeUTF8bytes::Advance(end, from_next))
-                    if (!FourUTF8bytes::Advance(end, from_next))
+        if (not OneUTF8byte::advance(end, fronext_))
+            if (not TwoUTF8bytes::advance(end, fronext_))
+                if (not ThreeUTF8bytes::advance(end, fronext_))
+                    if (not FourUTF8bytes::advance(end, fronext_))
                         break;
     }
-    return static_cast<int>(from_next - from);
+    return static_cast<int>(fronext_ - from);
 }
 
 
@@ -304,25 +304,25 @@ int UTF8cvt::do_max_length() const throw()
 }
 
 
-std::wstring ConvertFromUTF8(const std::string& in)
+std::wstring convertFromUTF8(const std::string& in)
 {
     std::wstring res;
     res.reserve(in.size());
 
     std::codecvt_base::result errCode = std::codecvt_base::ok;
-    const char* from_next = in.data();
-    const char* from_end = from_next + in.size();
+    const char* fronext_ = in.data();
+    const char* froend_ = fronext_ + in.size();
 
-    while (from_next < from_end)
+    while (fronext_ < froend_)
     {
         wchar_t c;
         wchar_t* to_next = &c;
         wchar_t* to_limit = &c + 1;
 
-        if (!OneUTF8byte::In(to_limit, to_next, from_end, from_next, errCode))
-            if (!TwoUTF8bytes::In(to_limit, to_next, from_end, from_next, errCode))
-                if (!ThreeUTF8bytes::In(to_limit, to_next, from_end, from_next, errCode))
-                    if (!FourUTF8bytes::In(to_limit, to_next, from_end, from_next, errCode))
+        if (not OneUTF8byte::in(to_limit, to_next, froend_, fronext_, errCode))
+            if (not TwoUTF8bytes::in(to_limit, to_next, froend_, fronext_, errCode))
+                if (not ThreeUTF8bytes::in(to_limit, to_next, froend_, fronext_, errCode))
+                    if (not FourUTF8bytes::in(to_limit, to_next, froend_, fronext_, errCode))
                         errCode = std::codecvt_base::error;
 
         if (errCode != std::codecvt_base::ok)
@@ -335,25 +335,25 @@ std::wstring ConvertFromUTF8(const std::string& in)
 }
 
 
-std::string ConvertToUTF8(const std::wstring& in)
+std::string convertToUTF8(const std::wstring& in)
 {
     std::string res;
     res.reserve(in.size());
 
     std::codecvt_base::result errCode = std::codecvt_base::ok;
-    const wchar_t* from_next = in.data();
-    const wchar_t* from_end = from_next + in.size();
+    const wchar_t* fronext_ = in.data();
+    const wchar_t* froend_ = fronext_ + in.size();
 
-    while (from_next < from_end)
+    while (fronext_ < froend_)
     {
         char c[MaxByteCount];
         char* to_next = c;
         char* to_limit = c + MaxByteCount;
 
-        if (!OneUTF8byte::Out(from_end, from_next, to_limit, to_next, errCode))
-            if (!TwoUTF8bytes::Out(from_end, from_next, to_limit, to_next, errCode))
-                if (!ThreeUTF8bytes::Out(from_end, from_next, to_limit, to_next, errCode))
-                    if (!FourUTF8bytes::Out(from_end, from_next, to_limit, to_next, errCode))
+        if (not OneUTF8byte::out(froend_, fronext_, to_limit, to_next, errCode))
+            if (not TwoUTF8bytes::out(froend_, fronext_, to_limit, to_next, errCode))
+                if (not ThreeUTF8bytes::out(froend_, fronext_, to_limit, to_next, errCode))
+                    if (not FourUTF8bytes::out(froend_, fronext_, to_limit, to_next, errCode))
                         errCode = std::codecvt_base::error;
 
         if (errCode != std::codecvt_base::ok)

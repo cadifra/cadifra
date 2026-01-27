@@ -21,7 +21,7 @@ namespace WinUtil::Clipboard
 HRESULT copy(const void* from, size_t from_size,
     const tagFORMATETC* pFormatetc, tagSTGMEDIUM* pmedium)
 {
-    if (!pFormatetc || !pmedium)
+    if (not pFormatetc or not pmedium)
         return E_INVALIDARG;
 
     pmedium->tymed = TYMED_NULL;
@@ -48,14 +48,14 @@ HRESULT copy(const void* from, size_t from_size,
     if (pFormatetc->tymed & TYMED_HGLOBAL)
     {
         auto g = WinUtil::GlobalOwner{ ::GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, from_size) };
-        if (!g.Get())
+        if (not g.get())
             return E_OUTOFMEMORY;
-        auto mem = WinUtil::GlobalLocker<BYTE>{ g.Get() };
-        if (!mem)
+        auto mem = WinUtil::GlobalLocker<BYTE>{ g.get() };
+        if (not mem)
             return E_UNEXPECTED;
         memcpy(mem, from, from_size);
         pmedium->tymed = TYMED_HGLOBAL;
-        pmedium->hGlobal = g.Release();
+        pmedium->hGlobal = g.release();
         return S_OK;
     }
 
@@ -65,7 +65,7 @@ HRESULT copy(const void* from, size_t from_size,
 
 HRESULT copy(::IStream* from, ::IStream* to)
 {
-    if (!from || !to)
+    if (not from or not to)
         return E_INVALIDARG;
 
     ULARGE_INTEGER max;
@@ -85,7 +85,7 @@ HRESULT copy(::IStream* from, ::IStream* to)
 
 HRESULT copy(HGLOBAL from, ::IStream* to)
 {
-    if (!from || !to)
+    if (not from or not to)
         return E_INVALIDARG;
     auto s = d1::AutoComPtr<::IStream>{};
     HRESULT res = ::CreateStreamOnHGlobal(from, FALSE, &s);

@@ -35,32 +35,32 @@ class ListSet
 {
     struct Node
     {
-        Key itsKey{};
-        Node* itsPrev = nullptr;
-        Node* itsNext = nullptr;
+        Key key_{};
+        Node* prev_ = nullptr;
+        Node* next_ = nullptr;
         Node(const Key& k, Node* p = nullptr):
-            itsKey{ k }, itsPrev{ p }
+            key_{ k }, prev_{ p }
         {
         }
     };
 
     struct Comp
     {
-        Compare itsCompare;
+        Compare compare_;
         Comp(const Compare& c):
-            itsCompare{ c }
+            compare_{ c }
         {
         }
         bool operator()(const Node& x, const Node& y) const
         {
-            return itsCompare(x.itsKey, y.itsKey);
+            return compare_(x.key_, y.key_);
         }
     };
 
     using Nodes = std::set<Node, Comp>;
-    Nodes itsNodes;
-    Node* itsFirst = nullptr;
-    Node* itsLast = nullptr;
+    Nodes nodes_;
+    Node* first_ = nullptr;
+    Node* last_ = nullptr;
 
 public:
     using size_type = Nodes::size_type;
@@ -69,13 +69,13 @@ public:
     class const_iterator;
 
     ListSet(const Compare& c = Compare{}):
-        itsNodes{ Comp{ c } }
+        nodes_{ Comp{ c } }
     {
     }
 
     template <class Iter>
     ListSet(Iter i, Iter e, const Compare& c = Compare{}):
-        itsNodes{ Comp{ c } }
+        nodes_{ Comp{ c } }
     {
         for (; i != e; ++i)
             insert(*i);
@@ -83,9 +83,9 @@ public:
 
     ListSet(const ListSet& s);
 
-    size_type size() const { return itsNodes.size(); }
+    size_type size() const { return nodes_.size(); }
 
-    bool empty() const { return itsFirst == 0; }
+    bool empty() const { return first_ == 0; }
 
     const_iterator begin() const;
     const_iterator end() const;
@@ -95,9 +95,9 @@ public:
 
     void clear()
     {
-        itsFirst = 0;
-        itsLast = 0;
-        itsNodes.clear();
+        first_ = 0;
+        last_ = 0;
+        nodes_.clear();
     }
 
     auto insert(const Key& k) -> std::pair<iterator, bool>;
@@ -119,7 +119,7 @@ public:
 template <class Key, class C>
 class ListSet<Key, C>::iterator
 {
-    Node* itsNode = nullptr;
+    Node* node_ = nullptr;
     friend class const_iterator;
 
 public:
@@ -130,47 +130,47 @@ public:
     using reference = Key&;
 
     explicit iterator(Node* n = 0):
-        itsNode{ n }
+        node_{ n }
     {
     }
 
-    bool operator==(const iterator& rhs) const { return itsNode == rhs.itsNode; }
+    bool operator==(const iterator& rhs) const { return node_ == rhs.node_; }
 
     auto& operator++()
     {
-        itsNode = itsNode->itsNext;
+        node_ = node_->next_;
         return *this;
     }
 
     auto operator++(int) // post-increment
     {
         auto tmp = *this;
-        itsNode = itsNode->itsNext;
+        node_ = node_->next_;
         return tmp;
     }
 
     auto& operator--()
     {
-        itsNode = itsNode->itsPrev;
+        node_ = node_->prev_;
         return *this;
     }
 
     auto operator--(int) // post-decrement
     {
         auto tmp = *this;
-        itsNode = itsNode->itsPrev;
+        node_ = node_->prev_;
         return tmp;
     }
 
-    Key* operator->() const { return &itsNode->itsKey; }
-    Key& operator*() const { return itsNode->itsKey; }
+    Key* operator->() const { return &node_->key_; }
+    Key& operator*() const { return node_->key_; }
 };
 
 
 template <class Key, class C>
 class ListSet<Key, C>::const_iterator
 {
-    const Node* itsNode = nullptr;
+    const Node* node_ = nullptr;
 
 public:
     using value_type = Key;
@@ -180,75 +180,75 @@ public:
     using reference = Key&;
 
     explicit const_iterator(const Node* n = 0):
-        itsNode{ n }
+        node_{ n }
     {
     }
 
     const_iterator(const iterator& it):
-        itsNode{ it.itsNode }
+        node_{ it.node_ }
     {
     }
 
-    bool operator==(const const_iterator& rhs) const { return itsNode == rhs.itsNode; }
+    bool operator==(const const_iterator& rhs) const { return node_ == rhs.node_; }
 
     auto& operator++()
     {
-        itsNode = itsNode->itsNext;
+        node_ = node_->next_;
         return *this;
     }
 
     auto operator++(int) // post-increment
     {
         auto tmp = *this;
-        itsNode = itsNode->itsNext;
+        node_ = node_->next_;
         return tmp;
     }
 
     auto& operator--()
     {
-        itsNode = itsNode->itsPrev;
+        node_ = node_->prev_;
         return *this;
     }
 
     auto operator--(int) // post-decrement
     {
         auto tmp = *this;
-        itsNode = itsNode->itsPrev;
+        node_ = node_->prev_;
         return tmp;
     }
 
-    const Key* operator->() const { return &itsNode->itsKey; }
-    const Key& operator*() const { return itsNode->itsKey; }
+    const Key* operator->() const { return &node_->key_; }
+    const Key& operator*() const { return node_->key_; }
 };
 
 
 template <class Key, class C>
 ListSet<Key, C>::ListSet(const ListSet& s):
-    itsNodes{ Comp{ s.itsNodes.key_comp() } }
+    nodes_{ Comp{ s.nodes_.key_comp() } }
 {
     auto i = s.begin();
     auto e = s.end();
     if (i == e)
         return;
-    auto ni = itsNodes.insert(Node{ *i }).first;
+    auto ni = nodes_.insert(Node{ *i }).first;
     auto* n = const_cast<Node*>(&*ni);
-    itsFirst = n;
+    first_ = n;
     for (++i; i != e; ++i)
     {
-        auto n2i = itsNodes.insert(ni, Node{ *i, n });
+        auto n2i = nodes_.insert(ni, Node{ *i, n });
         auto* n2 = const_cast<Node*>(&*n2i);
-        n->itsNext = n2;
+        n->next_ = n2;
         ni = n2i;
         n = const_cast<Node*>(&*ni);
     }
-    itsLast = n;
+    last_ = n;
 }
 
 
 template <class Key, class C>
 auto ListSet<Key, C>::begin() const -> const_iterator
 {
-    return const_iterator{ itsFirst };
+    return const_iterator{ first_ };
 }
 
 
@@ -262,7 +262,7 @@ auto ListSet<Key, C>::end() const -> const_iterator
 template <class Key, class C>
 auto ListSet<Key, C>::begin() -> iterator
 {
-    return iterator{ itsFirst };
+    return iterator{ first_ };
 }
 
 
@@ -276,15 +276,15 @@ auto ListSet<Key, C>::end() -> iterator
 template <class Key, class C>
 auto ListSet<Key, C>::insert(const Key& k) -> std::pair<iterator, bool>
 {
-    auto res = itsNodes.insert(Node{ k, itsLast });
+    auto res = nodes_.insert(Node{ k, last_ });
     auto* n = const_cast<Node*>(&*res.first);
-    if (!res.second)
+    if (not res.second)
         return std::make_pair(iterator{ n }, false);
-    if (!itsFirst)
-        itsFirst = n;
+    if (not first_)
+        first_ = n;
     else
-        itsLast->itsNext = n;
-    itsLast = n;
+        last_->next_ = n;
+    last_ = n;
     return std::make_pair(iterator{ n }, true);
 }
 
@@ -292,8 +292,8 @@ auto ListSet<Key, C>::insert(const Key& k) -> std::pair<iterator, bool>
 template <class Key, class C>
 auto ListSet<Key, C>::find(const Key& k) const -> const_iterator
 {
-    auto i = itsNodes.find(k);
-    if (i == itsNodes.end())
+    auto i = nodes_.find(k);
+    if (i == nodes_.end())
         return const_iterator{};
     else
         return const_iterator{ &*i };
@@ -303,8 +303,8 @@ auto ListSet<Key, C>::find(const Key& k) const -> const_iterator
 template <class Key, class C>
 auto ListSet<Key, C>::find(const Key& k) -> iterator
 {
-    auto i = itsNodes.find(k);
-    if (i == itsNodes.end())
+    auto i = nodes_.find(k);
+    if (i == nodes_.end())
         return iterator{};
     else
         return iterator{ const_cast<Node*>(&*i) };
@@ -314,19 +314,19 @@ auto ListSet<Key, C>::find(const Key& k) -> iterator
 template <class Key, class C>
 auto ListSet<Key, C>::erase(const Key& k) -> size_type
 {
-    auto i = itsNodes.find(k);
-    if (i == itsNodes.end())
+    auto i = nodes_.find(k);
+    if (i == nodes_.end())
         return 0;
     auto* n = const_cast<Node*>(&*i);
-    if (n->itsNext)
-        n->itsNext->itsPrev = n->itsPrev;
-    if (n->itsPrev)
-        n->itsPrev->itsNext = n->itsNext;
-    if (itsFirst == n)
-        itsFirst = n->itsNext;
-    if (itsLast == n)
-        itsLast = n->itsPrev;
-    itsNodes.erase(i);
+    if (n->next_)
+        n->next_->prev_ = n->prev_;
+    if (n->prev_)
+        n->prev_->next_ = n->next_;
+    if (first_ == n)
+        first_ = n->next_;
+    if (last_ == n)
+        last_ = n->prev_;
+    nodes_.erase(i);
     return 1;
 }
 

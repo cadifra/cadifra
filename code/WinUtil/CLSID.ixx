@@ -10,6 +10,6 @@ import d1.wintypes;
 export namespace WinUtil
 {
 
-d1::CLSID ConvertToCLSID(const wchar_t* s);
+d1::CLSID convertToCLSID(const wchar_t* s);
 
 }

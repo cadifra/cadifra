@@ -12,11 +12,11 @@ namespace d1
 
 export class Exception: public std::exception
 {
-    bool isHandled = false;
+    bool handled_ = false;
 
 public:
-    bool Handled() const { return isHandled; }
-    void SetHandled() { isHandled = true; }
+    bool handled() const { return handled_; }
+    void setHandled() { handled_ = true; }
 
 protected:
     ~Exception() = default;

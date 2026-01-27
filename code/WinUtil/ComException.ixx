@@ -24,22 +24,22 @@ public:
 
     //--
 
-    static void Check(d1::HRESULT r);
+    static void check(d1::HRESULT r);
 
     ComException(d1::HRESULT r):
-        itsHRESULT{ r }
+        HRESULT_{ r }
     {
     }
 
-    d1::HRESULT GetHRESULT() const { return itsHRESULT; }
+    d1::HRESULT getHRESULT() const { return HRESULT_; }
 
-    std::string GetHRESULT_string(
+    std::string getHRESULT_string(
         bool hex = true, bool with_prefix = true, bool in_parens = true) const;
 
     // uses compiler generated copy ctor and assignment operator
 
 private:
-    d1::HRESULT itsHRESULT;
+    d1::HRESULT HRESULT_;
 
     static std::string lastWhat;
     static std::string lastMessage;

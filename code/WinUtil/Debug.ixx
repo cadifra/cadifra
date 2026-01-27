@@ -13,16 +13,16 @@ namespace WinUtil
 export class DebugEnv
 {
 public:
-    static DebugEnv& Inst(); // singleton
+    static DebugEnv& inst(); // singleton
 
 
-    virtual std::string GetString(
+    virtual std::string getString(
         const std::string& section,
         const std::string& key) = 0;
     // returns "" if section\key doesn't exist
 
 
-    virtual int GetInt(
+    virtual int getInt(
         const std::string& section,
         const std::string& key) = 0;
     // returns 0 if section\key doesn't exist
@@ -44,7 +44,7 @@ public:
     virtual ~DebugOstream();
 
 private:
-    std::unique_ptr<Buf> itsBuf;
+    std::unique_ptr<Buf> buf_;
 };
 
 

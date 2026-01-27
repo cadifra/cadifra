@@ -22,20 +22,20 @@ using C = MenuHandle;
 
 class C::Impl
 {
-    std::shared_ptr<Impl> itsParent; // optional
-    HMENU itsMenu;
+    std::shared_ptr<Impl> parent_; // optional
+    HMENU menu_;
     bool itHasOwnership;
 
 public:
     explicit Impl(HMENU m):
-        itsMenu{ m },
+        menu_{ m },
         itHasOwnership{ true }
     {
     }
 
     Impl(const std::shared_ptr<Impl>& parent, HMENU subMenu):
-        itsParent{ parent },
-        itsMenu{ subMenu },
+        parent_{ parent },
+        menu_{ subMenu },
         itHasOwnership{ false }
     {
     }
@@ -43,17 +43,17 @@ public:
     ~Impl()
     {
         if (itHasOwnership)
-            D1_VERIFY(::DestroyMenu(itsMenu));
+            D1_VERIFY(::DestroyMenu(menu_));
     }
 
-    HMENU Get() const { return itsMenu; }
+    HMENU get() const { return menu_; }
 
-    HMENU ReleaseOwnership()
+    HMENU releaseOwnership()
     {
-        D1_ASSERT(!itsParent.get());
+        D1_ASSERT(not parent_.get());
         D1_ASSERT(itHasOwnership);
         itHasOwnership = false;
-        return itsMenu;
+        return menu_;
     }
 };
 
@@ -65,42 +65,42 @@ C::~MenuHandle() = default;
 
 
 C::MenuHandle(const MenuHandle& m):
-    itsImpl{ m.itsImpl }
+    impl_{ m.impl_ }
 {
 }
 
 
 MenuHandle& C::operator=(const MenuHandle& m)
 {
-    itsImpl = m.itsImpl;
+    impl_ = m.impl_;
     return *this;
 }
 
 
-HMENU C::Get() const
+HMENU C::get() const
 {
-    if (!itsImpl)
+    if (not impl_)
         return 0;
-    return itsImpl->Get();
+    return impl_->get();
 }
 
 
 C::MenuHandle(HMENU m):
-    itsImpl{ std::make_shared<Impl>(m) }
+    impl_{ std::make_shared<Impl>(m) }
 {
 }
 
 
 C::MenuHandle(const MenuHandle& m, int SubMenuPos):
-    itsImpl{ std::make_shared<Impl>(m.itsImpl, ::GetSubMenu(m, SubMenuPos)) }
+    impl_{ std::make_shared<Impl>(m.impl_, ::GetSubMenu(m, SubMenuPos)) }
 {
-    D1_ASSERT(Get());
+    D1_ASSERT(get());
 }
 
 
-HMENU C::ReleaseOwnershipImpl()
+HMENU C::releaseOwnershipImpl()
 {
-    return itsImpl->ReleaseOwnership();
+    return impl_->releaseOwnership();
 }
 
 }

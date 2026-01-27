@@ -32,9 +32,8 @@ public:
 };
 
 
-export class Name
+export struct Name
 {
-public:
     const Namespace& ns;
     const wstring name;
 
@@ -44,7 +43,7 @@ public:
     bool operator==(const Name& rhs) const
     {
         return (rhs.ns.name() == ns.name()) 
-            && (rhs.name == name);
+            and (rhs.name == name);
     }
 };
 
@@ -52,17 +51,17 @@ public:
 export class Namespaces
 {
     class Rep;
-    std::unique_ptr<Rep> rep;
+    std::unique_ptr<Rep> rep_;
 
 public:
-    static auto Root() -> const Namespaces&;
+    static auto root() -> const Namespaces&;
 
     explicit Namespaces(const Namespaces& master);
 
     ~Namespaces();
 
-    void Add(d1::uint32 line_number, const wstring& prefix, const wstring& value);
-    void AddDefault(d1::uint32 line_number, const wstring& value);
+    void add(d1::uint32 line_number, const wstring& prefix, const wstring& value);
+    void addDefault(d1::uint32 line_number, const wstring& value);
 
     auto get_ns(d1::uint32 line_number, const wstring& prefix) const -> const wstring&;
 

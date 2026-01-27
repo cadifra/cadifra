@@ -19,7 +19,7 @@ using C = StreamConnector;
 
 
 C::StreamConnector(std::wostream& os):
-    itsOStream{ os }
+    OStream_{ os }
 {
 }
 
@@ -28,13 +28,13 @@ C::StreamConnector(std::wostream& os):
 
 ULONG C::AddRef()
 {
-    return itsRefCounter.AddRef();
+    return refCounter_.AddRef();
 }
 
 
 ULONG C::Release()
 {
-    return itsRefCounter.Release(this);
+    return refCounter_.Release(this);
 }
 
 
@@ -86,16 +86,16 @@ HRESULT C::Write(const void* pv, ULONG cb, ULONG* pcbWritten)
         }
         cb2 = len;
 
-        itsOStream.write(static_cast<const wchar_t*>(pv), cb2);
+        OStream_.write(static_cast<const wchar_t*>(pv), cb2);
     }
 
     if (pcbWritten)
         *pcbWritten = cb;
 
-    itsPosition += cb2 * sizeof(wchar_t);
+    position_ += cb2 * sizeof(wchar_t);
 
-    if (itsPosition > itsSize)
-        itsSize = itsPosition;
+    if (position_ > size_)
+        size_ = position_;
 
     return S_OK;
 }
@@ -109,26 +109,26 @@ HRESULT C::Seek(LARGE_INTEGER dlibMove, DWORD dwOrigin,
     switch (dwOrigin)
     {
     case STREAM_SEEK_SET:
-        itsPosition = dlibMove.QuadPart;
+        position_ = dlibMove.QuadPart;
         break;
 
     case STREAM_SEEK_CUR:
-        itsPosition += dlibMove.QuadPart;
+        position_ += dlibMove.QuadPart;
         break;
 
     case STREAM_SEEK_END:
-        itsPosition = itsSize + dlibMove.QuadPart;
+        position_ = size_ + dlibMove.QuadPart;
         break;
 
     default:
         return STG_E_INVALIDFUNCTION;
     }
 
-    if (itsPosition > itsSize)
-        itsSize = itsPosition;
+    if (position_ > size_)
+        size_ = position_;
 
     if (plibNewPosition)
-        plibNewPosition->QuadPart = itsPosition;
+        plibNewPosition->QuadPart = position_;
 
     return S_OK;
 }
@@ -136,7 +136,7 @@ HRESULT C::Seek(LARGE_INTEGER dlibMove, DWORD dwOrigin,
 
 HRESULT C::SetSize(ULARGE_INTEGER libNewSize)
 {
-    itsSize = libNewSize.QuadPart;
+    size_ = libNewSize.QuadPart;
     return S_OK;
 }
 

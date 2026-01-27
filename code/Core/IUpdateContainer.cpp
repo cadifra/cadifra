@@ -8,10 +8,10 @@ module Core;
 namespace Core
 {
 
-void IUpdateContainer::UpdateContainer(Env& e, Param& p)
+void IUpdateContainer::update(Env& e, Param& p)
 {
-    if (p.Add(this))
-        UpdateContainerImpl(e, p);
+    if (p.add(this))
+        updateImpl(e, p);
 }
 
 }

@@ -14,9 +14,9 @@ module WinUtil.Messages;
 namespace WinUtil
 {
 
-bool WM_MOUSEMOVE_Msg::ButtonDown(d1::MouseButton mb) const
+bool WM_MOUSEMOVE_Msg::buttonDown(d1::MouseButton mb) const
 {
-    const WPARAM wparam = GetWParam();
+    const WPARAM wparam = getWParam();
     switch (mb)
     {
     case d1::MouseButton::left:

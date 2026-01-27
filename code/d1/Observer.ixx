@@ -21,8 +21,8 @@ class List;
 export template <class O>
 class Connector
 {
-    List<O>* itsList = nullptr;
-    O* itsObserver = nullptr;
+    List<O>* list_ = nullptr;
+    O* observer_ = nullptr;
 
 public:
     Connector(List<O>* = 0);
@@ -31,8 +31,8 @@ public:
     Connector(const Connector&);
     auto operator=(const Connector&) -> Connector&;
 
-    void Connect(O&);
-    void Disconnect();
+    void connect(O&);
+    void disconnect();
 };
 
 export template <class O>
@@ -42,42 +42,42 @@ using C = Connector<O>;
 export template <class O>
 class List
 {
-    std::vector<O*> itsList; // ref only pointers
+    std::vector<O*> list_; // ref only pointers
 
 public:
-    void Add(O& obs) 
+    void add(O& obs) 
     // Adds obs to its internal list. Don't use during a "Notify"-call!
     {
-        auto i = std::ranges::find(itsList, nullptr);
+        auto i = std::ranges::find(list_, nullptr);
 
-        if (i != end(itsList))
+        if (i != end(list_))
             *i = &obs;
         else
-            itsList.push_back(&obs);
+            list_.push_back(&obs);
     }
 
-    void Forget(O& obs)
+    void forget(O& obs)
     // Removes the first occurrence of obs from its internal list.
     {
-        auto i = std::ranges::find(itsList, &obs);
+        auto i = std::ranges::find(list_, &obs);
 
-        if (i != end(itsList))
+        if (i != end(list_))
             *i = nullptr;
     }
 
-    auto GetConnector()
+    auto getConnector()
     {
         return Connector<O>(this);
     }
 
-    void Notify(const auto& function)
+    void notify(const auto& function)
     {
-        for (auto i = begin(itsList); i != end(itsList); /* no ++i*/)
+        for (auto i = begin(list_); i != end(list_); /* no ++i*/)
         {
             if (*i != nullptr)
                 function(*i++);
             else
-                i = itsList.erase(i);
+                i = list_.erase(i);
         }
     }
 };
@@ -88,7 +88,7 @@ using L = List<O>;
 
 template <class O>
 inline Connector<O>::Connector(List<O>* list):
-    itsList{ list }
+    list_{ list }
 {
 }
 
@@ -96,33 +96,33 @@ inline Connector<O>::Connector(List<O>* list):
 template <class O>
 inline Connector<O>::~Connector()
 {
-    Disconnect();
+    disconnect();
 }
 
 
 template <class O>
-inline void Connector<O>::Connect(O& obs)
+inline void Connector<O>::connect(O& obs)
 {
-    D1_ASSERT(itsObserver == 0);
-    D1_ASSERT(itsList);
-    itsList->Add(obs);
-    itsObserver = &obs;
+    D1_ASSERT(observer_ == 0);
+    D1_ASSERT(list_);
+    list_->add(obs);
+    observer_ = &obs;
 }
 
 
 template <class O>
-inline void Connector<O>::Disconnect()
+inline void Connector<O>::disconnect()
 {
-    if (itsObserver && itsList)
-        itsList->Forget(*itsObserver);
-    itsObserver = 0;
+    if (observer_ and list_)
+        list_->forget(*observer_);
+    observer_ = 0;
 }
 
 
 template <class O>
 inline Connector<O>::Connector(const Connector& rhs):
-    itsList{ rhs.itsList },
-    itsObserver{}
+    list_{ rhs.list_ },
+    observer_{}
 {
 }
 
@@ -132,9 +132,9 @@ inline auto Connector<O>::operator=(const Connector& rhs) -> Connector&
 {
     if (this != &rhs)
     {
-        Disconnect();
-        itsList = rhs.itsList;
-        itsObserver = 0;
+        disconnect();
+        list_ = rhs.list_;
+        observer_ = 0;
     }
     return *this;
 }
