@@ -6,6 +6,8 @@ export module WinUtil.ProductVersion;
 
 import d1.types;
 
+import std;
+
 
 namespace WinUtil
 {

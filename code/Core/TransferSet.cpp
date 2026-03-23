@@ -6,7 +6,9 @@ module;
 
 #include "d1/d1assert.h"
 
-module Core;
+module Core:Diagram;
+
+import :Transaction;
 
 import d1.CastIteratorImp;
 import d1.algorithm;

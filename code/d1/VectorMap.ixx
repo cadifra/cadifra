@@ -27,7 +27,7 @@ class VectorMap
         }
     };
 
-    std::vector<std::pair<Key, Ty>> v_;
+    std::vector<Entry> v_;
 
 public:
     void insert(const Key& k, Ty t)

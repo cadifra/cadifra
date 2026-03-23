@@ -97,7 +97,7 @@ public:
     void addTouched(IElement& me, bool update_view);
     // me may already have been added. If it is readded, its view
     // will be updated on the next UpdateViews call or when the
-    // transaction is closed. If newly created model elements are AddTouched,
+    // transaction is closed. If newly created model elements are addTouched,
     // they will not be inserted into the touched set, but they are
     // inserted into the needs update view set.
     // PRE: me is not in trash.

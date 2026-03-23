@@ -2,9 +2,7 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-module Core;
-
-import :Undoer;
+module Core:Undoer;
 
 
 namespace Core

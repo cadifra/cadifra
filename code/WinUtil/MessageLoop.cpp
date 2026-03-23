@@ -266,7 +266,7 @@ void C::callIdleProc()
 
 int C::doLoop()
 {
-    const std::pair<bool, int> defRes(false, 0);
+    const auto defRes = std::pair{ false, 0 };
     // continue loop in case of an exception
 
     for (;;)

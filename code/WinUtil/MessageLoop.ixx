@@ -108,7 +108,7 @@ private:
     void callOneTimePostProc();
     void callIdleProc();
 
-    std::pair<bool, int> loopImpl();
+    auto loopImpl() -> std::pair<bool, int>;
 };
 
 

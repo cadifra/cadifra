@@ -40,7 +40,7 @@ public:
 
 void C::Rep::add(d1::uint32 line_number, const wstring& prefix, const wstring& value)
 {
-    const bool inserted = map_.insert(std::make_pair(prefix, value)).second;
+    const bool inserted = map_.insert(std::pair{ prefix, value }).second;
 
     if (not inserted)
         throw Exceptions::DuplicateNamespace(line_number);

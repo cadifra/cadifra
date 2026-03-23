@@ -2,7 +2,7 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-module Core;
+module Core:Base;
 
 import Core.Exceptions;
 
@@ -26,7 +26,7 @@ void C::insert(IElement& obj, ObjectID id)
     if (id.val() == -1)
         throw InvalidObjectID{};
 
-    auto res = map_.insert(std::make_pair(id, &obj));
+    auto res = map_.insert(std::pair{ id, &obj });
 
     if (not res.second)
         throw DuplicateObjectID{};

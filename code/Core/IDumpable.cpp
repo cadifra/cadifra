@@ -2,7 +2,7 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-module Core;
+module Core:Interfaces;
 
 import d1.UTF8cvt;
 

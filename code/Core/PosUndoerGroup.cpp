@@ -6,9 +6,7 @@ module;
 
 #include "d1/d1assert.h"
 
-module Core;
-
-import :Undoer;
+module Core:Undoer;
 
 import d1.algorithm;
 

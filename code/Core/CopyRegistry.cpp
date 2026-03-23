@@ -6,7 +6,7 @@ module;
 
 #include "d1/d1assert.h"
 
-module Core;
+module Core:Base;
 
 
 namespace Core
@@ -39,7 +39,7 @@ void CRimp::addMapping(const IElement* original, IElement* copy)
 {
     D1_ASSERT(original);
     D1_ASSERT(copy);
-    const bool inserted = map_.insert(std::make_pair(original, copy)).second;
+    const bool inserted = map_.insert(std::pair{ original, copy }).second;
     D1_ASSERT(inserted);
 }
 

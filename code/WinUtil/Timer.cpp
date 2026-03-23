@@ -160,7 +160,7 @@ unsigned int C::Impl::setTimer(Client* c, unsigned int milliseconds)
 
     D1_ASSERT(id);
 
-    const bool inserted = idMap_.insert(std::make_pair(id, c)).second;
+    const bool inserted = idMap_.insert(std::pair{ id, c }).second;
     D1_ASSERT(inserted);
 
     D1_VERIFY(::SetTimer(

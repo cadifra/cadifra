@@ -6,7 +6,9 @@ module;
 
 #include "d1/d1assert.h"
 
-module Core;
+module Core:Base;
+
+import :Diagram;
 
 
 namespace Core
@@ -97,7 +99,7 @@ void C::addDependent(IShiftable& s)
 {
     D1_ASSERT(&s);
     if (not isDeferredShifting(s))
-        dependents_.insert(std::make_pair(actualSender_, &s));
+        dependents_.insert(std::pair{ actualSender_, &s });
 }
 
 

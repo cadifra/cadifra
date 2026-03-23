@@ -279,13 +279,13 @@ auto ListSet<Key, C>::insert(const Key& k) -> std::pair<iterator, bool>
     auto res = nodes_.insert(Node{ k, last_ });
     auto* n = const_cast<Node*>(&*res.first);
     if (not res.second)
-        return std::make_pair(iterator{ n }, false);
+        return { iterator{ n }, false };
     if (not first_)
         first_ = n;
     else
         last_->next_ = n;
     last_ = n;
-    return std::make_pair(iterator{ n }, true);
+    return { iterator{ n }, true };
 }
 
 

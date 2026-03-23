@@ -6,7 +6,9 @@ module;
 
 #include "d1/d1assert.h"
 
-module Core;
+module Core:Transaction;
+
+import :Diagram;
 
 import d1.Exception;
 import d1.algorithm;
