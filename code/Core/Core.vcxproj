@@ -232,29 +232,56 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Container.ixx" />
-    <ClCompile Include="CopyExtendSelection.cpp" />
-    <ClCompile Include="ShiftSet.cpp" />
-    <ClCompile Include="ElementSet.cpp" />
-    <ClCompile Include="Attach.ixx" />
-    <ClCompile Include="IDumpable.cpp" />
-    <ClCompile Include="Interfaces.ixx" />
-    <ClCompile Include="IPointAttachment.cpp" />
-    <ClCompile Include="IShiftable.cpp" />
-    <ClCompile Include="ITerminal.cpp" />
-    <ClCompile Include="ITerminalReshapeInfo.cpp" />
-    <ClCompile Include="IUpdateContainer.cpp" />
-    <ClCompile Include="StandardSelectionRestorer.cpp" />
-    <ClCompile Include="TransferSet.cpp" />
-    <ClCompile Include="Undoer.ixx.cpp">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsCppModuleInternalPartition</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsCppModuleInternalPartition</CompileAs>
-    </ClCompile>
+    <ClCompile Include="Attach\Attach.ixx" />
+    <ClCompile Include="Attach\IPointAttachment.cpp" />
+    <ClCompile Include="Attach\ITerminal.cpp" />
+    <ClCompile Include="Attach\ITerminalReshapeInfo.cpp" />
+    <ClCompile Include="Base\Base.ixx" />
+    <ClCompile Include="Base\CopyExtendSelection.cpp" />
+    <ClCompile Include="Base\CopyRegistry.cpp" />
+    <ClCompile Include="Base\ElementSet.cpp" />
+    <ClCompile Include="Base\Env.cpp" />
+    <ClCompile Include="Base\ExtendSelectionParam.cpp" />
+    <ClCompile Include="Base\IElement.cpp" />
+    <ClCompile Include="Base\IShiftable.cpp" />
+    <ClCompile Include="Base\ObjectRegistry.cpp" />
+    <ClCompile Include="Base\PosUndoer.cpp" />
+    <ClCompile Include="Base\SelectionHider.cpp" />
+    <ClCompile Include="Base\SelectionTracker.cpp" />
+    <ClCompile Include="Base\SelectionVisibilityServer.cpp" />
+    <ClCompile Include="Base\ShiftSet.cpp" />
+    <ClCompile Include="Base\StandardSelectionRestorer.cpp" />
+    <ClCompile Include="Base\Undoer.cpp" />
+    <ClCompile Include="Base\UndoerFunctions.cpp" />
+    <ClCompile Include="Base\UndoerParam.cpp" />
+    <ClCompile Include="Base\Weight.cpp" />
+    <ClCompile Include="Container\Container.ixx" />
+    <ClCompile Include="Container\IUpdateContainer.cpp" />
+    <ClCompile Include="Diagram\Diagram.ixx" />
+    <ClCompile Include="Diagram\TransferSet.cpp" />
+    <ClCompile Include="Exceptions\Exceptions.ixx" />
+    <ClCompile Include="Interfaces\IDumpable.cpp" />
+    <ClCompile Include="Interfaces\Interfaces.ixx" />
+    <ClCompile Include="Names\Elements.cpp" />
+    <ClCompile Include="Names\Names.ixx" />
+    <ClCompile Include="Names\Namespace.cpp" />
+    <ClCompile Include="Transaction\FinalizerDock.cpp" />
+    <ClCompile Include="Transaction\Transaction.cpp" />
+    <ClCompile Include="Transaction\Transaction.ixx" />
+    <ClCompile Include="Transaction\TransactionImp.cpp" />
+    <ClCompile Include="Undoer\PosUndoerGroup.cpp" />
+    <ClCompile Include="Undoer\SequenceUndoer.cpp" />
+    <ClCompile Include="Undoer\TransactionUndoer.cpp" />
+    <ClCompile Include="Undoer\Undoer.ixx" />
+    <ClCompile Include="View\ISelectionObserver.cpp" />
+    <ClCompile Include="View\IView.cpp" />
+    <ClCompile Include="View\IViewElement.cpp" />
+    <ClCompile Include="View\SelectionObserverDock.cpp" />
+    <ClCompile Include="View\View.ixx" />
+    <ClCompile Include="View\VISelectable.cpp" />
     <ClCompile Include="_Module.ixx" />
     <ClInclude Include="Check.h" />
     <ClInclude Include="d1debug.h" />
-    <ClCompile Include="Names.ixx" />
-    <ClCompile Include="Exceptions.ixx" />
     <ClInclude Include="IContainableDeclarations.h" />
     <ClInclude Include="IContainerDeclarations.h" />
     <ClInclude Include="IDeletableDeclarations.h" />
@@ -262,47 +289,6 @@
     <ClInclude Include="IResizableDeclarations.h" />
     <ClInclude Include="ITerminalDeclarations.h" />
     <ClInclude Include="IUpdateContainerDeclarations.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="CopyRegistry.cpp" />
-    <ClCompile Include="Elements.cpp" />
-    <ClCompile Include="Env.cpp" />
-    <ClCompile Include="ExtendSelectionParam.cpp" />
-    <ClCompile Include="FinalizerDock.cpp" />
-    <ClCompile Include="Diagram.ixx" />
-    <ClCompile Include="IElement.cpp" />
-    <ClCompile Include="Base.ixx" />
-    <ClCompile Include="ISelectionObserver.cpp" />
-    <ClCompile Include="IView.cpp" />
-    <ClCompile Include="View.ixx" />
-    <ClCompile Include="IViewElement.cpp" />
-    <ClCompile Include="Namespace.cpp" />
-    <ClCompile Include="ObjectRegistry.cpp" />
-    <ClCompile Include="PosUndoer.cpp" />
-    <ClCompile Include="PosUndoerGroup.cpp" />
-    <ClCompile Include="SelectionHider.cpp" />
-    <ClCompile Include="SelectionObserverDock.cpp" />
-    <ClCompile Include="SelectionTracker.cpp" />
-    <ClCompile Include="SelectionVisibilityServer.cpp" />
-    <ClCompile Include="SequenceUndoer.cpp" />
-    <ClCompile Include="Transaction.cpp" />
-    <ClCompile Include="Transaction.ixx" />
-    <ClCompile Include="TransactionImp.cpp" />
-    <ClCompile Include="TransactionUndoer.cpp" />
-    <ClCompile Include="Undoer.cpp" />
-    <ClCompile Include="UndoerFunctions.cpp" />
-    <ClCompile Include="UndoerParam.cpp" />
-    <ClCompile Include="VISelectable.cpp" />
-    <ClCompile Include="Weight.cpp">
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </ForcedIncludeFiles>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ForcedIncludeFiles>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </ForcedIncludeFiles>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </ForcedIncludeFiles>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\d1\d1.vcxproj">

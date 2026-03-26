@@ -1,192 +1,66 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="algorithm.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="AutoComPtr.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="CaseInsensitive.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="CastIteratorImp.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="CircularChain.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="CollectFun.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="Color.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="CycleIterator.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="Date.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="Direction.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="Exception.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="fastqueue.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="Gdiplus.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="isEqual.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="Iterator.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="ListSet.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="Margins.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="MouseButton.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="NoValueSemantics.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="Observer.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="ostringstream.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="Path.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="Point.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="PointOstream.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="Range.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="Rect.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="RectOstream.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="RefCounter.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="round.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="Rotate.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="ScopeGuard.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="Shared.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="Size.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="StackFlag.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="stringConvert.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="stringutil.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="ToLower.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="types.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="UTF8cvt.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="UTF8locale.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="ValidValue.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="VectorMap.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="WideFileNameFStream.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="wintypes.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="Color.cpp">
-      <Filter>cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="Date.cpp">
-      <Filter>cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="isEqual.cpp">
-      <Filter>cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="Path.cpp">
-      <Filter>cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="Point.cpp">
-      <Filter>cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="stringConvert.cpp">
-      <Filter>cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="stringutil.cpp">
-      <Filter>cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="types.cpp">
-      <Filter>cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="UTF8cvt.cpp">
-      <Filter>cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="UTF8locale.cpp">
-      <Filter>cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="OldNew.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
-    <ClCompile Include="buffer.ixx">
-      <Filter>_ixx</Filter>
-    </ClCompile>
+    <ClCompile Include="algorithm.ixx" />
+    <ClCompile Include="AutoComPtr.ixx" />
+    <ClCompile Include="buffer.ixx" />
+    <ClCompile Include="CaseInsensitive.ixx" />
+    <ClCompile Include="CastIteratorImp.ixx" />
+    <ClCompile Include="CircularChain.ixx" />
+    <ClCompile Include="CollectFun.ixx" />
+    <ClCompile Include="Color.ixx" />
+    <ClCompile Include="CycleIterator.ixx" />
+    <ClCompile Include="Date.ixx" />
+    <ClCompile Include="Direction.ixx" />
+    <ClCompile Include="Exception.ixx" />
+    <ClCompile Include="fastqueue.ixx" />
+    <ClCompile Include="Gdiplus.ixx" />
+    <ClCompile Include="isEqual.ixx" />
+    <ClCompile Include="Iterator.ixx" />
+    <ClCompile Include="ListSet.ixx" />
+    <ClCompile Include="Margins.ixx" />
+    <ClCompile Include="MouseButton.ixx" />
+    <ClCompile Include="NoValueSemantics.ixx" />
+    <ClCompile Include="Observer.ixx" />
+    <ClCompile Include="OldNew.ixx" />
+    <ClCompile Include="ostringstream.ixx" />
+    <ClCompile Include="Path.ixx" />
+    <ClCompile Include="Point.ixx" />
+    <ClCompile Include="PointOstream.ixx" />
+    <ClCompile Include="Range.ixx" />
+    <ClCompile Include="Rect.ixx" />
+    <ClCompile Include="RectOstream.ixx" />
+    <ClCompile Include="RefCounter.ixx" />
+    <ClCompile Include="Rotate.ixx" />
+    <ClCompile Include="round.ixx" />
+    <ClCompile Include="ScopeGuard.ixx" />
+    <ClCompile Include="Shared.ixx" />
+    <ClCompile Include="Size.ixx" />
+    <ClCompile Include="StackFlag.ixx" />
+    <ClCompile Include="stringConvert.ixx" />
+    <ClCompile Include="stringutil.ixx" />
+    <ClCompile Include="ToLower.ixx" />
+    <ClCompile Include="types.ixx" />
+    <ClCompile Include="UTF8cvt.ixx" />
+    <ClCompile Include="UTF8locale.ixx" />
+    <ClCompile Include="ValidValue.ixx" />
+    <ClCompile Include="VectorMap.ixx" />
+    <ClCompile Include="WideFileNameFStream.ixx" />
+    <ClCompile Include="wintypes.ixx" />
+    <ClCompile Include="Color.cpp" />
+    <ClCompile Include="Date.cpp" />
+    <ClCompile Include="isEqual.cpp" />
+    <ClCompile Include="Path.cpp" />
+    <ClCompile Include="Point.cpp" />
+    <ClCompile Include="stringConvert.cpp" />
+    <ClCompile Include="stringutil.cpp" />
+    <ClCompile Include="types.cpp" />
+    <ClCompile Include="UTF8cvt.cpp" />
+    <ClCompile Include="UTF8locale.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="d1assert.h">
-      <Filter>cpp</Filter>
-    </ClInclude>
-    <ClInclude Include="d1verify.h">
-      <Filter>cpp</Filter>
-    </ClInclude>
-    <ClInclude Include="ExceptionUtil.h">
-      <Filter>cpp</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="_ixx">
-      <UniqueIdentifier>{7198fab7-518c-409a-b11e-31c030e7239e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="cpp">
-      <UniqueIdentifier>{a821bc14-78e0-48fc-a2a7-f99c91775901}</UniqueIdentifier>
-    </Filter>
+    <ClInclude Include="d1assert.h" />
+    <ClInclude Include="d1verify.h" />
+    <ClInclude Include="ExceptionUtil.h" />
   </ItemGroup>
 </Project>

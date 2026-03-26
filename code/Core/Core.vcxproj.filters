@@ -1,186 +1,192 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Names.ixx">
-      <Filter>_ixx</Filter>
+    <ClCompile Include="_Module.ixx" />
+    <ClCompile Include="Attach\Attach.ixx">
+      <Filter>Attach</Filter>
     </ClCompile>
-    <ClCompile Include="Exceptions.ixx">
-      <Filter>_ixx</Filter>
+    <ClCompile Include="Attach\IPointAttachment.cpp">
+      <Filter>Attach</Filter>
     </ClCompile>
-    <ClCompile Include="Diagram.ixx">
-      <Filter>_ixx</Filter>
+    <ClCompile Include="Attach\ITerminal.cpp">
+      <Filter>Attach</Filter>
     </ClCompile>
-    <ClCompile Include="Base.ixx">
-      <Filter>_ixx</Filter>
+    <ClCompile Include="Attach\ITerminalReshapeInfo.cpp">
+      <Filter>Attach</Filter>
     </ClCompile>
-    <ClCompile Include="View.ixx">
-      <Filter>_ixx</Filter>
+    <ClCompile Include="Base\Base.ixx">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="_Module.ixx">
-      <Filter>_ixx</Filter>
+    <ClCompile Include="Base\CopyExtendSelection.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Transaction.ixx">
-      <Filter>_ixx</Filter>
+    <ClCompile Include="Base\CopyRegistry.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="CopyRegistry.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Base\ElementSet.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Elements.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Base\Env.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="ElementSet.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Base\ExtendSelectionParam.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Env.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Base\IElement.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="ExtendSelectionParam.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Base\IShiftable.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="FinalizerDock.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Base\ObjectRegistry.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="IElement.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Base\PosUndoer.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="ISelectionObserver.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Base\SelectionHider.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="IView.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Base\SelectionTracker.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="IViewElement.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Base\SelectionVisibilityServer.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Namespace.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Base\ShiftSet.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="ObjectRegistry.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Base\StandardSelectionRestorer.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="PosUndoer.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Base\UndoerFunctions.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="PosUndoerGroup.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Base\UndoerParam.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="SelectionHider.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Base\Weight.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="SelectionObserverDock.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Container\Container.ixx">
+      <Filter>Container</Filter>
     </ClCompile>
-    <ClCompile Include="SelectionTracker.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Container\IUpdateContainer.cpp">
+      <Filter>Container</Filter>
     </ClCompile>
-    <ClCompile Include="SelectionVisibilityServer.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Diagram\Diagram.ixx">
+      <Filter>Diagram</Filter>
     </ClCompile>
-    <ClCompile Include="SequenceUndoer.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Diagram\TransferSet.cpp">
+      <Filter>Diagram</Filter>
     </ClCompile>
-    <ClCompile Include="Transaction.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Exceptions\Exceptions.ixx">
+      <Filter>Exceptions</Filter>
     </ClCompile>
-    <ClCompile Include="TransactionImp.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Interfaces\IDumpable.cpp">
+      <Filter>Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="TransactionUndoer.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Interfaces\Interfaces.ixx">
+      <Filter>Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="Undoer.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Names\Elements.cpp">
+      <Filter>Names</Filter>
     </ClCompile>
-    <ClCompile Include="UndoerFunctions.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Names\Names.ixx">
+      <Filter>Names</Filter>
     </ClCompile>
-    <ClCompile Include="UndoerParam.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Names\Namespace.cpp">
+      <Filter>Names</Filter>
     </ClCompile>
-    <ClCompile Include="VISelectable.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Transaction\FinalizerDock.cpp">
+      <Filter>Transaction</Filter>
     </ClCompile>
-    <ClCompile Include="Weight.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Transaction\Transaction.cpp">
+      <Filter>Transaction</Filter>
     </ClCompile>
-    <ClCompile Include="Container.ixx">
-      <Filter>_ixx</Filter>
+    <ClCompile Include="Transaction\Transaction.ixx">
+      <Filter>Transaction</Filter>
     </ClCompile>
-    <ClCompile Include="Attach.ixx">
-      <Filter>_ixx</Filter>
+    <ClCompile Include="Transaction\TransactionImp.cpp">
+      <Filter>Transaction</Filter>
     </ClCompile>
-    <ClCompile Include="Interfaces.ixx">
-      <Filter>_ixx</Filter>
+    <ClCompile Include="Undoer\PosUndoerGroup.cpp">
+      <Filter>Undoer</Filter>
     </ClCompile>
-    <ClCompile Include="CopyExtendSelection.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Undoer\SequenceUndoer.cpp">
+      <Filter>Undoer</Filter>
     </ClCompile>
-    <ClCompile Include="ShiftSet.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Undoer\TransactionUndoer.cpp">
+      <Filter>Undoer</Filter>
     </ClCompile>
-    <ClCompile Include="IDumpable.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="Undoer\Undoer.ixx">
+      <Filter>Undoer</Filter>
     </ClCompile>
-    <ClCompile Include="IPointAttachment.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="View\ISelectionObserver.cpp">
+      <Filter>View</Filter>
     </ClCompile>
-    <ClCompile Include="IShiftable.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="View\IView.cpp">
+      <Filter>View</Filter>
     </ClCompile>
-    <ClCompile Include="ITerminal.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="View\IViewElement.cpp">
+      <Filter>View</Filter>
     </ClCompile>
-    <ClCompile Include="ITerminalReshapeInfo.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="View\SelectionObserverDock.cpp">
+      <Filter>View</Filter>
     </ClCompile>
-    <ClCompile Include="IUpdateContainer.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="View\View.ixx">
+      <Filter>View</Filter>
     </ClCompile>
-    <ClCompile Include="StandardSelectionRestorer.cpp">
-      <Filter>cpp</Filter>
+    <ClCompile Include="View\VISelectable.cpp">
+      <Filter>View</Filter>
     </ClCompile>
-    <ClCompile Include="TransferSet.cpp">
-      <Filter>cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="Undoer.ixx.cpp">
-      <Filter>_ixx</Filter>
+    <ClCompile Include="Base\Undoer.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Check.h">
-      <Filter>cpp</Filter>
-    </ClInclude>
-    <ClInclude Include="d1debug.h">
-      <Filter>cpp</Filter>
-    </ClInclude>
-    <ClInclude Include="IContainableDeclarations.h">
-      <Filter>cpp</Filter>
-    </ClInclude>
-    <ClInclude Include="IContainerDeclarations.h">
-      <Filter>cpp</Filter>
-    </ClInclude>
-    <ClInclude Include="IDeletableDeclarations.h">
-      <Filter>cpp</Filter>
-    </ClInclude>
-    <ClInclude Include="INamedDeclarations.h">
-      <Filter>cpp</Filter>
-    </ClInclude>
-    <ClInclude Include="IResizableDeclarations.h">
-      <Filter>cpp</Filter>
-    </ClInclude>
     <ClInclude Include="ITerminalDeclarations.h">
-      <Filter>cpp</Filter>
+      <Filter>Attach</Filter>
     </ClInclude>
-    <ClInclude Include="IUpdateContainerDeclarations.h">
-      <Filter>cpp</Filter>
-    </ClInclude>
+    <ClInclude Include="IDeletableDeclarations.h" />
+    <ClInclude Include="INamedDeclarations.h" />
+    <ClInclude Include="IResizableDeclarations.h" />
+    <ClInclude Include="Check.h" />
+    <ClInclude Include="d1debug.h" />
+    <ClInclude Include="IContainableDeclarations.h" />
+    <ClInclude Include="IContainerDeclarations.h" />
+    <ClInclude Include="IUpdateContainerDeclarations.h" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="cpp">
-      <UniqueIdentifier>{6db7f04b-ded8-498a-9e3d-9aac5f0e3075}</UniqueIdentifier>
+    <Filter Include="Attach">
+      <UniqueIdentifier>{59fbddf9-2be8-4587-8719-8c922a74368d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="_ixx">
-      <UniqueIdentifier>{51d8ed7e-bd40-4d7a-bfd7-eec0f5eb74ad}</UniqueIdentifier>
+    <Filter Include="Base">
+      <UniqueIdentifier>{3f9fa326-5087-4416-aac2-e50a4ef65014}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Container">
+      <UniqueIdentifier>{a39ef756-c1c0-4219-a057-04bf863b340e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Diagram">
+      <UniqueIdentifier>{24fb191c-7c27-4721-8dc5-6993ff3762db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Exceptions">
+      <UniqueIdentifier>{648bf1eb-14a6-448b-9cda-da35e7a6cffd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interfaces">
+      <UniqueIdentifier>{5d84ac99-d704-41a8-92bb-39560b702e35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Names">
+      <UniqueIdentifier>{48ff0dde-6d52-4475-8511-67d647afefb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Transaction">
+      <UniqueIdentifier>{c3dd1d28-b61c-450b-86fd-4af8ea45c61a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Undoer">
+      <UniqueIdentifier>{e87f9403-dc2e-4688-b54c-38e3b977e6cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="View">
+      <UniqueIdentifier>{8f0a0b95-d6b5-4379-a3ce-b698a1075038}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
