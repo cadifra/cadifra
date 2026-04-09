@@ -6,7 +6,8 @@ module;
 
 #include "d1/d1assert.h"
 
-module Core:Undoer;
+module Core:Undoer.PosUndoerGroup;
+import :Undoer;
 
 import d1.algorithm;
 

@@ -6,15 +6,13 @@ module;
 
 #include "d1/d1assert.h"
 
-module Core:Base;
-
-import :Diagram;
+module Core;
 
 
-namespace Core
+namespace Core::CopyExtendSelection
 {
 
-auto CopyExtendSelection::build(const ElementSet& selection, IDiagram& d)
+auto build(const ElementSet& selection, IDiagram& d)
     -> ElementSet
 {
     namespace ES = ExtendSelection;

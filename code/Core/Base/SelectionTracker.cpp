@@ -2,7 +2,8 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-module Core:Base;
+module Core:Base.SelectionTracker;
+import :Base;
 
 import :View;
 

@@ -2,7 +2,8 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-module Core:Base;
+module Core:Base.PosUndoer;
+import :Base;
 
 
 namespace Core

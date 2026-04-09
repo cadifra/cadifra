@@ -6,7 +6,8 @@ module;
 
 #include "d1/d1assert.h"
 
-module Core:Base;
+module Core:Base.ShiftSet;
+import :Base;
 
 import :Diagram;
 

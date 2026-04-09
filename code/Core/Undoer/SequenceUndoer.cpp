@@ -2,7 +2,8 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-module Core:Undoer;
+module Core:Undoer.SequenceUndoer;
+import :Undoer;
 
 
 namespace Core

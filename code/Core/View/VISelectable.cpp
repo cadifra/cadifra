@@ -6,7 +6,8 @@ module;
 
 #include "d1/d1assert.h"
 
-module Core:View;
+module Core:View.VISelectable;
+import :View;
 
 
 namespace Core

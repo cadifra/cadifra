@@ -2,7 +2,8 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-module Core:Attach;
+module Core:Attach.IPointAttachment;
+import :Attach;
 
 
 namespace Core

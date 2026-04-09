@@ -1195,10 +1195,10 @@ public:
 };
 
 
-export namespace CopyExtendSelection
+namespace CopyExtendSelection
 {
 
-auto build(const ElementSet& selection, IDiagram&) -> ElementSet;
+export auto build(const ElementSet& selection, IDiagram&) -> ElementSet;
 
 }
 

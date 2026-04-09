@@ -2,7 +2,8 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-module Core:Transaction;
+module Core:Transaction.FinalizerDock;
+import :Transaction;
 
 
 namespace Core
