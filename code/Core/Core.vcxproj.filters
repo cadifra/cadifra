@@ -119,7 +119,7 @@
     <ClCompile Include="Undoer\TransactionUndoer.cpp">
       <Filter>Undoer</Filter>
     </ClCompile>
-    <ClCompile Include="Undoer\Undoer.ixx">
+    <ClCompile Include="Undoer\Undoer.cppm">
       <Filter>Undoer</Filter>
     </ClCompile>
     <ClCompile Include="View\ISelectionObserver.cpp">

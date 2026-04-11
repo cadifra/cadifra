@@ -6,7 +6,7 @@ module;
 
 #include "d1/d1assert.h"
 
-module Core:Base.Weight;
+module Core:_;
 import :Base;
 
 import d1.isEqual;

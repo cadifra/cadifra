@@ -6,7 +6,7 @@ module;
 
 #include "d1/d1assert.h"
 
-module Core:View.ISelectionObserverDock;
+module Core:_;
 import :View;
 
 import d1.algorithm;

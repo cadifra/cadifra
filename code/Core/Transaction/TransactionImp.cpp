@@ -6,7 +6,7 @@ module;
 
 #include "d1/d1assert.h"
 
-module Core:Transaction.TransactionImp;
+module Core:_;
 import :Transaction;
 
 import :Diagram;

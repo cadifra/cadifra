@@ -6,7 +6,7 @@ module;
 
 #include "d1/d1verify.h"
 
-module Core:Base.IElement;
+module Core:_;
 import :Base;
 
 import :Transaction;
