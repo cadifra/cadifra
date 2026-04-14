@@ -6,7 +6,7 @@ module;
 
 #include "d1/d1assert.h"
 
-module Core:_;
+module Core;
 import :Base;
 
 import d1.isEqual;

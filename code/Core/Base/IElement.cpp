@@ -6,7 +6,7 @@ module;
 
 #include "d1/d1verify.h"
 
-module Core:_;
+module Core;
 import :Base;
 
 import :Transaction;

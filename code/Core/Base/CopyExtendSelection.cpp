@@ -7,6 +7,9 @@ module;
 #include "d1/d1assert.h"
 
 module Core;
+import :Base;
+
+import :Diagram;
 
 
 namespace Core::CopyExtendSelection
