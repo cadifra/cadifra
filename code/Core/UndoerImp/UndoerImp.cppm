@@ -2,11 +2,9 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-module Core:Undoer;
+module Core:UndoerImp;
 
-// for internal use only
-
-import :Base;
+import :Undoer;
 
 
 namespace Core

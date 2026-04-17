@@ -3,6 +3,7 @@
  */
 
 module Core;
+import :Interfaces;
 
 import d1.UTF8cvt;
 

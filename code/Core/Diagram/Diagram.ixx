@@ -5,6 +5,7 @@
 export module Core:Diagram;
 
 import :Base;
+import :Undoer;
 
 import d1.Iterator;
 import d1.types;

@@ -35,13 +35,13 @@
     <ClCompile Include="Base\IElement.cpp">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Base\IShiftable.cpp">
+    <ClCompile Include="Shift\IShiftable.cpp">
       <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="Base\ObjectRegistry.cpp">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Base\PosUndoer.cpp">
+    <ClCompile Include="Undoer\PosUndoer.cpp">
       <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="Base\SelectionHider.cpp">
@@ -53,19 +53,19 @@
     <ClCompile Include="Base\SelectionVisibilityServer.cpp">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Base\ShiftSet.cpp">
+    <ClCompile Include="Shift\ShiftSet.cpp">
       <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="Base\StandardSelectionRestorer.cpp">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Base\UndoerFunctions.cpp">
+    <ClCompile Include="UndoerImp\UndoerFunctions.cpp">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Base\UndoerParam.cpp">
+    <ClCompile Include="Undoer\UndoerParam.cpp">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Base\Weight.cpp">
+    <ClCompile Include="Weight\Weight.cpp">
       <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="Container\Container.ixx">
@@ -110,16 +110,16 @@
     <ClCompile Include="Transaction\TransactionImp.cpp">
       <Filter>Transaction</Filter>
     </ClCompile>
-    <ClCompile Include="Undoer\PosUndoerGroup.cpp">
+    <ClCompile Include="UndoerImp\PosUndoerGroup.cpp">
       <Filter>Undoer</Filter>
     </ClCompile>
-    <ClCompile Include="Undoer\SequenceUndoer.cpp">
+    <ClCompile Include="UndoerImp\SequenceUndoer.cpp">
       <Filter>Undoer</Filter>
     </ClCompile>
-    <ClCompile Include="Undoer\TransactionUndoer.cpp">
+    <ClCompile Include="UndoerImp\TransactionUndoer.cpp">
       <Filter>Undoer</Filter>
     </ClCompile>
-    <ClCompile Include="Undoer\Undoer.cppm">
+    <ClCompile Include="UndoerImp\UndoerImp.cppm">
       <Filter>Undoer</Filter>
     </ClCompile>
     <ClCompile Include="View\ISelectionObserver.cpp">
@@ -140,9 +140,12 @@
     <ClCompile Include="View\VISelectable.cpp">
       <Filter>View</Filter>
     </ClCompile>
-    <ClCompile Include="Base\Undoer.cpp">
+    <ClCompile Include="Undoer\Undoer.cpp">
       <Filter>Base</Filter>
     </ClCompile>
+    <ClCompile Include="Shift\Shift.ixx" />
+    <ClCompile Include="Weight\Weight.ixx" />
+    <ClCompile Include="Undoer\Undoer.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ITerminalDeclarations.h">

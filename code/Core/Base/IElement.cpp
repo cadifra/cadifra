@@ -11,6 +11,7 @@ import :Base;
 
 import :Transaction;
 import :View;
+import :Weight;
 
 import d1.StackFlag;
 import d1.algorithm;
@@ -366,5 +367,11 @@ void C::deepInsert(ElementSet& s)
     s.insert(*this);
 }
 
+
+auto C::getWeight(const IView* v, const d1::Point& pos,
+    d1::int32 distance) const -> Weight
+{
+    return Weight::invisible();
+}
 
 }

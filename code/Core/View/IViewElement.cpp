@@ -9,6 +9,8 @@ module;
 module Core;
 import :View;
 
+import :Weight;
+
 import d1.Point;
 
 

@@ -24,13 +24,14 @@ export {
 class IDiagram;
 class IView;
 class IViewElement;
+class UndoerRef;
 class Transaction;
+class Weight;
 }
 
 export class IElement;
 export class IPosOwner;
 export class PosUndoer;
-export class IShiftable;
 
 
 export using IElementRef = std::shared_ptr<IElement>;
@@ -298,58 +299,6 @@ public:
 };
 
 
-export class Weight
-//
-//  A weight which is attached to model and view elements.
-//  An element with a higher weight is preferred in function
-//  IView::FindPointable.
-//  "Higher" means in terms of its operator>().
-//
-{
-    class Impl;
-    std::shared_ptr<Impl> impl_;
-    Weight(const std::shared_ptr<Impl>&);
-
-public:
-    Weight();
-    ~Weight();
-
-    Weight(const Weight&) = default;
-    Weight& operator=(const Weight&) = default;
-
-    static auto invisible() -> Weight;
-    static auto text() -> Weight;
-
-    static auto control(const d1::Point& weightAt, d1::int32 fuzziness,
-        const d1::fPoint& point) -> Weight;
-
-    static auto point(const d1::Point& weightAt, d1::int32 fuzziness,
-        const d1::fPoint& point) -> Weight;
-
-    static auto line(const d1::Point& weightAt, d1::int32 fuzziness,
-        const d1::fPoint& a, const d1::fPoint& b) -> Weight;
-
-    static auto area(const d1::Point& weightAt, d1::int32 fuzziness,
-        const d1::nRect& r) -> Weight;
-
-    void increaseSelectionBias(const IView* v, const IElement& m);
-    // v may be zero (means there is no view).
-
-    void operator+=(const Weight& rhs);
-
-    bool operator==(const Weight& rhs) const;
-    std::strong_ordering operator<=>(const Weight& rhs) const;
-
-    void print(std::ostream& s) const;
-
-    friend auto operator<<(std::ostream& s, const Weight& w) -> std::ostream&
-    {
-        w.print(s);
-        return s;
-    }
-};
-
-
 export class CopyRegistry
 //
 // Maintains a mapping from original objects to their copies.
@@ -370,178 +319,6 @@ public:
     // Searches original in the Registry and returns the pointer to its copy if
     // found, zero if not found.
 };
-
-
-export class Undoer // note: use UndoerRef wherever possible (see below)
-{
-public:
-    virtual ~Undoer() = default;
-
-    virtual bool isNull() const { return false; }
-    // returns true, if this Undoer is a NullUndoer.
-    // A NullUndoer does not do anything, if it's Undo or Redo member functions
-    // are called. To create a NullUndoer, use UndoerRef::makeNullUndoer().
-
-    class Param;
-
-    void undo(Param&);
-    void redo(Param&);
-
-private:
-    virtual void undoImp(Param&) = 0;
-    virtual void redoImp(Param&) = 0;
-
-public:
-    virtual bool merge(Undoer& u) = 0;
-    // If possible, Merge retrieves all undo information from u, merges it
-    // into this Undoer and returns true.
-    // If merging is impossible, Merge makes nothing and returns false.
-    // If Merge returns true, the caller may safely delete u without loosing
-    // any information.
-    //
-    // Precondition: This Undoer is older than u
-    //
-    // Example:
-    // You have to Undoers a (older) and b (younger).
-    // The following two sequences are identical if Merge returns true:
-    //
-    //          a.undo(...)          a.merge(b)
-    //          b.undo(...)          a.undo(...)
-    //          b.redo(...)          a.redo(...)
-    //          a.redo(...)
-
-    virtual PosUndoer* getPosUndoer() { return 0; }
-
-    virtual void remove(IElement&) = 0;
-
-protected:
-    Undoer()
-    {
-    }
-
-    Undoer(const Undoer&) = delete;
-    Undoer& operator=(const Undoer& rhs) = delete;
-};
-
-
-class Undoer::Param
-{
-    using MESet = std::set<IElementRef>;
-
-    MESet addToDiagram_;
-    MESet removeFromDiagram_;
-    MESet updateViews_;
-
-    IDiagram& diagram_;
-    Selection::Tracker& selectionTracker_; // to be removed
-
-public:
-    Param(IDiagram& d, Selection::Tracker& sc);
-
-    Param(const Param&) = delete;
-    Param& operator=(const Param&) = delete;
-
-    ~Param(); // calls Finish
-
-    void finish(); // may be called several times
-
-    void addToDiagram(const IElementRef&);
-    void removeFromDiagram(const IElementRef&);
-    void updateViews(const IElementRef&);
-
-    auto diagram() -> IDiagram& { return diagram_; }
-};
-
-
-export class PosUndoer: public Undoer
-{
-    std::shared_ptr<IPosOwner> object_;
-    const d1::Vector offset_;
-
-public:
-    //-- Undoer
-
-    void undoImp(Param&) override;
-    void redoImp(Param&) override;
-    bool merge(Undoer& u) override;
-    PosUndoer* getPosUndoer() override { return this; }
-    void remove(IElement&) override;
-    bool isNull() const override;
-
-    //--
-
-    PosUndoer(IPosOwner& theObject, const d1::Vector& offset);
-
-    PosUndoer(const PosUndoer&) = delete;
-    PosUndoer& operator=(const PosUndoer&) = delete;
-
-    IPosOwner& object() const { return *object_; }
-    const d1::Vector& offset() const { return offset_; }
-};
-
-
-export class UndoerRef
-{
-    std::shared_ptr<Undoer> undoer_;
-
-public:
-    UndoerRef()
-    {
-        UndoerRef null = makeNullUndoer();
-        undoer_ = null.undoer_;
-    }
-
-    UndoerRef(const std::shared_ptr<Undoer>& rhs):
-        undoer_{ rhs }
-    {
-    }
-
-    UndoerRef(const UndoerRef& rhs) = default;
-    UndoerRef& operator=(const UndoerRef& rhs) = default;
-
-    bool isNull() const
-    {
-        return undoer_->isNull();
-    }
-
-    static auto makeNullUndoer() -> UndoerRef;
-
-    void undo(Undoer::Param& p) const
-    {
-        undoer_->undo(p);
-    }
-
-    void redo(Undoer::Param& p) const
-    {
-        undoer_->redo(p);
-    }
-
-    auto get() const -> Undoer* { return undoer_.get(); }
-
-    bool merge(UndoerRef u)
-    {
-        return undoer_->merge(*(u.undoer_.get()));
-    }
-    // If possible, Merge retrieves all undo information from the Undoer referenced
-    // by u, merges it into the Undoer referenced by this UndoerRef and returns
-    // true.
-    // If a merge is impossible, Merge has no effect and returns false.
-
-    void remove(IElement& me)
-    {
-        undoer_->remove(me);
-    }
-};
-
-
-export auto combine(UndoerRef first, UndoerRef second) -> UndoerRef;
-//
-// Creates an single Undoer from a ordered pair of Undoers.
-// In contrast to Under::merge(), combine() is always successful.
-// first and second can be any Undoer, including NullUndoers.
-//
-// PRE: first and second must have been created from
-// consecutive transactions.
 
 
 export class IUndoerCollector
@@ -722,7 +499,7 @@ public:
     }
 
     virtual auto getWeight(const IView* v, const d1::Point& pos,
-        d1::int32 distance) const -> Weight
+        d1::int32 distance) const -> Weight;
     // Returns the weight of this element in view v. v may be legally zero
     // (means there is no view).
     //
@@ -737,10 +514,6 @@ public:
     // *** WARNING: Failing to correctly implement this function results in
     //              wrong selection behavior (mostly the element of interest
     //              may not be selected by pointing with the mouse cursor).
-    {
-        return Core::Weight::invisible();
-    }
-
 
     //-- storing stuff
 
@@ -1022,176 +795,6 @@ public:
 
     ObjectRegistry(const ObjectRegistry&) = delete;
     ObjectRegistry& operator=(const ObjectRegistry&) = delete;
-};
-
-
-export class ShiftVector // has value semantics
-{
-public:
-    d1::fVector distance = {};
-    // The distance a shiftable object should shift relative to its old position
-    // (old = the position before the transaction started).
-
-    bool shiftX = true; // A shiftable object should not change the x part of its
-                        // position if shiftX is false.
-
-    bool shiftY = true; // A shiftable object should not change the y part of its
-                        // position if shiftY is false.
-
-    ShiftVector() {}
-
-    ShiftVector(const d1::fVector& distance):
-        distance{ distance }
-    {
-    }
-
-    bool isNull() const { return not shiftX and not shiftY; }
-    // Note: distance == (0,0) means not that a ShiftVector is null!
-
-    d1::fPoint getNewPos(
-        const d1::fPoint& actpos, const d1::fPoint& oldpos) const;
-
-    d1::Point getNewPos(
-        const d1::Point& actpos, const d1::Point& oldpos) const;
-};
-
-
-inline d1::fPoint ShiftVector::getNewPos(
-    const d1::fPoint& actpos, const d1::fPoint& oldpos) const
-{
-    return {
-        shiftX ? oldpos.x + distance.dx : actpos.x,
-        shiftY ? oldpos.y + distance.dy : actpos.y
-    };
-}
-
-
-inline d1::Point ShiftVector::getNewPos(
-    const d1::Point& actpos, const d1::Point& oldpos) const
-{
-    return {
-        shiftX ? oldpos.x + d1::round(distance.dx) : actpos.x,
-        shiftY ? oldpos.y + d1::round(distance.dy) : actpos.y
-    };
-}
-
-
-export class ShiftSet
-{
-    using Shiftables = d1::ListSet<IShiftable*>;
-    using Dependents = d1::ListSet<std::pair<
-        IShiftable* /*sender*/, IShiftable* /*dependent*/>>;
-
-
-    ShiftVector actualShiftVector_;
-    d1::fPoint actualMousePos_;
-    IShiftable* masterMover_ = nullptr; // may be zero
-    IShiftable* actualSender_ = nullptr;
-    Shiftables instantShiftables_, deferredShiftables_;
-    Dependents dependents_;
-
-public:
-    ShiftSet();
-    ShiftSet(const ElementSet& selection, IDiagram&,
-        IShiftable* theMasterMover = 0);
-
-    ShiftSet(const ShiftSet&) = delete;
-    ShiftSet& operator=(const ShiftSet&) = delete;
-
-
-    void deferredShift(Env&, const ShiftVector&, const d1::fPoint& mouse_pos);
-    void finalShift(Env&);
-
-    auto getDeferredShift() const -> const ShiftVector&;
-
-
-    void addNormal(IShiftable&);
-
-    auto getMasterMover() const -> IShiftable* { return masterMover_; }
-
-
-    void addNormalSet(const auto& container)
-    {
-        for (auto* s : container)
-            addNormal(*s);
-    }
-
-    void addDependent(IShiftable&);
-
-    void addDependentSet(const auto& container)
-    {
-        for (auto* s : container)
-            addDependent(*s);
-    }
-
-    template <class Iter>
-    void addDependentSet(Iter a, Iter b)
-    {
-        for (; a != b; ++a)
-            addDependent(**a);
-    }
-
-    bool isDeferredShifting(const IShiftable&) const;
-
-    auto begin() const { return deferredShiftables_.begin(); }
-    auto end() const { return deferredShiftables_.end(); }
-
-    void print(std::ostream&) const; // for debugging
-
-    friend std::ostream& operator<<(std::ostream& s, const ShiftSet& d)
-    {
-        d.print(s);
-        return s;
-    }
-};
-
-
-export class IShiftable: public virtual IElement
-{
-public:
-    IShiftable() {}
-    //  IShiftable(const IShiftable&)   generated by compiler
-
-    IShiftable& operator=(const IShiftable&) = delete;
-
-    void shift(Env&,
-        IElement* sender,
-        const ShiftVector&,
-        const ShiftSet&,
-        bool shallow);
-
-    virtual void shiftImpl(Env&,
-        IElement* sender,
-        const ShiftVector&,
-        const ShiftSet&,
-        bool shallow) = 0;
-
-    virtual void addNormal(ShiftSet&, const ElementSet& selection) = 0;
-    virtual void addDependents(ShiftSet&) = 0;
-
-    virtual void detachFromSource(Env&,
-        const ShiftSet&, const ElementSet& selection);
-
-    virtual void extendSelection(
-        const ElementSet& selection,
-        ElementSet& extendedSelectionSet);
-};
-
-
-export class ActorAddDeferredShiftDependent
-{
-    ShiftSet& dss;
-
-public:
-    ActorAddDeferredShiftDependent(ShiftSet& dss):
-        dss{ dss }
-    {
-    }
-
-    void operator()(IShiftable* t)
-    {
-        dss.addDependent(*t);
-    }
 };
 
 

@@ -3,7 +3,7 @@
  */
 
 module Core;
-import :Undoer;
+import :UndoerImp;
 
 
 namespace Core

@@ -6,6 +6,7 @@ export module Core:Container;
 
 import :Base;
 import :Interfaces;
+import :Shift;
 
 
 namespace Core

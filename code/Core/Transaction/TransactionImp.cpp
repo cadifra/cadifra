@@ -10,7 +10,7 @@ module Core;
 import :Transaction;
 
 import :Diagram;
-import :Undoer;
+import :UndoerImp;
 
 import d1.algorithm;
 import d1.Point;

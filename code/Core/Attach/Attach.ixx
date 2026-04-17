@@ -6,6 +6,7 @@ export module Core:Attach;
 
 import :Base;
 import :Interfaces;
+import :Shift;
 import :View;
 
 import d1.Point;
