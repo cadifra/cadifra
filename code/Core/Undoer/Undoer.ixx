@@ -6,6 +6,9 @@ import :Base;
 namespace Core
 {
 
+export class PosUndoer;
+
+
 export class Undoer // note: use UndoerRef wherever possible (see below)
 {
 public:

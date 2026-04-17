@@ -30,8 +30,6 @@ class Weight;
 }
 
 export class IElement;
-export class IPosOwner;
-export class PosUndoer;
 
 
 export using IElementRef = std::shared_ptr<IElement>;
