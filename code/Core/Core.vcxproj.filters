@@ -29,7 +29,7 @@
     <ClCompile Include="Base\Env.cpp">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Base\ExtendSelectionParam.cpp">
+    <ClCompile Include="Selection\ExtendSelectionParam.cpp">
       <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="Base\IElement.cpp">

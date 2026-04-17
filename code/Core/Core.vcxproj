@@ -241,7 +241,7 @@
     <ClCompile Include="CopyRegistry\CopyRegistry.cpp" />
     <ClCompile Include="Base\ElementSet.cpp" />
     <ClCompile Include="Base\Env.cpp" />
-    <ClCompile Include="Base\ExtendSelectionParam.cpp" />
+    <ClCompile Include="Selection\ExtendSelectionParam.cpp" />
     <ClCompile Include="Base\IElement.cpp" />
     <ClCompile Include="Grid\Grid.ixx" />
     <ClCompile Include="ObjectRegistry\ObjectRegistry.ixx" />
