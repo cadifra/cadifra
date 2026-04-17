@@ -10,6 +10,7 @@ module Core;
 import :Transaction;
 
 import :Diagram;
+import :Selection;
 import :UndoerImp;
 
 import d1.algorithm;

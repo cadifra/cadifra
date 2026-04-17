@@ -9,6 +9,7 @@ module;
 module Core;
 import :Diagram;
 
+import :CopyRegistry;
 import :Transaction;
 
 import d1.CastIteratorImp;

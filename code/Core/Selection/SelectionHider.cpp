@@ -3,7 +3,7 @@
  */
 
 module Core;
-import :Base;
+import :Selection;
 
 
 namespace Core

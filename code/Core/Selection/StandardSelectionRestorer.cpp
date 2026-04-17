@@ -3,6 +3,7 @@
  */
 
 module Core;
+import :Selection;
 
 import :View;
 

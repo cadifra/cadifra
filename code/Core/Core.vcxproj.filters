@@ -17,10 +17,10 @@
     <ClCompile Include="Base\Base.ixx">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Base\CopyExtendSelection.cpp">
+    <ClCompile Include="Diagram\CopyExtendSelection.cpp">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Base\CopyRegistry.cpp">
+    <ClCompile Include="CopyRegistry\CopyRegistry.cpp">
       <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="Base\ElementSet.cpp">
@@ -38,25 +38,25 @@
     <ClCompile Include="Shift\IShiftable.cpp">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Base\ObjectRegistry.cpp">
+    <ClCompile Include="ObjectRegistry\ObjectRegistry.cpp">
       <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="Undoer\PosUndoer.cpp">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Base\SelectionHider.cpp">
+    <ClCompile Include="Selection\SelectionHider.cpp">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Base\SelectionTracker.cpp">
+    <ClCompile Include="Selection\SelectionTracker.cpp">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Base\SelectionVisibilityServer.cpp">
+    <ClCompile Include="Selection\SelectionVisibilityServer.cpp">
       <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="Shift\ShiftSet.cpp">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="Base\StandardSelectionRestorer.cpp">
+    <ClCompile Include="Selection\StandardSelectionRestorer.cpp">
       <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="UndoerImp\UndoerFunctions.cpp">
@@ -146,6 +146,12 @@
     <ClCompile Include="Shift\Shift.ixx" />
     <ClCompile Include="Weight\Weight.ixx" />
     <ClCompile Include="Undoer\Undoer.ixx" />
+    <ClCompile Include="ObjectRegistry\ObjectRegistry.ixx" />
+    <ClCompile Include="CopyRegistry\CopyRegistry.ixx" />
+    <ClCompile Include="ObjectWithID\ObjectWithID.ixx" />
+    <ClCompile Include="Grid\Grid.ixx" />
+    <ClCompile Include="Util\Util.ixx" />
+    <ClCompile Include="Selection\Selection.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ITerminalDeclarations.h">

@@ -6,6 +6,8 @@ export module Core:Shift;
 
 import :Base;
 
+import d1.ListSet;
+
 
 namespace Core
 {

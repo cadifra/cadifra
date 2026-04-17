@@ -6,6 +6,7 @@ export module Core:Diagram;
 
 import :Base;
 import :Undoer;
+import :Selection;
 
 import d1.Iterator;
 import d1.types;
@@ -312,5 +313,12 @@ private:
     Copier(TransferSet& c);
 };
 
+
+namespace CopyExtendSelection
+{
+
+export auto build(const ElementSet& selection, IDiagram&) -> ElementSet;
+
+}
 
 }

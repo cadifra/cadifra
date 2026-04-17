@@ -2,17 +2,14 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-module;
-
-#include "d1/d1assert.h"
-
 export module Core:Base;
 
+import :ObjectWithID;
+import :Selection;
+
 import d1.Iterator;
-import d1.ListSet;
 import d1.Rect;
 import d1.round;
-import d1.Shared;
 
 import std;
 
@@ -21,7 +18,9 @@ namespace Core
 {
 
 export {
+class CopyRegistry;
 class IDiagram;
+class IGrid;
 class IView;
 class IViewElement;
 class UndoerRef;
@@ -30,6 +29,12 @@ class Weight;
 }
 
 export class IElement;
+
+
+namespace Selection
+{
+export class Tracker;
+}
 
 
 export using IElementRef = std::shared_ptr<IElement>;
@@ -91,234 +96,6 @@ public:
 };
 
 
-namespace ExtendSelection
-{
-
-export enum class Result {
-    no = 0,
-    possibly,
-    yes
-};
-
-
-export class Param
-{
-public:
-    class ICaller;
-
-    Param(const ICaller& caller, const ElementSet& selection);
-    ~Param();
-
-    Param(const Param&) = delete;
-    Param& operator=(const Param&) = delete;
-
-    auto call(const IElement* target) -> Result;
-
-    auto selection() const -> const ElementSet& { return selection_; }
-
-private:
-    struct CacheEntry;
-    using Cache = std::multimap<const IElement*, CacheEntry>;
-
-    bool findCacheEntry(const IElement* target, Result& res) const;
-
-    void eraseOtherCacheEntries(const Cache::iterator except);
-
-    Cache cache_;
-    const ICaller& caller_;
-    const ElementSet& selection_;
-    const IElement* previous_ = nullptr;
-};
-
-
-class Param::ICaller
-{
-public:
-    virtual Result makeCall(const IElement* target, Param& p) const = 0;
-
-protected:
-    ~ICaller() = default;
-};
-
-}
-
-namespace Selection
-{
-
-export class Tracker
-{
-    IView* view_ = nullptr; // may be zero (dummy Tracker)
-    bool selectionChanged_ = false;
-
-public:
-    Tracker(IView* v):
-        view_{ v }
-    {
-    }
-
-    Tracker(const Tracker&) = delete;
-    Tracker& operator=(const Tracker&) = delete;
-
-    ~Tracker(); // intentionally NOT virtual
-
-    void changed() { selectionChanged_ = true; }
-};
-
-
-export class IRestorer
-{
-public:
-    IRestorer() = default;
-
-    virtual ~IRestorer() = default;
-
-    IRestorer(const IRestorer&) = delete;
-    IRestorer& operator=(const IRestorer&) = delete;
-
-    virtual void restore(Tracker&, IView&) = 0;
-};
-
-export using IRestorerRef = std::shared_ptr<IRestorer>;
-
-
-export class Hider;
-
-export class VisibilityServer
-{
-public:
-    VisibilityServer(IView& v):
-        view_{ v }
-    {
-    }
-
-    VisibilityServer(const VisibilityServer& rhs) = delete;
-    VisibilityServer& operator=(const VisibilityServer& rhs) = delete;
-
-    ~VisibilityServer();
-
-    Hider hideSelection();
-    // Makes the selection invisible in view_. If the returned Hider
-    // is destructed, the selection is made visible again (if there are no
-    // other selection hiders at this VisibilityServer)
-
-    class Imp;
-
-private:
-    std::shared_ptr<Imp> imp_;
-    IView& view_;
-};
-
-class VisibilityServer::Imp final
-{
-    friend class VisibilityServer;
-    friend class Hider;
-
-    unsigned long numOfServers_{};
-    IView* view_{};
-    unsigned long numOfHiders_{};
-
-    void addServer(IView& v);
-    void releaseServer();
-
-    void addHider();
-    void removeHider();
-};
-
-
-export class Hider // has value semantics
-{
-    using VS = VisibilityServer;
-
-    friend class VS;
-
-    std::shared_ptr<VS::Imp> serverImp_; // may be zero
-
-public:
-    Hider() = default;
-    ~Hider(); // intentionally NOT virtual
-
-    Hider(const Hider& rhs);
-    Hider& operator=(const Hider& rhs);
-
-private:
-    Hider(const std::shared_ptr<VS::Imp>& server);
-};
-
-}
-
-
-export class ObjectID
-{
-public:
-    using T = d1::uint32;
-
-private:
-    T v_ = 0;
-
-public:
-    ObjectID() {}
-
-    explicit ObjectID(T t):
-        v_{ t }
-    {
-    }
-
-    T val() const
-    {
-        return v_;
-    }
-
-    auto& operator++()
-    {
-        ++v_;
-        return *this;
-    }
-
-    auto operator<=>(const ObjectID& rhs) const = default;
-};
-
-
-export class ObjectWithID: public d1::Shared
-{
-    ObjectID iD_{ 0 };
-
-public:
-    ObjectWithID() {};
-
-    ObjectID getID() const { return iD_; }
-    void setID(ObjectID id) { iD_ = id; }
-
-    ObjectWithID(const ObjectWithID&):
-        iD_{ 0 }
-    {
-    }
-
-    ObjectWithID& operator=(const ObjectWithID&) = delete;
-};
-
-
-export class CopyRegistry
-//
-// Maintains a mapping from original objects to their copies.
-//
-{
-public:
-    static auto makeNew() -> std::unique_ptr<CopyRegistry>;
-
-    virtual ~CopyRegistry() = default;
-
-    virtual void addMapping(const IElement* original, IElement* copy) = 0;
-    // Stores the mapping from original to copy (ref only pointers).
-    // PRE: (1) original != 0 and copy != 0
-    //      (2) original and copy have not been registered yet (neither as a copy
-    //          nor as an original object)
-
-    virtual IElement* findCopy(const IElement* original) const = 0;
-    // Searches original in the Registry and returns the pointer to its copy if
-    // found, zero if not found.
-};
-
-
 export class IUndoerCollector
 {
 public:
@@ -326,29 +103,6 @@ public:
 
 protected:
     ~IUndoerCollector() = default;
-};
-
-
-export class IGrid
-{
-public:
-    virtual d1::Point toGrid(const d1::Point& p) const = 0;
-    // find nearest position on grid to.
-
-    // enlarge to grid functions
-
-    virtual d1::int32 enlarge(d1::int32 d) const = 0;
-
-    virtual d1::Vector enlarge(const d1::Vector& v) const = 0;
-    // if the coordinates of v are not in even grid spaces, enlarge them
-    // to next multiple.
-
-    virtual d1::Size enlarge(const d1::Size& p) const = 0;
-
-    virtual d1::nRect enlarge(const d1::nRect&) const = 0;
-
-protected:
-    ~IGrid() = default;
 };
 
 
@@ -656,87 +410,6 @@ public:
 };
 
 
-export inline bool identCheck(const ObjectWithID* a, const ObjectWithID* b)
-{
-    return a == b;
-}
-
-
-export inline bool smallerID(const ObjectWithID* obj1, const ObjectWithID* obj2)
-{
-    return obj1->getID() < obj2->getID();
-}
-
-
-export template <class R, class Pred>
-void printSortedIDs(std::ostream& os, const R& range, Pred pred)
-{
-    auto v = std::vector(cbegin(range), cend(range));
-
-    std::ranges::sort(v, pred);
-
-    for (auto* obj : v)
-    {
-        os << obj->getID().val();
-        os << ",";
-    }
-}
-
-
-export template <class R>
-void printSortedIDs(std::ostream& os, const R& range)
-{
-    printSortedIDs(os, range, smallerID);
-}
-
-
-export template <typename T, typename C = std::vector<T*>>
-class PtrCont: public C
-{
-public:
-    using Eletype = T;
-
-    PtrCont() {}
-};
-
-
-export template <class T>
-void adjustRef(PtrCont<T>& c, const CopyRegistry& r)
-{
-    auto new_set = PtrCont<T>{};
-    new_set.reserve(c.size());
-
-    for (auto* ele : c)
-    {
-        if (auto* me = r.findCopy(ele))
-        {
-            auto new_ele = dynamic_cast<T*>(me);
-            D1_ASSERT(new_ele);
-            new_set.push_back(new_ele);
-        }
-    }
-
-    c.assign_range(new_set);
-}
-
-
-
-export template <class T>
-void adjustRef(T*& ptr, const CopyRegistry& r)
-{
-    if (auto* me = r.findCopy(ptr))
-    {
-        auto* new_ptr = dynamic_cast<T*>(me);
-        D1_ASSERT(new_ptr);
-        ptr = new_ptr;
-    }
-    else
-    {
-        ptr = 0;
-    }
-}
-
-
 export template <class T>
 class Contains
 {
@@ -760,51 +433,5 @@ public:
 
     bool found() const { return found_; }
 };
-
-
-export class IObjectRegistry
-{
-public:
-    virtual auto getElement(ObjectID) const -> IElement* = 0;
-    // Search for the Object with the given ID.
-    // returns 0 if not found.
-
-protected:
-    ~IObjectRegistry() = default;
-};
-
-
-export class ObjectRegistry: public IObjectRegistry
-{
-    using Map = std::map<ObjectID, IElement*>;
-
-    Map map_; // no ownership
-
-public:
-    //-- IObjectRegistry
-
-    auto getElement(ObjectID) const -> IElement* override;
-
-    //--
-
-    void insert(IElement& obj, ObjectID id);
-
-    ObjectRegistry() {}
-
-    ObjectRegistry(const ObjectRegistry&) = delete;
-    ObjectRegistry& operator=(const ObjectRegistry&) = delete;
-};
-
-
-namespace CopyExtendSelection
-{
-
-export auto build(const ElementSet& selection, IDiagram&) -> ElementSet;
-
-}
-
-
-export auto makeStandardSelectionRestorer(
-    const ElementSet& selection) -> Selection::IRestorerRef;
 
 }
