@@ -4,7 +4,7 @@
 
 export module Core:View;
 
-import :Base;
+import :Element;
 import :Selection;
 
 import d1.ListSet;

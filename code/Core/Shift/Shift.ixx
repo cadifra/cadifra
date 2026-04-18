@@ -4,7 +4,7 @@
 
 export module Core:Shift;
 
-import :Base;
+import :Element;
 
 import d1.ListSet;
 

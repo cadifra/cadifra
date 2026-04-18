@@ -2,7 +2,7 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module Core:Base;
+export module Core:Element;
 
 import :ObjectWithID;
 import :Selection;
@@ -400,13 +400,6 @@ public:
     static void setTouched(IElement& me, bool t) { me.setTouched(t); }
     static void disconnectTransaction(IElement& me) { me.disconnectTransaction(); }
     static void transactionDone(IElement& me) { me.transactionDone(); }
-};
-
-
-export class IPosOwner: public virtual IElement
-{
-public:
-    virtual void move(const d1::Vector& offset) = 0;
 };
 
 

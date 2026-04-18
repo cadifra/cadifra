@@ -1,6 +1,6 @@
 export module Core:Undoer;
 
-import :Base;
+import :Element;
 
 
 namespace Core
@@ -87,6 +87,13 @@ public:
     void updateViews(const IElementRef&);
 
     auto diagram() -> IDiagram& { return diagram_; }
+};
+
+
+export class IPosOwner: public virtual IElement
+{
+public:
+    virtual void move(const d1::Vector& offset) = 0;
 };
 
 

@@ -4,7 +4,7 @@
 
 export module Core:Weight;
 
-import :Base;
+import :Element;
 
 import d1.Rect;
 

@@ -9,7 +9,7 @@ module;
 module Core;
 import :Selection;
 
-import :Base;
+import :Element;
 
 
 namespace Core

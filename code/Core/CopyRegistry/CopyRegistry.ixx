@@ -8,7 +8,7 @@ module;
 
 export module Core:CopyRegistry;
 
-import :Base;
+import :Element;
 import :Util;
 
 

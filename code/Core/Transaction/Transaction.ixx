@@ -4,7 +4,7 @@
 
 export module Core:Transaction;
 
-import :Base;
+import :Element;
 
 import d1.Rect;
 import d1.Shared;

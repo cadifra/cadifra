@@ -1,10 +1,10 @@
 export module Core;
 
 export import :Attach;
-export import :Base;
 export import :Container;
 export import :CopyRegistry;
 export import :Diagram;
+export import :Element;
 export import :Grid;
 export import :Interfaces;
 export import :ObjectRegistry;

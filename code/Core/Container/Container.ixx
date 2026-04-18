@@ -4,7 +4,7 @@
 
 export module Core:Container;
 
-import :Base;
+import :Element;
 import :Interfaces;
 import :Shift;
 

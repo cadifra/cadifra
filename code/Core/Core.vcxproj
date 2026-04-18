@@ -236,13 +236,13 @@
     <ClCompile Include="Attach\IPointAttachment.cpp" />
     <ClCompile Include="Attach\ITerminal.cpp" />
     <ClCompile Include="Attach\ITerminalReshapeInfo.cpp" />
-    <ClCompile Include="Base\Base.ixx" />
+    <ClCompile Include="Element\Element.ixx" />
     <ClCompile Include="Diagram\CopyExtendSelection.cpp" />
     <ClCompile Include="CopyRegistry\CopyRegistry.cpp" />
-    <ClCompile Include="Base\ElementSet.cpp" />
-    <ClCompile Include="Base\Env.cpp" />
+    <ClCompile Include="Element\ElementSet.cpp" />
+    <ClCompile Include="Element\Env.cpp" />
     <ClCompile Include="Selection\ExtendSelectionParam.cpp" />
-    <ClCompile Include="Base\IElement.cpp" />
+    <ClCompile Include="Element\IElement.cpp" />
     <ClCompile Include="Grid\Grid.ixx" />
     <ClCompile Include="ObjectRegistry\ObjectRegistry.ixx" />
     <ClCompile Include="CopyRegistry\CopyRegistry.ixx" />
@@ -258,7 +258,7 @@
     <ClCompile Include="Shift\ShiftSet.cpp" />
     <ClCompile Include="Selection\StandardSelectionRestorer.cpp" />
     <ClCompile Include="Undoer\Undoer.cpp" />
-    <ClCompile Include="UndoerImp\UndoerFunctions.cpp" />
+    <ClCompile Include="Undoer\UndoerFunctions.cpp" />
     <ClCompile Include="Undoer\UndoerParam.cpp" />
     <ClCompile Include="Undoer\Undoer.ixx" />
     <ClCompile Include="Weight\Weight.cpp" />

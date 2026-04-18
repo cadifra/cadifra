@@ -7,7 +7,7 @@ module;
 #include "d1/d1verify.h"
 
 module Core;
-import :Base;
+import :Element;
 
 import :Transaction;
 import :View;

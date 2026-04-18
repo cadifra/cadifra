@@ -4,7 +4,7 @@
 
 export module Core:Diagram;
 
-import :Base;
+import :Element;
 import :Undoer;
 import :Selection;
 

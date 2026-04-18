@@ -4,7 +4,7 @@
 
 export module Core:ObjectRegistry;
 
-import :Base;
+import :Element;
 
 
 namespace Core

@@ -3,7 +3,7 @@
  */
 
 module Core;
-import :Base;
+import :Element;
 
 import :Undoer;
 import :Transaction;

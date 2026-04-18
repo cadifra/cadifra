@@ -4,7 +4,7 @@
 
 export module Core:Attach;
 
-import :Base;
+import :Element;
 import :Interfaces;
 import :Shift;
 import :View;
