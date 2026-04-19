@@ -9,6 +9,8 @@ module;
 module Core;
 import :Weight;
 
+import :Element;
+
 import d1.isEqual;
 
 import GraphUtil.Shapes;

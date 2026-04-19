@@ -4,8 +4,6 @@
 
 export module Core:Weight;
 
-import :Element;
-
 import d1.Rect;
 
 import std;
@@ -13,6 +11,9 @@ import std;
 
 namespace Core
 {
+
+export class IElement;
+export class IView;
 
 
 export class Weight

@@ -183,6 +183,7 @@
     <ClInclude Include="IContainableDeclarations.h" />
     <ClInclude Include="IContainerDeclarations.h" />
     <ClInclude Include="IUpdateContainerDeclarations.h" />
+    <ClInclude Include="_Partitions.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Attach">

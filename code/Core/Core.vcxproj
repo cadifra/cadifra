@@ -301,6 +301,7 @@
     <ClInclude Include="IResizableDeclarations.h" />
     <ClInclude Include="ITerminalDeclarations.h" />
     <ClInclude Include="IUpdateContainerDeclarations.h" />
+    <ClInclude Include="_Partitions.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\d1\d1.vcxproj">
