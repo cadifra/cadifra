@@ -3,7 +3,6 @@
  */
 
 module Core;
-import :Container;
 
 
 namespace Core

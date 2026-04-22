@@ -5,7 +5,6 @@
 export module Core:View;
 
 import :Element;
-import :Selection;
 
 import d1.ListSet;
 import d1.Rect;

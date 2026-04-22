@@ -3,9 +3,6 @@
  */
 
 module Core;
-import :Undoer;
-
-import :Diagram;
 
 
 namespace Core

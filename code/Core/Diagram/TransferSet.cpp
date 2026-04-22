@@ -7,10 +7,6 @@ module;
 #include "d1/d1assert.h"
 
 module Core;
-import :Diagram;
-
-import :CopyRegistry;
-import :Transaction;
 
 import d1.CastIteratorImp;
 import d1.algorithm;

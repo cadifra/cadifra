@@ -5,6 +5,8 @@
 
 import WinUtil.Debug;
 
+import Core.ObjectID;
+
 import Core;
 
 

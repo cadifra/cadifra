@@ -3,7 +3,6 @@
  */
 
 module Core;
-import :ObjectRegistry;
 
 import Core.Exceptions;
 

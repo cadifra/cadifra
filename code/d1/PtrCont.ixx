@@ -2,11 +2,11 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module Core:Util;
+export module d1.PtrCont;
 
 import std;
 
-namespace Core
+namespace d1
 {
 
 export template <typename T, typename C = std::vector<T*>>

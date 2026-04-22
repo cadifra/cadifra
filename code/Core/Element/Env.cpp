@@ -3,10 +3,6 @@
  */
 
 module Core;
-import :Element;
-
-import :Undoer;
-import :Transaction;
 
 
 namespace Core

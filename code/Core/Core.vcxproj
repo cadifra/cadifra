@@ -241,14 +241,14 @@
     <ClCompile Include="CopyRegistry\CopyRegistry.cpp" />
     <ClCompile Include="Element\ElementSet.cpp" />
     <ClCompile Include="Element\Env.cpp" />
+    <ClCompile Include="ObjectID.ixx" />
     <ClCompile Include="Selection\ExtendSelectionParam.cpp" />
     <ClCompile Include="Element\IElement.cpp" />
-    <ClCompile Include="Grid\Grid.ixx" />
+    <ClCompile Include="IGrid.ixx" />
     <ClCompile Include="ObjectRegistry\ObjectRegistry.ixx" />
     <ClCompile Include="CopyRegistry\CopyRegistry.ixx" />
-    <ClCompile Include="ObjectWithID\ObjectWithID.ixx" />
+    <ClCompile Include="ObjectWithID.ixx" />
     <ClCompile Include="Selection\Selection.ixx" />
-    <ClCompile Include="Util\Util.ixx" />
     <ClCompile Include="Shift\IShiftable.cpp" />
     <ClCompile Include="ObjectRegistry\ObjectRegistry.cpp" />
     <ClCompile Include="Undoer\PosUndoer.cpp" />
@@ -266,7 +266,7 @@
     <ClCompile Include="Container\IUpdateContainer.cpp" />
     <ClCompile Include="Diagram\Diagram.ixx" />
     <ClCompile Include="Diagram\TransferSet.cpp" />
-    <ClCompile Include="Exceptions\Exceptions.ixx" />
+    <ClCompile Include="Exceptions.ixx" />
     <ClCompile Include="Interfaces\IDumpable.cpp" />
     <ClCompile Include="Interfaces\Interfaces.ixx" />
     <ClCompile Include="Names\Elements.cpp" />
@@ -301,7 +301,6 @@
     <ClInclude Include="IResizableDeclarations.h" />
     <ClInclude Include="ITerminalDeclarations.h" />
     <ClInclude Include="IUpdateContainerDeclarations.h" />
-    <ClInclude Include="_Partitions.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\d1\d1.vcxproj">

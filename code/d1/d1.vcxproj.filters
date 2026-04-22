@@ -57,6 +57,7 @@
     <ClCompile Include="types.cpp" />
     <ClCompile Include="UTF8cvt.cpp" />
     <ClCompile Include="UTF8locale.cpp" />
+    <ClCompile Include="PtrCont.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d1assert.h" />

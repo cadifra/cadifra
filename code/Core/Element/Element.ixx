@@ -4,8 +4,10 @@
 
 export module Core:Element;
 
-import :ObjectWithID;
 import :Selection;
+
+import Core.IGrid;
+import Core.ObjectWithID;
 
 import d1.Iterator;
 import d1.Rect;
@@ -20,7 +22,6 @@ namespace Core
 export {
 class CopyRegistry;
 class IDiagram;
-class IGrid;
 class IView;
 class IViewElement;
 class UndoerRef;

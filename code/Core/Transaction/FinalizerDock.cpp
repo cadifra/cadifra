@@ -3,7 +3,6 @@
  */
 
 module Core;
-import :Transaction;
 
 
 namespace Core

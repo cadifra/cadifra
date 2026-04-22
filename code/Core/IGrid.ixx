@@ -2,7 +2,7 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module Core:Grid;
+export module Core.IGrid;
 
 import d1.Rect;
 

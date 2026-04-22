@@ -3,7 +3,6 @@
  */
 
 module Core;
-import :Attach;
 
 namespace Core
 {

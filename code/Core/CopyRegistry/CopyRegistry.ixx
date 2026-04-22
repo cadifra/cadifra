@@ -8,12 +8,16 @@ module;
 
 export module Core:CopyRegistry;
 
-import :Element;
-import :Util;
+import d1.PtrCont;
+
+import std;
 
 
 namespace Core
 {
+
+export class IElement;
+
 
 export class CopyRegistry
 //
@@ -38,9 +42,9 @@ public:
 
 
 export template <class T>
-void adjustRef(PtrCont<T>& c, const CopyRegistry& r)
+void adjustRef(d1::PtrCont<T>& c, const CopyRegistry& r)
 {
-    auto new_set = PtrCont<T>{};
+    auto new_set = d1::PtrCont<T>{};
     new_set.reserve(c.size());
 
     for (auto* ele : c)

@@ -7,11 +7,6 @@ module;
 #include "d1/d1verify.h"
 
 module Core;
-import :Element;
-
-import :Transaction;
-import :View;
-import :Weight;
 
 import d1.StackFlag;
 import d1.algorithm;

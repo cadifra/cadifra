@@ -7,9 +7,6 @@ module;
 #include "d1/d1assert.h"
 
 module Core;
-import :Undoer;
-
-import :Diagram;
 
 
 namespace Core

@@ -38,9 +38,6 @@
     <ClCompile Include="Diagram\TransferSet.cpp">
       <Filter>Diagram</Filter>
     </ClCompile>
-    <ClCompile Include="Exceptions\Exceptions.ixx">
-      <Filter>Exceptions</Filter>
-    </ClCompile>
     <ClCompile Include="Interfaces\IDumpable.cpp">
       <Filter>Interfaces</Filter>
     </ClCompile>
@@ -143,20 +140,11 @@
     <ClCompile Include="Selection\ExtendSelectionParam.cpp">
       <Filter>Selection</Filter>
     </ClCompile>
-    <ClCompile Include="Grid\Grid.ixx">
-      <Filter>Grid</Filter>
-    </ClCompile>
     <ClCompile Include="ObjectRegistry\ObjectRegistry.cpp">
       <Filter>ObjectRegistry</Filter>
     </ClCompile>
     <ClCompile Include="ObjectRegistry\ObjectRegistry.ixx">
       <Filter>ObjectRegistry</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\Util.ixx">
-      <Filter>Util</Filter>
-    </ClCompile>
-    <ClCompile Include="ObjectWithID\ObjectWithID.ixx">
-      <Filter>ObjectWithID</Filter>
     </ClCompile>
     <ClCompile Include="CopyRegistry\CopyRegistry.ixx">
       <Filter>CopyRegistry</Filter>
@@ -170,6 +158,10 @@
     <ClCompile Include="Undoer\UndoerFunctions.cpp">
       <Filter>Undoer</Filter>
     </ClCompile>
+    <ClCompile Include="ObjectID.ixx" />
+    <ClCompile Include="IGrid.ixx" />
+    <ClCompile Include="ObjectWithID.ixx" />
+    <ClCompile Include="Exceptions.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ITerminalDeclarations.h">
@@ -183,7 +175,6 @@
     <ClInclude Include="IContainableDeclarations.h" />
     <ClInclude Include="IContainerDeclarations.h" />
     <ClInclude Include="IUpdateContainerDeclarations.h" />
-    <ClInclude Include="_Partitions.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Attach">
@@ -194,9 +185,6 @@
     </Filter>
     <Filter Include="Diagram">
       <UniqueIdentifier>{24fb191c-7c27-4721-8dc5-6993ff3762db}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Exceptions">
-      <UniqueIdentifier>{648bf1eb-14a6-448b-9cda-da35e7a6cffd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Interfaces">
       <UniqueIdentifier>{5d84ac99-d704-41a8-92bb-39560b702e35}</UniqueIdentifier>
@@ -230,9 +218,6 @@
     </Filter>
     <Filter Include="ObjectRegistry">
       <UniqueIdentifier>{289fcc79-83ad-454a-a6e6-b3026665b261}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Util">
-      <UniqueIdentifier>{0399a8a4-9768-4476-87c9-2781e0367324}</UniqueIdentifier>
     </Filter>
     <Filter Include="ObjectWithID">
       <UniqueIdentifier>{72025300-280d-41f3-974b-e03ba38ccca4}</UniqueIdentifier>

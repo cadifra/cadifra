@@ -7,9 +7,6 @@ module;
 #include "d1/d1assert.h"
 
 module Core;
-import :Selection;
-
-import :Element;
 
 
 namespace Core

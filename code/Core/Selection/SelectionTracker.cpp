@@ -3,9 +3,6 @@
  */
 
 module Core;
-import :Selection;
-
-import :View;
 
 
 namespace Core

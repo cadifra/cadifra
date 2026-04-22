@@ -247,6 +247,7 @@
     <ClCompile Include="Gdiplus.ixx" />
     <ClCompile Include="Margins.ixx" />
     <ClCompile Include="OldNew.ixx" />
+    <ClCompile Include="PtrCont.ixx" />
     <ClCompile Include="types.cpp" />
     <ClCompile Include="types.ixx" />
     <ClCompile Include="Date.cpp" />
