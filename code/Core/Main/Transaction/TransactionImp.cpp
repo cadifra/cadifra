@@ -8,7 +8,7 @@ module;
 
 module Core.Main;
 
-import :UndoerImp;
+import Core.UndoerImp;
 
 import d1.algorithm;
 import d1.Point;

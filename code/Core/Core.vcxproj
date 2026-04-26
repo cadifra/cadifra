@@ -276,13 +276,9 @@
     <ClCompile Include="Main\Transaction\Transaction.cpp" />
     <ClCompile Include="Main\Transaction\Transaction.ixx" />
     <ClCompile Include="Main\Transaction\TransactionImp.cpp" />
-    <ClCompile Include="Main\UndoerImp\PosUndoerGroup.cpp" />
-    <ClCompile Include="Main\UndoerImp\SequenceUndoer.cpp" />
-    <ClCompile Include="Main\UndoerImp\TransactionUndoer.cpp" />
-    <ClCompile Include="Main\UndoerImp\UndoerImp.cppm">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsCppModuleInternalPartition</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsCppModuleInternalPartition</CompileAs>
-    </ClCompile>
+    <ClCompile Include="UndoerImp\PosUndoerGroup.cpp" />
+    <ClCompile Include="UndoerImp\SequenceUndoer.cpp" />
+    <ClCompile Include="UndoerImp\TransactionUndoer.cpp" />
     <ClCompile Include="Main\View\ISelectionObserver.cpp" />
     <ClCompile Include="Main\View\IView.cpp" />
     <ClCompile Include="Main\View\IViewElement.cpp" />
@@ -291,6 +287,7 @@
     <ClCompile Include="Main\View\VISelectable.cpp" />
     <ClCompile Include="Main\Weight\Weight.ixx" />
     <ClCompile Include="Main\Main.ixx" />
+    <ClCompile Include="UndoerImp\UndoerImp.ixx" />
     <ClInclude Include="Check.h" />
     <ClInclude Include="d1debug.h" />
     <ClInclude Include="IContainableDeclarations.h" />

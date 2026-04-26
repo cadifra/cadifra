@@ -2,15 +2,16 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-module Core.Main:UndoerImp;
+export module Core.UndoerImp;
 
-import :Undoer;
+import Core.Main;
 
+import d1.Point;
 
 namespace Core
 {
 
-class PosUndoerGroup: public Undoer
+export class PosUndoerGroup: public Undoer
 {
     using V = std::vector<std::shared_ptr<IPosOwner>>;
 
@@ -39,7 +40,7 @@ public:
 };
 
 
-class SequenceUndoer: public Undoer
+export class SequenceUndoer: public Undoer
 {
     using UndoerListType = std::vector<UndoerRef>;
     UndoerListType undoerList_;
@@ -65,7 +66,7 @@ public:
 };
 
 
-class TransactionUndoer: public Undoer
+export class TransactionUndoer: public Undoer
 {
     using MESet = std::vector<IElementRef>;
 

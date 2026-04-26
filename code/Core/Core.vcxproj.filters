@@ -58,17 +58,14 @@
     <ClCompile Include="Main\Transaction\TransactionImp.cpp">
       <Filter>Main\Transaction</Filter>
     </ClCompile>
-    <ClCompile Include="Main\UndoerImp\PosUndoerGroup.cpp">
-      <Filter>Main\UndoerImp</Filter>
+    <ClCompile Include="UndoerImp\PosUndoerGroup.cpp">
+      <Filter>UndoerImp</Filter>
     </ClCompile>
-    <ClCompile Include="Main\UndoerImp\SequenceUndoer.cpp">
-      <Filter>Main\UndoerImp</Filter>
+    <ClCompile Include="UndoerImp\SequenceUndoer.cpp">
+      <Filter>UndoerImp</Filter>
     </ClCompile>
-    <ClCompile Include="Main\UndoerImp\TransactionUndoer.cpp">
-      <Filter>Main\UndoerImp</Filter>
-    </ClCompile>
-    <ClCompile Include="Main\UndoerImp\UndoerImp.cppm">
-      <Filter>Main\UndoerImp</Filter>
+    <ClCompile Include="UndoerImp\TransactionUndoer.cpp">
+      <Filter>UndoerImp</Filter>
     </ClCompile>
     <ClCompile Include="Main\View\ISelectionObserver.cpp">
       <Filter>Main\View</Filter>
@@ -159,6 +156,9 @@
     <ClCompile Include="Main\Main.ixx">
       <Filter>Main</Filter>
     </ClCompile>
+    <ClCompile Include="UndoerImp\UndoerImp.ixx">
+      <Filter>UndoerImp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ITerminalDeclarations.h">
@@ -210,14 +210,14 @@
     <Filter Include="Main\Undoer">
       <UniqueIdentifier>{5fca9e0a-3d66-4061-905a-2d5f08c0d01a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Main\UndoerImp">
-      <UniqueIdentifier>{e87f9403-dc2e-4688-b54c-38e3b977e6cc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Main\View">
       <UniqueIdentifier>{8f0a0b95-d6b5-4379-a3ce-b698a1075038}</UniqueIdentifier>
     </Filter>
     <Filter Include="Main\Weight">
       <UniqueIdentifier>{f395c0ae-7b99-480f-9ccf-9c43b965c31c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UndoerImp">
+      <UniqueIdentifier>{e87f9403-dc2e-4688-b54c-38e3b977e6cc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -4,7 +4,7 @@
 
 module Core.Main;
 
-import :UndoerImp;
+import Core.UndoerImp;
 
 
 namespace Core
