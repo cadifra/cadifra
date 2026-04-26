@@ -239,11 +239,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Functions\Functions.ixx" />
-    <ClCompile Include="Functions\MagnetizedPosition.cpp" />
-    <ClCompile Include="Functions\ReattachRectToResizedRect.cpp" />
-    <ClCompile Include="Line\Line.cpp" />
-    <ClCompile Include="Line\Line.ixx" />
+    <ClCompile Include="Functions.ixx" />
+    <ClCompile Include="Line.ixx" />
     <ClCompile Include="Metafile\Metafile.ixx" />
     <ClCompile Include="Metafile\PlaceableMetafile.cpp" />
     <ClCompile Include="Shapes\ClosedPolygon.cpp" />

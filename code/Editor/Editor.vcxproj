@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{C8DE320C-CA30-4D76-9B89-D33328277059}</ProjectGuid>
+    <RootNamespace>Editor</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <MSVCPreviewEnabled>true</MSVCPreviewEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <MSVCPreviewEnabled>true</MSVCPreviewEnabled>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>17.0.32203.90</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>.\Debug\</OutDir>
+    <IntDir>.\Debug\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>.\Release\</OutDir>
+    <IntDir>.\Release\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <PreBuildEvent>
+      <Message>trashing "$(TargetPath)"</Message>
+      <Command>echo trash &gt;"$(TargetPath)"</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalOptions>/w34263 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../../code;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_LIB;_DEBUG;NOMINMAX;WIN32;_WINDOWS;STRICT;_X86_;_WIN32_WINNT=0x0601;_WIN32_IE=0x0500;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeaderOutputFile>.\Debug/Editor.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
+      <ObjectFileName>.\Debug/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Debug/</ProgramDataBaseFileName>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <BuildStlModules>true</BuildStlModules>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>.\Debug\Editor.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PreBuildEvent>
+      <Message>trashing "$(TargetPath)"</Message>
+      <Command>echo trash &gt;"$(TargetPath)"</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalOptions>/w34263 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../../code;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_AMD64_;_CRT_SECURE_NO_DEPRECATE;_LIB;_DEBUG;NOMINMAX;WIN32;_WINDOWS;STRICT;_WIN32_WINNT=0x0601;_WIN32_IE=0x0500;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <BuildStlModules>true</BuildStlModules>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PreBuildEvent>
+      <Message>trashing "$(TargetPath)"</Message>
+      <Command>echo trash &gt;"$(TargetPath)"</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalOptions>/w34263 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MinSpace</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>../../code;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL=0;_LIB;NDEBUG;NOMINMAX;WIN32;_WINDOWS;STRICT;_X86_;_WIN32_WINNT=0x0601;_WIN32_IE=0x0500;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeaderOutputFile>.\Release/Editor.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
+      <ObjectFileName>.\Release/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Release/</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <BuildStlModules>true</BuildStlModules>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>.\Release\Editor.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PreBuildEvent>
+      <Message>trashing "$(TargetPath)"</Message>
+      <Command>echo trash &gt;"$(TargetPath)"</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalOptions>/w34263 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MinSpace</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>../../code;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_AMD64_;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL=0;_LIB;NDEBUG;NOMINMAX;WIN32;_WINDOWS;STRICT;_WIN32_WINNT=0x0601;_WIN32_IE=0x0500;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <BuildStlModules>true</BuildStlModules>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="CmdHandlerDock\CmdHandlerDock.ixx" />
+    <ClCompile Include="Main\Diagram\Diagram.ixx" />
+    <ClCompile Include="Main\Diagram\DiagramFactory.cpp" />
+    <ClCompile Include="Main\Diagram\EditorApp.cpp" />
+    <ClCompile Include="OLEdiagram\OLEdiagram.cpp" />
+    <ClCompile Include="Main\Diagram\OLEdiagramFactory.cpp" />
+    <ClCompile Include="OLEdiagram\OLEdiagram.ixx" />
+    <ClCompile Include="StorageHolder\StorageHolder.cpp" />
+    <ClCompile Include="Internals\AllFactories.cpp" />
+    <ClCompile Include="Internals\AskToSaveDialog.cpp" />
+    <ClCompile Include="Internals\EvalExpire.cpp" />
+    <ClCompile Include="Internals\GUIDs.cpp" />
+    <ClCompile Include="Internals\Internals.ixx" />
+    <ClCompile Include="Internals\ProductVersion.cpp" />
+    <ClCompile Include="Internals\RegistrySettings.cpp" />
+    <ClCompile Include="Internals\ShowAboutDialog.cpp" />
+    <ClCompile Include="LicenseInfo\LicenseInfo.ixx" />
+    <ClCompile Include="Util\ImportStyle.cpp" />
+    <ClCompile Include="Util\Installer.cpp" />
+    <ClCompile Include="Util\Util.ixx" />
+    <ClCompile Include="MenuEntry\MenuEntry.ixx" />
+    <ClCompile Include="Messages\Messages.ixx" />
+    <ClCompile Include="Metafile\Metafile.ixx" />
+    <ClCompile Include="Metafile\MetafileCreator.cpp" />
+    <ClCompile Include="Metafile\MetafileEvalString.cpp" />
+    <ClCompile Include="Metafile\MetafileProvider.cpp" />
+    <ClCompile Include="NewWindowPlacement\NewWindowPlacement.ixx" />
+    <ClCompile Include="Print\Print.ixx" />
+    <ClCompile Include="Print\PrintAbortDialog.cpp" />
+    <ClCompile Include="Print\PrintDiagram.cpp" />
+    <ClCompile Include="StorageHolder\StorageHolder.ixx" />
+    <ClCompile Include="TransferSetFormatHandler\TransferSetFormatHandler.ixx" />
+    <ClCompile Include="WindowList\WindowList.ixx" />
+    <ClCompile Include="Main\Window\ClientView.cpp" />
+    <ClCompile Include="CmdHandlerDock\CmdHandlerDock.cpp" />
+    <ClCompile Include="CmdHandlerDock\CmdHandlerDockCreator.cpp" />
+    <ClCompile Include="Messages\DeferredSetFocusMsg.cpp" />
+    <ClCompile Include="Main\Window\Diagram.cpp" />
+    <ClCompile Include="Main\Window\ElementStylesList.cpp" />
+    <ClCompile Include="Main\Window\ElementStylesListDialog.cpp" />
+    <ClCompile Include="LicenseInfo\LicenseInfo.cpp" />
+    <ClCompile Include="Messages\LicenseInfoMsg.cpp" />
+    <ClCompile Include="MenuEntry\MenuEntry.cpp" />
+    <ClCompile Include="NewWindowPlacement\NewWindowPlacement.cpp" />
+    <ClCompile Include="Messages\ShowEvalBoxMsg.cpp" />
+    <ClCompile Include="Main\Window\SplitBar.cpp" />
+    <ClCompile Include="Main\Window\Toolbar.cpp" />
+    <ClCompile Include="Main\Window\ToolbarEntry.cpp" />
+    <ClCompile Include="TransferSetFormatHandler\TransferSetFormatHandler.cpp" />
+    <ClCompile Include="Main\Window\Window.cpp" />
+    <ClCompile Include="Main\Window\Window.ixx" />
+    <ClCompile Include="Main\Window\WindowImp.cpp" />
+    <ClCompile Include="Main\Window\WindowImp_Cmds.cpp" />
+    <ClCompile Include="Main\Window\WindowImp_CmdWindow.cpp" />
+    <ClCompile Include="Main\Window\WindowImp_DeferWindowPos.cpp" />
+    <ClCompile Include="Main\Window\WindowImp_Init.cpp" />
+    <ClCompile Include="Main\Window\WindowImp_Menu.cpp" />
+    <ClCompile Include="Main\Window\WindowImp_WinMsg.cpp" />
+    <ClCompile Include="WindowList\WindowList.cpp" />
+    <ClCompile Include="Main\Window\ZoomCmdHandler.cpp" />
+    <ClCompile Include="Main\Window\ZoomDialog.cpp" />
+    <ClCompile Include="Main\Main.ixx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\App\App.vcxproj">
+      <Project>{758911ae-d508-4f11-ba13-38c6e481b1c1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Canvas\Canvas.vcxproj">
+      <Project>{9b708c88-28de-4477-b0c3-f91c8da45134}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Class\Class.vcxproj">
+      <Project>{58990206-babc-4eb8-88e8-85597ffeacd1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Core\Core.vcxproj">
+      <Project>{30ed717e-07e7-4ad5-a239-6dbedaa95ec0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\d1\d1.vcxproj">
+      <Project>{12797005-ffd3-43c0-827d-eebb672690c0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Diagram\Diagram.vcxproj">
+      <Project>{d274333f-33d1-4358-90a5-82c6d7121318}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\GraphUtil\GraphUtil.vcxproj">
+      <Project>{44d28738-46b3-4c1d-aa11-f4116cbd480e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\License\License.vcxproj">
+      <Project>{6e8ef09e-e3cb-488b-813d-f662a1fc10b8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Note\Note.vcxproj">
+      <Project>{f5325c9e-76e0-4174-ac76-c134b70e3436}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Object\Object.vcxproj">
+      <Project>{dc30f0a8-4f6c-4cd1-b2db-13ccba8cc793}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Page\Page.vcxproj">
+      <Project>{a93fe3be-f84f-439c-a535-de45192dd3cc}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Resources\Resources.vcxproj">
+      <Project>{83d817ae-360c-4efc-b4a8-d57643baaf2a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\ScreenCanvas\ScreenCanvas.vcxproj">
+      <Project>{4fe29dd7-044c-473e-96df-c79fbd43aa55}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Sequence\Sequence.vcxproj">
+      <Project>{6358cedd-ff63-4d5e-b27e-0ad8cbcdfa5e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\State\State.vcxproj">
+      <Project>{77b2fd92-07b9-42cc-9b70-1b3704c938fa}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\StaticCanvas\StaticCanvas.vcxproj">
+      <Project>{ec4a81af-c00e-4bf4-9c6d-d5597864c392}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Store\Store.vcxproj">
+      <Project>{f2d8babe-9c48-4372-95fe-fe650744f5f0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Style\Style.vcxproj">
+      <Project>{b8724214-f02e-45a9-b631-0a7f7e525c8d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\test\test.vcxproj">
+      <Project>{32f6bc1b-482e-4cda-b5a2-341acaca62e2}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Text\Text.vcxproj">
+      <Project>{4bce0875-4688-41a1-b8d3-568782238b9b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\UseCase\UseCase.vcxproj">
+      <Project>{6730eeb5-86d5-415a-bb47-d87437585222}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\View\View.vcxproj">
+      <Project>{7ce4b604-17d5-49f9-9537-a60ea2fd20d3}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\WinUtil\WinUtil.vcxproj">
+      <Project>{27a4aa7c-fd21-4312-a9d8-e62f9fdab027}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\xml\xml.vcxproj">
+      <Project>{c90447ee-a62e-4c59-bb75-01d594636ffb}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

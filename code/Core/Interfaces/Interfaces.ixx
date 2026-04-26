@@ -2,11 +2,11 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module Core:Interfaces;
+export module Core.Interfaces;
 
 import d1.Rect;
 
-import :Element;
+import Core.Main;
 
 import std;
 

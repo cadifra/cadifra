@@ -1,21 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Functions\Functions.ixx">
-      <Filter>Functions</Filter>
-    </ClCompile>
-    <ClCompile Include="Functions\MagnetizedPosition.cpp">
-      <Filter>Functions</Filter>
-    </ClCompile>
-    <ClCompile Include="Functions\ReattachRectToResizedRect.cpp">
-      <Filter>Functions</Filter>
-    </ClCompile>
-    <ClCompile Include="Line\Line.cpp">
-      <Filter>Line</Filter>
-    </ClCompile>
-    <ClCompile Include="Line\Line.ixx">
-      <Filter>Line</Filter>
-    </ClCompile>
     <ClCompile Include="Metafile\Metafile.ixx">
       <Filter>Metafile</Filter>
     </ClCompile>
@@ -37,14 +22,10 @@
     <ClCompile Include="Shapes\Shapes.ixx">
       <Filter>Shapes</Filter>
     </ClCompile>
+    <ClCompile Include="Line.ixx" />
+    <ClCompile Include="Functions.ixx" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Functions">
-      <UniqueIdentifier>{d3eafe42-13a6-40ac-b1c7-26fbc0efa23c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Line">
-      <UniqueIdentifier>{37273b9d-d916-47bf-8760-28c8925c42e2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Metafile">
       <UniqueIdentifier>{360a74fa-d957-458d-a64c-1cf2a16dfe73}</UniqueIdentifier>
     </Filter>

@@ -1,0 +1,241 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Main\Diagram\Diagram.ixx">
+      <Filter>Main\Diagram</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Diagram\DiagramFactory.cpp">
+      <Filter>Main\Diagram</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Diagram\EditorApp.cpp">
+      <Filter>Main\Diagram</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Diagram\OLEdiagramFactory.cpp">
+      <Filter>Main\Diagram</Filter>
+    </ClCompile>
+    <ClCompile Include="Internals\AllFactories.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="Internals\AskToSaveDialog.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="Internals\EvalExpire.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="Internals\GUIDs.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="Internals\ProductVersion.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="Internals\RegistrySettings.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="Internals\ShowAboutDialog.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\ImportStyle.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Installer.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Internals\Internals.ixx">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Util.ixx">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Metafile\Metafile.ixx">
+      <Filter>Metafile</Filter>
+    </ClCompile>
+    <ClCompile Include="Metafile\MetafileCreator.cpp">
+      <Filter>Metafile</Filter>
+    </ClCompile>
+    <ClCompile Include="Metafile\MetafileEvalString.cpp">
+      <Filter>Metafile</Filter>
+    </ClCompile>
+    <ClCompile Include="Metafile\MetafileProvider.cpp">
+      <Filter>Metafile</Filter>
+    </ClCompile>
+    <ClCompile Include="Print\Print.ixx">
+      <Filter>Print</Filter>
+    </ClCompile>
+    <ClCompile Include="Print\PrintAbortDialog.cpp">
+      <Filter>Print</Filter>
+    </ClCompile>
+    <ClCompile Include="Print\PrintDiagram.cpp">
+      <Filter>Print</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\ClientView.cpp">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\ElementStylesList.cpp">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\ElementStylesListDialog.cpp">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\SplitBar.cpp">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\Toolbar.cpp">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\ToolbarEntry.cpp">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\Window.cpp">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\Window.ixx">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\WindowImp.cpp">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\WindowImp_Cmds.cpp">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\WindowImp_CmdWindow.cpp">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\WindowImp_DeferWindowPos.cpp">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\WindowImp_Init.cpp">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\WindowImp_Menu.cpp">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\WindowImp_WinMsg.cpp">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\ZoomCmdHandler.cpp">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\ZoomDialog.cpp">
+      <Filter>Main\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Window\Diagram.cpp">
+      <Filter>Main\Diagram</Filter>
+    </ClCompile>
+    <ClCompile Include="TransferSetFormatHandler\TransferSetFormatHandler.ixx">
+      <Filter>TransferSetFormatHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="TransferSetFormatHandler\TransferSetFormatHandler.cpp">
+      <Filter>TransferSetFormatHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="Messages\Messages.ixx">
+      <Filter>Messages</Filter>
+    </ClCompile>
+    <ClCompile Include="Messages\DeferredSetFocusMsg.cpp">
+      <Filter>Messages</Filter>
+    </ClCompile>
+    <ClCompile Include="Messages\LicenseInfoMsg.cpp">
+      <Filter>Messages</Filter>
+    </ClCompile>
+    <ClCompile Include="Messages\ShowEvalBoxMsg.cpp">
+      <Filter>Messages</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowList\WindowList.ixx">
+      <Filter>WindowList</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowList\WindowList.cpp">
+      <Filter>WindowList</Filter>
+    </ClCompile>
+    <ClCompile Include="LicenseInfo\LicenseInfo.ixx">
+      <Filter>LicenseInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="LicenseInfo\LicenseInfo.cpp">
+      <Filter>LicenseInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="NewWindowPlacement\NewWindowPlacement.ixx">
+      <Filter>NewWindowPlacement</Filter>
+    </ClCompile>
+    <ClCompile Include="NewWindowPlacement\NewWindowPlacement.cpp">
+      <Filter>NewWindowPlacement</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuEntry\MenuEntry.ixx">
+      <Filter>MenuEntry</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuEntry\MenuEntry.cpp">
+      <Filter>MenuEntry</Filter>
+    </ClCompile>
+    <ClCompile Include="CmdHandlerDock\CmdHandlerDock.ixx">
+      <Filter>CmdHandlerDock</Filter>
+    </ClCompile>
+    <ClCompile Include="CmdHandlerDock\CmdHandlerDock.cpp">
+      <Filter>CmdHandlerDock</Filter>
+    </ClCompile>
+    <ClCompile Include="CmdHandlerDock\CmdHandlerDockCreator.cpp">
+      <Filter>CmdHandlerDock</Filter>
+    </ClCompile>
+    <ClCompile Include="StorageHolder\StorageHolder.ixx">
+      <Filter>StorageHolder</Filter>
+    </ClCompile>
+    <ClCompile Include="StorageHolder\StorageHolder.cpp">
+      <Filter>StorageHolder</Filter>
+    </ClCompile>
+    <ClCompile Include="OLEdiagram\OLEdiagram.ixx">
+      <Filter>OLEdiagram</Filter>
+    </ClCompile>
+    <ClCompile Include="OLEdiagram\OLEdiagram.cpp">
+      <Filter>OLEdiagram</Filter>
+    </ClCompile>
+    <ClCompile Include="Main\Main.ixx">
+      <Filter>Main</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Internals">
+      <UniqueIdentifier>{230f9c37-5ba3-4093-b2a9-b1d4069abd15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Metafile">
+      <UniqueIdentifier>{2fa9df06-b79c-4976-bd9b-22922b94100e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Print">
+      <UniqueIdentifier>{e6dd72a2-e9a4-4bf2-97ad-d8e27c17f2a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TransferSetFormatHandler">
+      <UniqueIdentifier>{3a7e6ad5-77ba-476c-b28e-590dba7e80d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Messages">
+      <UniqueIdentifier>{5b9c0e2a-11a9-467e-be22-40b1acb7bb98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WindowList">
+      <UniqueIdentifier>{bca33ed6-7eab-4e9a-9cc8-2e49dafce950}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LicenseInfo">
+      <UniqueIdentifier>{24fc0a0e-2333-497d-b39e-f76cfd25d8a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NewWindowPlacement">
+      <UniqueIdentifier>{1dd597d9-ebeb-4bad-859b-50e1afc81075}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MenuEntry">
+      <UniqueIdentifier>{0e0e345e-d8b5-4c49-8bcd-25f19b3dc80d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CmdHandlerDock">
+      <UniqueIdentifier>{9da168c5-e2ec-4062-b59c-92f41de9f295}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="StorageHolder">
+      <UniqueIdentifier>{48967f11-5c29-442d-9c66-8b33882cdb32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OLEdiagram">
+      <UniqueIdentifier>{2a3882a8-4006-449e-8a0b-d53c8a6af563}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util">
+      <UniqueIdentifier>{939fb5e8-4802-4f09-8487-578a4e4429da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{f95cfde5-4b0c-4337-8342-f23f312594b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main\Window">
+      <UniqueIdentifier>{45d2b7c0-0156-4c15-8eb4-477418ad72b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main\Diagram">
+      <UniqueIdentifier>{b8b5adca-2904-444b-aa54-d181eb4278aa}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

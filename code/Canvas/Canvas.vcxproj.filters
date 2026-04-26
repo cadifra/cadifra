@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Base\AdjustMarkerHelper.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Base\Base.ixx">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Base\IOrder.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Brush\Brush.ixx">
+      <Filter>Brush</Filter>
+    </ClCompile>
+    <ClCompile Include="Brush\BrushCache.cpp">
+      <Filter>Brush</Filter>
+    </ClCompile>
+    <ClCompile Include="Brush\ColorCache.cpp">
+      <Filter>Brush</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawables.ixx" />
+    <ClCompile Include="Dashes\Dashes.cpp">
+      <Filter>Dashes</Filter>
+    </ClCompile>
+    <ClCompile Include="Dashes\Dashes.ixx">
+      <Filter>Dashes</Filter>
+    </ClCompile>
+    <ClCompile Include="GdiObj.ixx" />
+    <ClCompile Include="ICanvas\ICanvas.ixx">
+      <Filter>ICanvas</Filter>
+    </ClCompile>
+    <ClCompile Include="ICanvas\CaretRef.cpp">
+      <Filter>ICanvas</Filter>
+    </ClCompile>
+    <ClCompile Include="ICanvas\Scroller.cpp">
+      <Filter>ICanvas</Filter>
+    </ClCompile>
+    <ClCompile Include="ICanvas\ScrollKeysDisabler.cpp">
+      <Filter>ICanvas</Filter>
+    </ClCompile>
+    <ClCompile Include="ICustomDrawer.ixx" />
+    <ClCompile Include="Region\Region.cpp">
+      <Filter>Region</Filter>
+    </ClCompile>
+    <ClCompile Include="Region\Region.ixx">
+      <Filter>Region</Filter>
+    </ClCompile>
+    <ClCompile Include="PenCache\PenCache.cpp">
+      <Filter>PenCache</Filter>
+    </ClCompile>
+    <ClCompile Include="PenCache\PenCache.ixx">
+      <Filter>PenCache</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Base">
+      <UniqueIdentifier>{e6836111-e662-488f-83f6-391bdd100dc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Brush">
+      <UniqueIdentifier>{c41e7bd5-6a67-4325-89c8-99ade5553b1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dashes">
+      <UniqueIdentifier>{17b2147f-adb7-485e-aa9c-8d46a686b5e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ICanvas">
+      <UniqueIdentifier>{4a530e4d-4232-4432-b33b-d476faf1bf37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PenCache">
+      <UniqueIdentifier>{771bb1d7-2a90-4a4f-97fe-14008702213f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Region">
+      <UniqueIdentifier>{4426ae46-b642-4404-bf5e-53cbd78d636b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -2,12 +2,12 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module Core:Attach;
+export module Core.Attach;
 
-import :Element;
-import :Interfaces;
-import :Shift;
-import :View;
+import Core.Interfaces;
+import Core.Shift;
+
+import Core.Main;
 
 import d1.Point;
 

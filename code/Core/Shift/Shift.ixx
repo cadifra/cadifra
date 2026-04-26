@@ -2,11 +2,13 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module Core:Shift;
+export module Core.Shift;
 
-import :Element;
+import Core.Main;
 
 import d1.ListSet;
+import d1.Point;
+import d1.round;
 
 
 namespace Core

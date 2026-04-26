@@ -7,7 +7,7 @@ import WinUtil.Debug;
 
 import Core.ObjectID;
 
-import Core;
+import Core.Main;
 
 
 #ifdef _DEBUG

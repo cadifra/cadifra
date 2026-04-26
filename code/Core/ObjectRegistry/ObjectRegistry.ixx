@@ -2,9 +2,13 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module Core:ObjectRegistry;
+export module Core.ObjectRegistry;
 
-import :Element;
+import Core.ObjectID;
+
+import Core.Main;
+
+import std;
 
 
 namespace Core
