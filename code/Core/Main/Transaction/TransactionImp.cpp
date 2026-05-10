@@ -8,7 +8,8 @@ module;
 
 module Core.Main;
 
-import Core.UndoerImp;
+import Core.Finalizer;
+import Core.Undoer;
 
 import d1.algorithm;
 import d1.Point;

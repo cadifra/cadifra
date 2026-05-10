@@ -8,6 +8,8 @@ module;
 
 module Core.Main;
 
+import Core.Undoer;
+
 import d1.Exception;
 import d1.algorithm;
 
