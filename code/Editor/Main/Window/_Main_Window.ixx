@@ -19,8 +19,10 @@ import App.Command;
 import App.Control;
 import App.Document;
 
-import Canvas.Base;
-import Canvas.ICanvas;
+import Canvas.ScreenCanvas;
+import Canvas.Group;
+import Canvas.Scroller;
+import Canvas.IZoomChange;
 
 import Core.Main;
 import Core.IDirtyMarker;

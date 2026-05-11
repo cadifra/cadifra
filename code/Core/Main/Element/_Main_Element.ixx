@@ -6,7 +6,7 @@ export module Core.Main:Element;
 
 import :Selection;
 
-import Core.IGrid;
+import Core.Grid;
 import Core.ObjectWithID;
 import Core.Weight;
 

@@ -6,7 +6,7 @@ export module Editor.Print;
 
 import App.IApplication;
 
-import Canvas.ICanvas;
+import Canvas.PrinterCanvas;
 
 import d1.wintypes;
 

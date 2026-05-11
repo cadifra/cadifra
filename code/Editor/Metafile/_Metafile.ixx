@@ -6,7 +6,8 @@ export module Editor.Metafile;
 
 import App.Com;
 
-import Canvas.Base;
+import Canvas.Canvas;
+import Canvas.Group;
 
 import d1.AutoComPtr;
 import d1.Rect;

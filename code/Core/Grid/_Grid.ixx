@@ -2,10 +2,9 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
-export module Core.IGrid;
+export module Core.Grid;
 
 import d1.Rect;
-
 
 namespace Core
 {
@@ -27,6 +26,8 @@ public:
     virtual d1::Size enlarge(const d1::Size& p) const = 0;
 
     virtual d1::nRect enlarge(const d1::nRect&) const = 0;
+
+    static const IGrid& get();
 
 protected:
     ~IGrid() = default;
