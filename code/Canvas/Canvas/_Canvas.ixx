@@ -8,9 +8,7 @@ import Canvas.AdjustMarkerInfo;
 import Canvas.Brush;
 import Canvas.Group;
 import Canvas.ICustomDrawer;
-import Canvas.IElementImp;
 import Canvas.Order;
-import Canvas.PageDefaults;
 import Canvas.PageInfo;
 import Canvas.PictureDescription;
 
