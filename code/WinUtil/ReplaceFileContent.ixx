@@ -2,6 +2,10 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
+module;
+
+#include <Windows.h>
+
 export module WinUtil.ReplaceFileContent;
 
 import d1.wintypes;
@@ -14,5 +18,124 @@ export d1::DWORD replaceFileContent(d1::HANDLE source, d1::HANDLE target);
 // Replaces the content of the file "target" with the content of
 // the file "source". Returns 0 if successful or the system error
 // code otherwise.
+
+}
+
+
+module : private;
+
+import WinUtil.UniqueHandle;
+
+
+namespace WinUtil
+{
+
+DWORD replaceFileContent(HANDLE source, HANDLE target)
+{
+    const DWORD size = GetFileSize(source, 0);
+
+    if (size == INVALID_FILE_SIZE)
+        return GetLastError();
+
+    auto sm = UniqueHandle{ CreateFileMapping(
+        source,
+        0,             // lpAttributes
+        PAGE_READONLY, // flProtect
+        0,             // dwMaximumSizeHigh
+        0,             // dwMaximumSizeLow
+        0              // lpName
+        ) };
+
+    if (not sm)
+        return GetLastError();
+
+    LPCVOID v = MapViewOfFile(
+        sm.get(),
+        FILE_MAP_READ, // dwDesiredAccess
+        0,             // dwFileOffsetHigh
+        0,             // dwFileOffsetLow
+        0              // dwNumberOfBytesToMap
+    );
+
+    if (not v)
+        return GetLastError();
+
+
+    class ViewUnmapper
+    {
+        LPCVOID view_;
+
+    public:
+        ViewUnmapper(LPCVOID v):
+            view_{ v } {}
+        ~ViewUnmapper() { UnmapViewOfFile(view_); }
+    };
+
+    auto vu = ViewUnmapper{ v };
+
+
+    const DWORD target_size = GetFileSize(target, 0);
+
+    if (target_size == INVALID_FILE_SIZE)
+        return GetLastError();
+
+    if (target_size < size)
+    {
+        LARGE_INTEGER p;
+        p.QuadPart = size;
+        // Size is an unsigned parameter and SetFilePointer uses signed parameters
+        // -> size may be too big to fit in an 32bit signed integer.
+
+        DWORD r = SetFilePointer(target, p.LowPart, &p.HighPart, FILE_BEGIN);
+
+        if (r == INVALID_SET_FILE_POINTER)
+        {
+            DWORD err = GetLastError();
+            if (err != NO_ERROR)
+                return err;
+        }
+
+        BOOL res = SetEndOfFile(target);
+
+        if (not res)
+            return GetLastError();
+    }
+
+    DWORD r = SetFilePointer(target, 0, 0, FILE_BEGIN);
+
+    if (r == INVALID_SET_FILE_POINTER)
+        return GetLastError();
+
+    DWORD b = 0;
+
+    BOOL res = WriteFile(
+        target,
+        v,    // lpBuffer
+        size, // nNumberOfBytesToWrite
+        &b,   // lpNumberOfBytesWritten
+        0     // lpOverlapped
+    );
+
+    if (not res)
+        return GetLastError();
+
+    if (b != size)
+        return ERROR_INTERNAL_ERROR;
+
+    if (target_size > size)
+    {
+        res = SetEndOfFile(target);
+
+        if (not res)
+            return GetLastError();
+    }
+
+    res = FlushFileBuffers(target);
+
+    if (not res)
+        return GetLastError();
+
+    return ERROR_SUCCESS;
+}
 
 }

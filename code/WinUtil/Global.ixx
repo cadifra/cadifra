@@ -4,6 +4,8 @@
 
 module;
 
+#include "d1/d1assert.h"
+
 #include <Windows.h>
 
 export module WinUtil.Global;
@@ -81,5 +83,74 @@ public:
     GlobalLocker(const GlobalLocker&) = delete;
     GlobalLocker& operator=(const GlobalLocker&) = delete;
 };
+
+}
+
+module : private;
+
+
+namespace WinUtil
+{
+
+HGLOBAL GlobalOwner::copy(HGLOBAL g)
+{
+    if (not g)
+        return 0;
+
+    DWORD size = static_cast<DWORD>(::GlobalSize(g));
+    D1_ASSERT(size);
+
+    HGLOBAL res = ::GlobalAlloc(GMEM_MOVEABLE, size);
+    D1_ASSERT(res);
+
+    void* dest = ::GlobalLock(res);
+    D1_ASSERT(dest);
+
+    void* source = ::GlobalLock(g);
+    D1_ASSERT(source);
+
+    ::CopyMemory(dest, source, size);
+
+    ::GlobalUnlock(dest);
+    ::GlobalUnlock(source);
+
+    return res;
+}
+
+
+GlobalOwner& GlobalOwner::operator=(const GlobalOwner& g)
+{
+    if (glob_ == g.glob_)
+        return *this;
+    reset();
+    glob_ = copy(g.glob_);
+    return *this;
+}
+
+
+GlobalOwner& GlobalOwner::operator=(HGLOBAL g)
+{
+    if (glob_ == g)
+        return *this;
+    reset();
+    glob_ = g;
+    return *this;
+}
+
+
+HGLOBAL GlobalOwner::release()
+{
+    HGLOBAL t = glob_;
+    glob_ = 0;
+    return t;
+}
+
+
+void GlobalOwner::reset()
+{
+    if (glob_)
+        glob_ = ::GlobalFree(glob_);
+    D1_ASSERT(not glob_);
+}
 
 }

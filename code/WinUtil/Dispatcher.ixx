@@ -6,7 +6,10 @@ module;
 
 #include "d1/d1assert.h"
 
-module WinUtil.ProcRegistrar;
+export module WinUtil.Dispatcher;
+
+import WinUtil.ProcRegistrar;
+import WinUtil.Message;
 
 import std;
 
@@ -14,7 +17,55 @@ import std;
 namespace WinUtil
 {
 
-namespace
+export class IPrePostDispatchObserver
+{
+public:
+    virtual void preDispatchNotification() = 0;
+    // PreDispatchNotification is called before any function registered
+    // for the dispatched message is called.
+
+    virtual void postDispatchNotification() = 0;
+    // PostDispatchNotification is called after the last function registered
+    // for the dispatched message has called.
+    // PostDispatchNotification is never called if not PreDispatchNotification
+    // has been called before.
+    // PostDispatchNotification is guaranteed to be called if
+    // PreDispatchNotification has been called before (also if an exception
+    // occurs).
+
+protected:
+    ~IPrePostDispatchObserver() = default;
+};
+
+
+export class Dispatcher
+{
+public:
+    Dispatcher();
+
+    Dispatcher(const Dispatcher&) = delete;
+    Dispatcher& operator=(const Dispatcher&) = delete;
+
+    ~Dispatcher(); // intentionally not virtual
+
+    operator IDispatcher&() const;
+
+    void dispatch(Message&, IPrePostDispatchObserver&) const;
+
+private:
+    class Impl;
+    std::shared_ptr<Impl> impl_;
+};
+
+}
+
+
+module : private;
+
+import WinUtil.IProcessor;
+
+
+namespace WinUtil
 {
 
 class NullProcessor: public IProcessor
@@ -69,7 +120,6 @@ public:
 };
 
 using C = Dispatcher;
-}
 
 
 class C::Impl:
@@ -220,7 +270,9 @@ C::Dispatcher():
 }
 
 
-C::~Dispatcher() = default;
+C::~Dispatcher()
+{
+}
 
 
 C::operator IDispatcher&() const

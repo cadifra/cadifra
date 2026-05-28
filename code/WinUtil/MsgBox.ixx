@@ -8,17 +8,26 @@ module;
 
 export module WinUtil.MsgBox;
 
+import WinUtil.CursorManager;
+
 import std;
 
 
-export namespace WinUtil::MsgBox
+namespace WinUtil::MsgBox
 {
 
-int show(
+export int show(
     const std::wstring& title,
     const std::wstring& text,
-    UINT uType = MB_OK | MB_ICONWARNING | MB_TASKMODAL);
+    UINT uType = MB_OK | MB_ICONWARNING | MB_TASKMODAL)
+{
+    auto iwc = CursorManager::InhibitWaitCursor{};
 
-// see ::MessageBox for a description of return values and "uType" values
+    return ::MessageBox(
+        ::GetActiveWindow(),
+        text.c_str(),
+        title.c_str(),
+        uType);
+}
 
 }

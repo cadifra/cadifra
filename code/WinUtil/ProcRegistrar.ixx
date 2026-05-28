@@ -11,9 +11,15 @@ In the destructor, the ProcRegistrar cancels the registration of
 these IProcessor and deletes them.
 */
 
+module;
+
+#include "d1/d1assert.h"
+
 export module WinUtil.ProcRegistrar;
 
+import WinUtil.IProcessor;
 import WinUtil.Message;
+import WinUtil.IExceptionHandler;
 
 import std;
 
@@ -24,48 +30,7 @@ namespace WinUtil
 export class ProcRegistrar;
 
 
-export class IExceptionHandler
-{
-public:
-    virtual void handleException() = 0;
-    // PRECONDITION: uncaught_exception() == TRUE
-
-protected:
-    ~IExceptionHandler() = default;
-};
-
-
-class IProcessor
-{
-    const bool alwaysReady_ = false;
-    IExceptionHandler* exceptionHandler_ = nullptr; // may be zero, no ownership
-
-public:
-    IProcessor(bool alwaysReady):
-        alwaysReady_{ alwaysReady }
-    {
-    }
-
-    IProcessor(const IProcessor&) = delete;
-    IProcessor& operator=(const IProcessor&) = delete;
-
-    virtual ~IProcessor() = default;
-
-    bool isAlwaysReady() const { return alwaysReady_; }
-
-    void process(Message&);
-
-    void setExceptionHandler(IExceptionHandler* eh)
-    {
-        exceptionHandler_ = eh;
-    }
-
-private:
-    virtual void processImp(Message&) = 0;
-};
-
-
-class ISpy
+export class ISpy
 {
 public:
     ISpy() = default;
@@ -221,47 +186,6 @@ auto ProcRegistrar::helper(Target& t)
     return HelperType{ *this, t };
 }
 
-
-export class IPrePostDispatchObserver
-{
-public:
-    virtual void preDispatchNotification() = 0;
-    // PreDispatchNotification is called before any function registered
-    // for the dispatched message is called.
-
-    virtual void postDispatchNotification() = 0;
-    // PostDispatchNotification is called after the last function registered
-    // for the dispatched message has called.
-    // PostDispatchNotification is never called if not PreDispatchNotification
-    // has been called before.
-    // PostDispatchNotification is guaranteed to be called if
-    // PreDispatchNotification has been called before (also if an exception
-    // occurs).
-
-protected:
-    ~IPrePostDispatchObserver() = default;
-};
-
-
-export class Dispatcher
-{
-public:
-    Dispatcher();
-
-    Dispatcher(const Dispatcher&) = delete;
-    Dispatcher& operator=(const Dispatcher&) = delete;
-
-    ~Dispatcher(); // intentionally not virtual
-
-    operator IDispatcher&() const;
-
-    void dispatch(Message&, IPrePostDispatchObserver&) const;
-
-private:
-    class Impl;
-    std::shared_ptr<Impl> impl_;
-};
-
 }
 
 
@@ -297,3 +221,119 @@ registered with "add" or "addAlwaysReady".
 The function that is registered last via "addSpy" will get the windows
 message before any other functions registered via "addSpy".
 */
+
+module : private;
+
+
+namespace WinUtil
+{
+
+using C = ProcRegistrar;
+
+
+class C::Impl
+{
+    using ProcessorMap = std::map<unsigned int, std::unique_ptr<IProcessor>>;
+
+    ProcessorMap processorMap_;
+    IDispatcher& dispatcher_;
+    ProcRegistrar* registrar_ = nullptr;
+    std::vector<std::shared_ptr<ISpy>> spys_;
+    IExceptionHandler* const exceptionHandler_ = nullptr; // may be zero, no ownership
+
+public:
+    Impl(IDispatcher&, ProcRegistrar*, IExceptionHandler*);
+
+    ~Impl(); // intentionally not virtual
+
+    void add(unsigned int msgId, std::unique_ptr<IProcessor> p);
+    IProcessor* getProcessor(unsigned int msgId) const;
+
+    void add(unsigned int msgId, const std::shared_ptr<ISpy>&);
+};
+
+
+C::Impl::Impl(
+    IDispatcher& d,
+    ProcRegistrar* r,
+    IExceptionHandler* eh):
+
+    dispatcher_{ d },
+    registrar_{ r },
+    exceptionHandler_{ eh }
+{
+    dispatcher_.add(r);
+}
+
+
+C::Impl::~Impl()
+{
+    dispatcher_.forget(registrar_);
+}
+
+
+void C::Impl::add(unsigned int msgId, std::unique_ptr<IProcessor> p)
+{
+    auto i = processorMap_.find(msgId);
+    if (i != end(processorMap_))
+    {
+        D1_ASSERT(0); // id already registered
+        return;
+    }
+
+    p->setExceptionHandler(exceptionHandler_);
+
+    processorMap_[msgId] = std::move(p);
+
+    dispatcher_.newProcessor(msgId);
+}
+
+
+IProcessor* C::Impl::getProcessor(unsigned int msgId) const
+{
+    if (auto i = processorMap_.find(msgId); i != end(processorMap_))
+        return i->second.get();
+
+    return nullptr;
+}
+
+
+void C::Impl::add(unsigned int msgId, const std::shared_ptr<ISpy>& s)
+{
+    D1_ASSERT(s);
+
+    spys_.push_back(s);
+
+    dispatcher_.newSpy(msgId, s);
+}
+
+
+C::ProcRegistrar(IDispatcher& d, IExceptionHandler* eh):
+    impl_{ std::make_unique<Impl>(d, this, eh) }
+{
+}
+
+
+C::~ProcRegistrar()
+{
+}
+
+
+void C::add(unsigned int msgId, std::unique_ptr<IProcessor> p)
+{
+    impl_->add(msgId, std::move(p));
+}
+
+
+IProcessor* C::getProcessor(unsigned int msgId) const
+{
+    return impl_->getProcessor(msgId);
+}
+
+
+void C::add(unsigned int msgId, const std::shared_ptr<ISpy>& s)
+{
+    impl_->add(msgId, s);
+}
+
+}

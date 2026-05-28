@@ -4,14 +4,33 @@
 
 module;
 
-#include <Windows.h>
-
 #include "d1/d1assert.h"
 
-module WinUtil.Clipboard;
+#include <Windows.h>
+
+export module WinUtil.ClipboardFormats;
 
 
-namespace WinUtil::CommonClipboardFormats
+export namespace WinUtil::ClipboardFormats
+{
+
+UINT EmbedSource();
+UINT LinkSource();
+UINT ObjectDescriptor();
+UINT EmbeddedObject();
+UINT FileNameW();
+UINT FileName();
+UINT RichTextFormat();
+UINT PNG();
+UINT GIF();
+
+}
+
+
+module : private;
+
+
+namespace WinUtil::ClipboardFormats
 {
 
 UINT EmbedSource()

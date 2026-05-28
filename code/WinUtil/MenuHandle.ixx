@@ -2,6 +2,12 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
+module;
+
+#include "d1/d1verify.h"
+
+#include <Windows.h>
+
 export module WinUtil.MenuHandle;
 
 import d1.wintypes;
@@ -11,7 +17,6 @@ import std;
 
 namespace WinUtil
 {
-
 
 export class MenuHandle // has value semantics
 {
@@ -25,8 +30,7 @@ protected:
     HMENU releaseOwnershipImpl();
 
 public:
-    MenuHandle();
-    ~MenuHandle(); // intentionally not virtual
+    MenuHandle() {}
     MenuHandle(const MenuHandle&);
     MenuHandle& operator=(const MenuHandle&);
 
@@ -55,5 +59,90 @@ public:
     }
 };
 
+}
+
+
+module : private;
+
+
+namespace WinUtil
+{
+
+class MenuHandle::Impl
+{
+    std::shared_ptr<Impl> parent_; // optional
+    HMENU menu_;
+    bool itHasOwnership;
+
+public:
+    explicit Impl(HMENU m):
+        menu_{ m },
+        itHasOwnership{ true }
+    {
+    }
+
+    Impl(const std::shared_ptr<Impl>& parent, HMENU subMenu):
+        parent_{ parent },
+        menu_{ subMenu },
+        itHasOwnership{ false }
+    {
+    }
+
+    ~Impl()
+    {
+        if (itHasOwnership)
+            D1_VERIFY(::DestroyMenu(menu_));
+    }
+
+    HMENU get() const { return menu_; }
+
+    HMENU releaseOwnership()
+    {
+        D1_ASSERT(not parent_.get());
+        D1_ASSERT(itHasOwnership);
+        itHasOwnership = false;
+        return menu_;
+    }
+};
+
+
+MenuHandle::MenuHandle(const MenuHandle& m):
+    impl_{ m.impl_ }
+{
+}
+
+
+MenuHandle& MenuHandle::operator=(const MenuHandle& m)
+{
+    impl_ = m.impl_;
+    return *this;
+}
+
+
+HMENU MenuHandle::get() const
+{
+    if (not impl_)
+        return 0;
+    return impl_->get();
+}
+
+
+MenuHandle::MenuHandle(HMENU m):
+    impl_{ std::make_shared<Impl>(m) }
+{
+}
+
+
+MenuHandle::MenuHandle(const MenuHandle& m, int SubMenuPos):
+    impl_{ std::make_shared<Impl>(m.impl_, ::GetSubMenu(m, SubMenuPos)) }
+{
+    D1_ASSERT(get());
+}
+
+
+HMENU MenuHandle::releaseOwnershipImpl()
+{
+    return impl_->releaseOwnership();
+}
 
 }

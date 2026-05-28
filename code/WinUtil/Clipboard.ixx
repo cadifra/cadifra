@@ -10,13 +10,10 @@ export module WinUtil.Clipboard;
 
 import std;
 
-typedef tagSTGMEDIUM STGMEDIUM;
+using STGMEDIUM = tagSTGMEDIUM;
 
 
-namespace WinUtil
-{
-
-export namespace Clipboard
+export namespace WinUtil::Clipboard
 {
 
 HRESULT copy(const void* from, size_t from_size,
@@ -53,47 +50,102 @@ HRESULT copy(const std::basic_string<T>& from, ::IStream* to)
 
 }
 
-export namespace CommonClipboardFormats
+
+module : private;
+
+import WinUtil.Global;
+
+import d1.AutoComPtr;
+
+
+namespace WinUtil::Clipboard
 {
 
-UINT EmbedSource();
-UINT LinkSource();
-UINT ObjectDescriptor();
-UINT EmbeddedObject();
-UINT FileNameW();
-UINT FileName();
-UINT RichTextFormat();
-UINT PNG();
-UINT GIF();
+HRESULT copy(const void* from, size_t from_size,
+    const tagFORMATETC* pFormatetc, tagSTGMEDIUM* pmedium)
+{
+    if (not pFormatetc or not pmedium)
+        return E_INVALIDARG;
 
+    pmedium->tymed = TYMED_NULL;
+    pmedium->pstm = 0;
+    pmedium->pUnkForRelease = 0;
+
+    if (pFormatetc->tymed & TYMED_ISTREAM)
+    {
+        ::IStream* s;
+        HRESULT res = ::CreateStreamOnHGlobal(0, true, &s);
+        if (res != S_OK)
+            return res;
+        res = s->Write(from, static_cast<ULONG>(from_size), 0);
+        if (res != S_OK)
+        {
+            s->Release();
+            return res;
+        }
+        pmedium->tymed = TYMED_ISTREAM;
+        pmedium->pstm = s;
+        return S_OK;
+    }
+
+    if (pFormatetc->tymed & TYMED_HGLOBAL)
+    {
+        auto g = WinUtil::GlobalOwner{ ::GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, from_size) };
+        if (not g.get())
+            return E_OUTOFMEMORY;
+        auto mem = WinUtil::GlobalLocker<BYTE>{ g.get() };
+        if (not mem)
+            return E_UNEXPECTED;
+        memcpy(mem, from, from_size);
+        pmedium->tymed = TYMED_HGLOBAL;
+        pmedium->hGlobal = g.release();
+        return S_OK;
+    }
+
+    return E_NOTIMPL;
 }
 
 
-/*
-The class PrivateClipFormat allows the registration of an application local
-clipboard format.
-
-With this class, you do not need to maintain a global header file that contains
-all private clipboard formats which creates unwanted dependencies between
-unrelated packages.
-
-PrivateClipFormat uses clipboard format numbers in the range
-CF_PRIVATEFIRST...CF_PRIVATELAST.
-
-Note the difference to the operating system function RegisterClipboardFormat,
-which creates clipboard format numbers that are unique among all applications.
-*/
-export class PrivateClipFormat
+HRESULT copy(::IStream* from, ::IStream* to)
 {
-public:
-    static auto instance() -> PrivateClipFormat&;
+    if (not from or not to)
+        return E_INVALIDARG;
 
-    virtual CLIPFORMAT getCLIPFORMAT() = 0;
-    // returns a clipboard format number that is unique
-    // within the application
+    ULARGE_INTEGER max;
+    max.QuadPart = std::numeric_limits<ULONGLONG>::max();
 
-protected:
-    ~PrivateClipFormat() = default;
-};
+    LARGE_INTEGER null;
+    null.QuadPart = 0;
+
+    // set the seek pointer to the beginning
+    HRESULT res = from->Seek(null, STREAM_SEEK_SET, 0);
+    if (FAILED(res))
+        return res;
+
+    return from->CopyTo(to, max, 0, 0);
+}
+
+
+HRESULT copy(HGLOBAL from, ::IStream* to)
+{
+    if (not from or not to)
+        return E_INVALIDARG;
+    auto s = d1::AutoComPtr<::IStream>{};
+    HRESULT res = ::CreateStreamOnHGlobal(from, FALSE, &s);
+    if (FAILED(res))
+        return res;
+    return copy(s, to);
+}
+
+
+HRESULT copy(const STGMEDIUM& from, ::IStream* to)
+{
+    if (from.tymed == TYMED_ISTREAM)
+        return copy(from.pstm, to);
+    else if (from.tymed == TYMED_HGLOBAL)
+        return copy(from.hGlobal, to);
+
+    return E_INVALIDARG;
+}
 
 }

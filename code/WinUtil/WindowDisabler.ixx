@@ -6,10 +6,58 @@ module;
 
 #include <Windows.h>
 
-module WinUtil.Window;
+export module WinUtil.WindowDisabler;
+
+import std;
+
+
+namespace WinUtil
+{
+
+export class WindowDisabler
+{
+public:
+    WindowDisabler(); // Disables all visible top level windows of the calling thread
+
+    WindowDisabler(const WindowDisabler&) = delete;
+    WindowDisabler& operator=(const WindowDisabler&) = delete;
+
+    ~WindowDisabler(); // calls Enable()
+
+    void enable(); // Reenables all previous disabled windows.
+
+    static void addAndDisableIfNeeded(HWND);
+
+private:
+    HWND oldActive_;
+    DWORD processId_;
+
+    using Windows = std::vector<HWND>;
+    Windows windows_;
+
+    using DisablerList = std::list<WindowDisabler*>;
+    static DisablerList theDisablerList;
+
+    DisablerList::iterator listPos_;
+
+    static BOOL CALLBACK enumWindowsProcNoThrow(HWND hwnd, LPARAM lParam);
+    static BOOL enumWindowsProc(HWND hwnd, LPARAM lParam);
+
+    static LRESULT CALLBACK subClassWindowProcNoThrow(
+        HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+    static LRESULT subClassWindowProc(
+        HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+};
+
+}
+
+
+module : private;
 
 import WinUtil.GuardedFunctionCall;
 import WinUtil.MessageLoop;
+import WinUtil.PrivateMessage;
 
 import d1.ScopeGuard;
 import d1.VectorMap;
@@ -18,18 +66,12 @@ import d1.VectorMap;
 namespace WinUtil
 {
 
-namespace
-{
 d1::VectorMap<HWND, WNDPROC> theMap;
 
-using C = WindowDisabler;
-}
+WindowDisabler::DisablerList WindowDisabler::theDisablerList;
 
 
-C::DisablerList C::theDisablerList;
-
-
-C::WindowDisabler():
+WindowDisabler::WindowDisabler():
     oldActive_{ ::GetActiveWindow() },
     processId_{ ::GetCurrentProcessId() },
     listPos_{ end(theDisablerList) }
@@ -47,13 +89,13 @@ C::WindowDisabler():
 }
 
 
-C::~WindowDisabler()
+WindowDisabler::~WindowDisabler()
 {
     enable();
 }
 
 
-void C::enable()
+void WindowDisabler::enable()
 {
     if (listPos_ == end(theDisablerList))
         return;
@@ -77,14 +119,14 @@ void C::enable()
 }
 
 
-BOOL CALLBACK C::enumWindowsProcNoThrow(HWND hwnd, LPARAM lParam)
+BOOL CALLBACK WindowDisabler::enumWindowsProcNoThrow(HWND hwnd, LPARAM lParam)
 {
     return GuardedCallHelpers::call("WindowDisabler::EnumWindowsProc",
         &WindowDisabler::enumWindowsProc, hwnd, lParam, FALSE);
 }
 
 
-BOOL C::enumWindowsProc(HWND hwnd, LPARAM lParam)
+BOOL WindowDisabler::enumWindowsProc(HWND hwnd, LPARAM lParam)
 {
     auto* wd = reinterpret_cast<WindowDisabler*>(lParam);
     if (not wd)
@@ -108,7 +150,7 @@ BOOL C::enumWindowsProc(HWND hwnd, LPARAM lParam)
 }
 
 
-void C::addAndDisableIfNeeded(HWND hwnd)
+void WindowDisabler::addAndDisableIfNeeded(HWND hwnd)
 {
     if (theDisablerList.empty())
         return;
@@ -131,7 +173,7 @@ void C::addAndDisableIfNeeded(HWND hwnd)
 }
 
 
-LRESULT CALLBACK C::subClassWindowProcNoThrow(
+LRESULT CALLBACK WindowDisabler::subClassWindowProcNoThrow(
     HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     return GuardedCallHelpers::call("WindowDisabler::SubClassWindowProc",
@@ -140,7 +182,7 @@ LRESULT CALLBACK C::subClassWindowProcNoThrow(
 }
 
 
-LRESULT C::subClassWindowProc(
+LRESULT WindowDisabler::subClassWindowProc(
     HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     static unsigned int msgId = PrivateMessage::instance().getNumber();

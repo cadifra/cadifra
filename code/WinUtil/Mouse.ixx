@@ -2,6 +2,12 @@
  *     Copyright (c) 2025 Adrian & Frank Buehlmann. ALL RIGHTS RESERVED.
  */
 
+module;
+
+#include "d1/d1assert.h"
+
+#include <Windows.h>
+
 export module WinUtil.Mouse;
 
 import d1.MouseButton;
@@ -104,6 +110,40 @@ export namespace MouseButton
 
 d1::WPARAM fwKeysVal(d1::MouseButton mb);
 
+}
+
+
+void MouseInputCapturer::Control::captureMouseInput()
+{
+    if (numCapture_++ == 0)
+        this->implSetCaptureMouseInput(true);
+}
+
+
+void MouseInputCapturer::Control::releaseMouseInput()
+{
+    if (numCapture_ > 0)
+    {
+        if (--numCapture_ == 0)
+            this->implSetCaptureMouseInput(false);
+    }
+}
+
+
+d1::WPARAM MouseButton::fwKeysVal(d1::MouseButton mb)
+{
+    switch (mb)
+    {
+    case d1::MouseButton::left:
+        return MK_LBUTTON;
+    case d1::MouseButton::middle:
+        return MK_MBUTTON;
+    case d1::MouseButton::right:
+        return MK_RBUTTON;
+    default:
+        D1_ASSERT(0);
+        return 0;
+    }
 }
 
 }

@@ -4,11 +4,17 @@
 
 module;
 
+#include "d1/d1verify.h"
+
 #include <Windows.h>
 
 export module WinUtil.Window;
 
-import WinUtil.Registry;
+import WinUtil.IWindow;
+import WinUtil.Messages;
+import WinUtil.Dispatcher;
+
+import d1.wintypes;
 
 import std;
 
@@ -16,166 +22,220 @@ import std;
 namespace WinUtil
 {
 
-export class WindowClass
+export template <typename T>
+class WindowHandleTable
+{
+    using Entry = std::pair<d1::HWND, T*>;
+    std::vector<Entry> table_;
+
+    void remove(d1::HWND h)
+    {
+        auto it = std::ranges::find(table_, h, &Entry::first);
+        if (it != end(table_))
+            table_.erase(it);
+    }
+
+public:
+    class DoRemove;
+    using Remover = std::unique_ptr<DoRemove>;
+
+    auto add(d1::HWND h, T* p) -> Remover
+    {
+        table_.push_back({ h, p });
+        return std::make_unique<DoRemove>(this, h);
+    }
+
+    T* find(d1::HWND h)
+    {
+        auto it = std::ranges::find(table_, h, &Entry::first);
+        return (it != end(table_)) ? it->second : nullptr;
+    }
+
+    WindowHandleTable() = default;
+    WindowHandleTable(const WindowHandleTable&) = delete;
+    WindowHandleTable& operator=(const WindowHandleTable&) = delete;
+};
+
+
+export template <typename T>
+class WindowHandleTable<T>::DoRemove
+{
+    WindowHandleTable* WHT_;
+    d1::HWND hWND_;
+
+public:
+    DoRemove(WindowHandleTable* t, d1::HWND w):
+        WHT_{ t }, hWND_{ w }
+    {
+    }
+    ~DoRemove() { WHT_->remove(hWND_); }
+};
+
+
+export class Window: public IWindow
 {
 public:
-    WindowClass(
-        LPCTSTR lpszClassName,
-        WNDPROC lpfnWndProc,
-        HINSTANCE hInstance,
-        UINT style = 0,
-        HBRUSH hbrBackground = 0,
-        HCURSOR hCursor = 0,
-        LPCTSTR lpszMenuName = 0,
-        HICON hIcon = 0,
-        HICON hIconSm = 0,
-        int cbClsExtra = 0,
-        int cbWndExtra = 0);
-    // calls RegisterClassEx
+    Window();
 
-    WindowClass(const WindowClass&) = delete;
-    WindowClass& operator=(const WindowClass&) = delete;
+    Window(const Window&) = delete;
+    Window& operator=(const Window&) = delete;
 
-    ~WindowClass(); // intentionally not virtual
-    // calls UnregisterClass
+    virtual ~Window();
 
+    //-- IWindow
 
-    LPCTSTR getAtom() const { return MAKEINTATOM(atom_); }
+    auto getDispatcher() const -> IDispatcher& override;
+    d1::HWND getWindowHandle() const override { return windowHandle_; }
+
+    //--
+
+    void subClassWindow(d1::HWND w);
+    // Replaces the window procedure of w with its own window procedure and
+    // stores the original window procedure as its default window procedure.
+    // Stores w as its new window handle.
+
+    void setDefaultWindowProc(WNDPROC);
+
+    void callDefProcNow(Message& msg) const;
+    // Calls the DefProc (Windows term) of this window for msg and sets the
+    // return value of msg to the return value of the DefProc call.
+    // PRE: EnableOS has not been called on msg.
+    //      CallDefProcNow has not been called for msg.
+
+    void processMsg(Message&) const;
 
 private:
-    ATOM atom_ = {};
-    HINSTANCE instance_ = {};
+    d1::HWND windowHandle_ = {};
+    bool windowIsDestroyed_ = false;
+    Dispatcher dispatcher_;
+    WNDPROC defaultWindowProc_ = {};
+    WindowHandleTable<Window>::Remover remover_;
+
+    LRESULT windowProc(HWND, UINT, WPARAM, LPARAM);
+    static LRESULT CALLBACK sharedWindowProc(HWND, UINT, WPARAM, LPARAM);
 };
 
+}
 
-export class WindowDisabler
+
+module : private;
+
+import WinUtil.CursorManager;
+import WinUtil.GuardedFunctionCall;
+
+
+namespace WinUtil
 {
-public:
-    WindowDisabler(); // Disables all visible top level windows of the calling thread
 
-    WindowDisabler(const WindowDisabler&) = delete;
-    WindowDisabler& operator=(const WindowDisabler&) = delete;
+WindowHandleTable<Window> sharedWindowHandleTable;
 
-    ~WindowDisabler(); // calls Enable()
-
-    void enable(); // Reenables all previous disabled windows.
-
-    static void addAndDisableIfNeeded(HWND);
-
-private:
-    HWND oldActive_;
-    DWORD processId_;
-
-    using Windows = std::vector<HWND>;
-    Windows windows_;
-
-    using DisablerList = std::list<WindowDisabler*>;
-    static DisablerList theDisablerList;
-
-    DisablerList::iterator listPos_;
-
-    static BOOL CALLBACK enumWindowsProcNoThrow(HWND hwnd, LPARAM lParam);
-    static BOOL enumWindowsProc(HWND hwnd, LPARAM lParam);
-
-    static LRESULT CALLBACK subClassWindowProcNoThrow(
-        HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-    static LRESULT subClassWindowProc(
-        HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-};
+using C = Window;
 
 
-export class WindowPlacement: public WINDOWPLACEMENT
+C::Window():
+    defaultWindowProc_{ &::DefWindowProc }
 {
-public:
-    WindowPlacement();
-
-    // uses compiler generated copy-ctor and assignment-op
-};
+}
 
 
-export auto calcNewWindowPos(HWND w) -> WindowPlacement;
-
-// Calculates a reasonable window position for a new top level window
-// relative to an existing top level window "w".
-
-// The new window position is maximized/minimized, if "w" is maximized/
-// minimized.
-
-// The new window is "cascaded" on the window "w" to the left downwards.
-// If there is no more room on the workspace (workspace = desktop without
-// toolbars)to "cascade" the new window, the top left position of the
-// new window is in the top left corner of the workspace.
-
-// The size of the new window is always the same as the size of "w".
-
-// The new window is always on the same monitor as "w".
-
-
-export class WindowPlacementHandler
+C::~Window()
 {
-    using ImpPtr = std::unique_ptr<WindowPlacement>;
-    ImpPtr imp_;
-
-public:
-    WindowPlacementHandler();
-    explicit WindowPlacementHandler(HWND w);
-    explicit WindowPlacementHandler(const WindowPlacement& wp);
-
-    WindowPlacementHandler(const WindowPlacementHandler&);
-    WindowPlacementHandler& operator=(const WindowPlacementHandler&);
-
-    ~WindowPlacementHandler();
-
-    bool ok() const { return imp_.get() != 0; }
-
-    void changeShowCmd(UINT flags);
-
-    void getFrom(HWND w);
-    void setTo(HWND w) const;
-
-    // Read and Write may throw a Registry::Exception
-    void read(const Registry::Key& k, const std::wstring& valueName);
-    void write(const Registry::Key& k, const std::wstring& valueName) const;
-};
+    if (windowHandle_ and not windowIsDestroyed_)
+        ::DestroyWindow(windowHandle_);
+}
 
 
-export LRESULT CALLBACK windowStartupProc(HWND h, UINT uMsg, WPARAM wp, LPARAM lp);
-
-// Use this function as the WNDPROC for windows you create with "CreateWindow"
-// or "CreateWindowEx" with the "lpParam" set to a WinUtil::Window pointer.
-
-// The WindowStartupProc will wait for the WM_CREATE message, extract the pointer
-// to the WinUtil::Window and subclass the window.
-
-
-export class ChildWindowVisitor
+void C::processMsg(Message& msg) const
 {
-public:
-    virtual bool visit(HWND hwnd) = 0;
+    class WaitCursorSwitcher: public WinUtil::IPrePostDispatchObserver
+    {
+        CursorManager::WaitCursorSwitch switch_;
+        void preDispatchNotification() final { switch_.on(); }
+        void postDispatchNotification() final { switch_.off(); }
+    };
 
-protected:
-    ~ChildWindowVisitor() = default;
-};
+    auto wcs = WaitCursorSwitcher{};
 
-export void visitChildWindows(HWND parent, ChildWindowVisitor* Visitor);
-// For every child window of parent, the member function Visitor->Visit
-// is called with the child window handle as parameter.
-// The Visit member function has to return false if it wants to stop
-// the visiting process.
+    const HWND h = windowHandle_;
+    const WNDPROC p = defaultWindowProc_;
+
+    dispatcher_.dispatch(msg, wcs); // may delete this!
+
+    if (msg.OSisEnabled() and not msg.defProcCalled())
+    {
+        msg.defProcCalled(::CallWindowProc(p,
+            h, msg.getMsgId(), msg.getWParam(), msg.getLParam()));
+    }
+}
 
 
-// Useful example of a ChildWindowVisitor:
-//
-export class ChildWindowSender: public ChildWindowVisitor
+auto C::getDispatcher() const -> IDispatcher&
 {
-    UINT msg_;
-    WPARAM WParam_;
-    LPARAM LParam_;
-    bool visit(HWND hwnd) override; // calls SendMessage for hwnd
-public:
-    ChildWindowSender(UINT uMsg, WPARAM wParam, LPARAM lParam);
-};
+    return dispatcher_;
+}
 
+
+void C::callDefProcNow(Message& msg) const
+{
+    msg.defProcCalled(::CallWindowProc(defaultWindowProc_,
+        windowHandle_, msg.getMsgId(), msg.getWParam(), msg.getLParam()));
+}
+
+
+void C::setDefaultWindowProc(WNDPROC p)
+{
+    defaultWindowProc_ = p;
+}
+
+
+void C::subClassWindow(HWND hwnd)
+{
+    D1_ASSERT(not windowIsDestroyed_);
+    windowHandle_ = hwnd;
+    remover_ = sharedWindowHandleTable.add(hwnd, this);
+
+    defaultWindowProc_ =
+        reinterpret_cast<WNDPROC>(
+            ::SetWindowLongPtr(
+                hwnd,
+                GWLP_WNDPROC,
+                reinterpret_cast<LONG_PTR>(sharedWindowProc)));
+}
+
+
+LRESULT C::windowProc(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
+{
+    windowHandle_ = hwnd;
+
+    if (uMsg == WM_DESTROY)
+    {
+        D1_ASSERT(not windowIsDestroyed_);
+        windowIsDestroyed_ = true;
+    }
+    else if (uMsg == WM_NCDESTROY)
+        remover_.reset();
+
+    auto msg = Message{ uMsg, wp, lp };
+
+    processMsg(msg);
+
+    return msg.getLResult();
+}
+
+
+LRESULT CALLBACK C::sharedWindowProc(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
+{
+    Window* w = sharedWindowHandleTable.find(hwnd);
+
+    if (not w)
+        return ::DefWindowProc(hwnd, uMsg, wp, lp);
+
+    return GuardedCallHelpers::call(
+        "WinUtil::Window",
+        *w,
+        &Window::windowProc,
+        hwnd, uMsg, wp, lp,
+        LRESULT(0));
+}
 
 }

@@ -5,12 +5,65 @@
 module;
 
 #include "d1/d1verify.h"
-#include "d1Trace.h"
+#include "WinUtil/d1Trace.h"
 
 #include <Windows.h>
 #include <oledlg.h>
 
-module WinUtil.MessageLoop;
+export module WinUtil.MessageFilter;
+
+import d1.wintypes;
+
+import std;
+
+
+namespace WinUtil
+{
+
+export class MessageFilter
+{
+public:
+    static MessageFilter& instance();
+
+    void activate(d1::HWND window);
+    // The first call of this function registers the message
+    // filter in the OS. The window handle is used as the owner
+    // of message boxes. You may exchange the window handle
+    // by calling activate again.
+
+    void deactivate();
+    // After calling activate, call deactivate before OleUninitialize.
+    // It's allowed to call deactivate without a previous call to
+    // activate.
+
+    ~MessageFilter();
+
+    class PostponeIncomingCalls;
+
+private:
+    class Impl;
+    const std::unique_ptr<Impl> impl_;
+
+    MessageFilter();
+
+    void incPostponeIncomingCalls();
+    void decPostponeIncomingCalls();
+
+    MessageFilter(const MessageFilter&) = delete;
+    MessageFilter& operator=(const MessageFilter&) = delete;
+};
+
+
+class MessageFilter::PostponeIncomingCalls
+{
+public:
+    PostponeIncomingCalls() { instance().incPostponeIncomingCalls(); }
+    ~PostponeIncomingCalls() { instance().decPostponeIncomingCalls(); }
+};
+
+}
+
+module : private;
 
 import WinUtil.Debug;
 import WinUtil.WinOstream;
@@ -22,10 +75,7 @@ D1_TRACE_DEFINE_FLAG(OLE, WinUtil::MessageFilter)
 namespace WinUtil
 {
 
-namespace
-{
 using C = MessageFilter;
-}
 
 
 class C::Impl: private ::IMessageFilter
@@ -283,7 +333,9 @@ C::MessageFilter():
 }
 
 
-C::~MessageFilter() = default;
+C::~MessageFilter()
+{
+}
 
 
 void C::incPostponeIncomingCalls()
