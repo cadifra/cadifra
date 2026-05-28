@@ -32,13 +32,12 @@ export struct ScopeGuard: std::function<void()>
 
 // usage:
 //
-// ScopeGuard guard1{ [] { std::cout << "hello"; } };
+// auto guard1 = ScopeGuard{ [] { std::cout << "hello"; } };
 //
-// ScopeGuard guard2{ [=] { deleteFun(ptr); } };
+// auto guard2 = ScopeGuard{ [=] { deleteFun(ptr); } };
 //
-// ScopeGuard guard3{ [&] { eat(bread); } };
+// auto guard3 = ScopeGuard{ [&] { eat(bread); } };
 //
-// ScopeGuard guard4{ std::bind(deleteFun, ptr) };
-
+// auto guard4 = ScopeGuard{ std::bind(deleteFun, ptr) };
 
 }

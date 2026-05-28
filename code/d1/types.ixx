@@ -39,4 +39,15 @@ using float64 = double; // IEEE 64 bit floating point
 using bytestring = std::basic_string<uint8>;
 
 
+static_assert(sizeof(int8) == 1);
+static_assert(sizeof(uint8) == 1);
+
+static_assert(sizeof(int16) == 2);
+static_assert(sizeof(uint16) == 2);
+
+static_assert(sizeof(int32) == 4);
+static_assert(sizeof(uint32) == 4);
+
+static_assert(sizeof(float64) == 8);
+
 }
