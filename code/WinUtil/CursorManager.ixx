@@ -116,12 +116,14 @@ public:
 
 module : private;
 
-
 import WinUtil.CriticalSection;
 import WinUtil.UniqueHandle;
 
 
 namespace WinUtil
+{
+
+namespace
 {
 
 constexpr LONGLONG WaitBeforeWaitCursor = -300 * 10000;
@@ -370,7 +372,7 @@ Impl::~Impl()
 }
 
 using C = CursorManager;
-
+}
 
 
 C::WaitCursorSwitch::WaitCursorSwitch()

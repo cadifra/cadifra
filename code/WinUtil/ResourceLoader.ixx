@@ -70,6 +70,9 @@ module : private;
 namespace WinUtil
 {
 
+namespace
+{
+
 class Impl: public ResourceLoader
 {
 public:
@@ -285,6 +288,8 @@ auto Impl::getBitmap(WORD id) const
                 0, // cyDesired
                 LR_DEFAULTCOLOR))
     };
+}
+
 }
 
 
