@@ -77,7 +77,6 @@ import :IUndoerCollector;
 import :Env;
 import :Undoer;
 
-import Core.Finalizer;
 import Core.PosUndoerGroup;
 import Core.TransactionUndoer;
 import Core.SequenceUndoer;
@@ -179,8 +178,6 @@ bool C::Imp::finalize(Selection::Tracker& sc, const IGrid& g)
     // warning: *this may be changed through e
 
     unsigned int maxrepeat = 100000;
-
-    Finalizer::getDock().executeAll(e);
 
     while (not finalizeCandidates_.empty())
     {

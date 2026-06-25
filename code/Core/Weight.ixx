@@ -9,12 +9,191 @@ module;
 export module Core.Weight;
 
 import d1.Rect;
+import d1.isEqual;
+
+import GraphUtil.Segment;
 
 import std;
 
 
 namespace Core
 {
+
+using std::strong_ordering;
+
+class Control;
+class Text;
+class Point;
+class Line;
+class Area;
+
+
+class WeightImpl
+{
+    d1::int32 selectionBias_ = 0;
+
+protected:
+    ~WeightImpl()
+    {
+    }
+
+public:
+    WeightImpl() {}
+    WeightImpl(const WeightImpl&) = default;
+    WeightImpl& operator=(const WeightImpl&) = default;
+
+    virtual void
+    operator+=(const WeightImpl& rhs)
+    {
+        selectionBias_ += rhs.selectionBias_;
+    }
+
+    virtual void increaseSelectionBias() { ++selectionBias_; }
+
+    d1::int32 getSelectionBias() const { return selectionBias_; }
+
+    virtual void print(std::ostream& s) const;
+};
+
+
+class Invisible: public WeightImpl
+{
+public:
+    Invisible() {}
+    Invisible(const Invisible&) = default;
+    Invisible& operator=(const Invisible&) = default;
+
+    ~Invisible()
+    {
+    }
+
+    void operator+=(const WeightImpl& rhs) {}
+    void increaseSelectionBias() {}
+};
+
+
+class Control: public WeightImpl
+{
+    d1::float64 distance2_;
+
+public:
+    Control(const d1::Point& weightAt, const d1::fPoint& pos):
+        distance2_{ d1::squareDistance(weightAt, pos) } {}
+    Control(const Control&) = default;
+    Control& operator=(const Control&) = default;
+
+    strong_ordering operator<=>(const Control&) const;
+};
+
+
+class Text: public WeightImpl
+{
+public:
+    strong_ordering operator<=>(const Text&) const;
+};
+
+
+class Point: public WeightImpl
+{
+    d1::Point weightAt_;
+    d1::int32 fuzziness_;
+    d1::fPoint pos_;
+
+public:
+    Point(const d1::Point& weightAt, d1::int32 fuzziness, const d1::fPoint& pos):
+        weightAt_{ weightAt },
+        fuzziness_{ fuzziness },
+        pos_{ pos }
+    {
+    }
+    Point(const Point&) = default;
+    Point& operator=(const Point&) = default;
+
+    strong_ordering operator<=>(const Point&) const;
+    strong_ordering operator<=>(const Line&) const;
+    strong_ordering operator<=>(const Area&) const;
+
+private:
+    d1::float64 distance2() const { return d1::squareDistance(weightAt_, pos_); }
+};
+
+
+class Line: public WeightImpl
+{
+    d1::Point weightAt_;
+    d1::int32 fuzziness_;
+    d1::fPoint A_;
+    d1::fPoint B_;
+
+public:
+    Line(const d1::Point& weightAt, d1::int32 fuzziness,
+        const d1::fPoint& a, const d1::fPoint& b):
+        weightAt_{ weightAt },
+        fuzziness_{ fuzziness },
+        A_{ a },
+        B_{ b }
+    {
+    }
+    Line(const Line&) = default;
+    Line& operator=(const Line&) = default;
+
+    strong_ordering operator<=>(const Line&) const;
+    strong_ordering operator<=>(const Area&) const;
+
+    d1::float64 centerDistance2() const
+    {
+        return d1::squareDistance(weightAt_, center());
+    }
+
+    d1::float64 length2() const { return d1::squareDistance(A_, B_); }
+
+private:
+    d1::float64 distance2() const
+    {
+        return GraphUtil::Segment{ A_, B_ }.squareDistance(weightAt_);
+    }
+
+    d1::fPoint center() const
+    {
+        return { (A_.x + B_.x) / 2.0, (A_.y + B_.y) / 2.0 };
+    }
+};
+
+
+class Area: public WeightImpl
+{
+    d1::Point weightAt_;
+    d1::int32 fuzziness_;
+    d1::nRect rect_;
+
+public:
+    Area(const d1::Point& weightAt, d1::int32 fuzziness, const d1::nRect& r):
+        weightAt_{ weightAt },
+        fuzziness_{ fuzziness },
+        rect_{ r }
+    {
+    }
+    Area(const Area&) = default;
+    Area& operator=(const Area&) = default;
+
+    strong_ordering operator<=>(const Area&) const;
+
+    strong_ordering compare(const Area& r) const { return *this <=> r; }
+
+    d1::float64 centerDistance2() const
+    {
+        return d1::squareDistance(weightAt_, rect_.center());
+    }
+
+    d1::int32 width() const { return rect_.width(); }
+    d1::int32 height() const { return rect_.height(); }
+
+private:
+    d1::float64 distance2() const;
+    bool hit() const;
+    d1::int32 size() const { return rect_.width() * rect_.height(); }
+};
+
 
 export class Weight
 //
@@ -24,9 +203,21 @@ export class Weight
 //  "Higher" means in terms of its operator>().
 //
 {
-    class Impl;
-    std::shared_ptr<Impl> impl_;
-    Weight(const std::shared_ptr<Impl>&);
+    using Impl = std::variant< // the order matters, higher index -> higher priority
+        Invisible, Area, Line, Point, Text, Control>;
+
+    Impl impl_;
+
+    Weight(const Impl& impl):
+        impl_{ impl }
+    {
+    }
+
+    auto getImpl() -> WeightImpl*;
+    auto getImpl() const -> const WeightImpl*;
+
+    template <class T>
+    auto compare(const Weight&) const -> std::optional<std::strong_ordering>;
 
 public:
     Weight();
@@ -65,70 +256,185 @@ public:
     }
 };
 
-
-using std::strong_ordering;
-
-
-class Weight::Impl
-{
-    d1::int32 selectionBias_ = 0;
-
-protected:
-    ~Impl()
-    {
-    }
-
-public:
-    virtual void
-    operator+=(const Impl& rhs)
-    {
-        selectionBias_ += rhs.selectionBias_;
-    }
-
-    virtual void increaseSelectionBias() { ++selectionBias_; }
-
-    d1::int32 getSelectionBias() const { return selectionBias_; }
-
-    class Invisible;
-    class Control;
-    class Text;
-    class Point;
-    class Line;
-    class Area;
-
-    // double dispatch:
-    virtual strong_ordering compare(const Impl&) const = 0;
-
-    virtual strong_ordering compare(const Control&) const = 0;
-    virtual strong_ordering compare(const Text&) const = 0;
-    virtual strong_ordering compare(const Point&) const = 0;
-    virtual strong_ordering compare(const Line&) const = 0;
-    virtual strong_ordering compare(const Area&) const = 0;
-
-    strong_ordering invert(strong_ordering o) const
-    {
-        if (o == strong_ordering::less)
-            return strong_ordering::greater;
-        else if (o == strong_ordering::greater)
-            return strong_ordering::less;
-        return o;
-    }
-
-    virtual void print(std::ostream& s) const;
-};
-
 }
 
-module : private;
-
-
-import d1.isEqual;
-
-import GraphUtil.Segment;
+module :private;
 
 
 namespace Core
 {
+
+Weight::Weight():
+    impl_{ Invisible() }
+{
+}
+
+
+auto Weight::getImpl() -> WeightImpl*
+{
+    const auto* cw = this;
+    const auto* wi = cw->getImpl();
+
+    return const_cast<WeightImpl*>(wi);
+}
+
+
+auto Weight::getImpl() const -> const WeightImpl*
+{
+    const WeightImpl* wi = nullptr;
+
+    if (!wi)
+        wi = std::get_if<Invisible>(&impl_);
+    if (!wi)
+        wi = std::get_if<Text>(&impl_);
+    if (!wi)
+        wi = std::get_if<Control>(&impl_);
+    if (!wi)
+        wi = std::get_if<Point>(&impl_);
+    if (!wi)
+        wi = std::get_if<Line>(&impl_);
+    if (!wi)
+        wi = std::get_if<Area>(&impl_);
+
+    D1_ASSERT(wi);
+
+    return wi;
+}
+
+
+void Weight::operator+=(const Weight& rhs)
+{
+    const auto* rwi = rhs.getImpl();
+    auto* wi = getImpl();
+
+    if (wi and rwi)
+        *wi += *rwi;
+}
+
+
+void Weight::increaseSelectionBias()
+{
+    auto* wi = getImpl();
+
+    if (wi)
+        wi->increaseSelectionBias();
+}
+
+
+auto Weight::invisible() -> Weight
+{
+    return { Invisible() };
+}
+
+
+auto Weight::text() -> Weight
+{
+    return { Text() };
+}
+
+
+auto Weight::control(const d1::Point& weightAt, d1::int32 fuzziness,
+    const d1::fPoint& point) -> Weight
+{
+    return { Control(weightAt, point) };
+}
+
+
+auto Weight::point(const d1::Point& weightAt, d1::int32 fuzziness,
+    const d1::fPoint& point) -> Weight
+{
+    return { Point(weightAt, fuzziness, point) };
+}
+
+
+auto Weight::line(const d1::Point& weightAt, d1::int32 fuzziness,
+    const d1::fPoint& a, const d1::fPoint& b) -> Weight
+{
+    return { Line(weightAt, fuzziness, a, b) };
+}
+
+
+auto Weight::area(const d1::Point& weightAt, d1::int32 fuzziness,
+    const d1::nRect& r) -> Weight
+{
+    return { Area(weightAt, fuzziness, r) };
+}
+
+
+bool Weight::operator==(const Weight& rhs) const
+{
+    return not(*this < rhs) and not(rhs < *this);
+}
+
+
+template <class T>
+auto Weight::compare(const Weight& rhs) const
+    -> std::optional<std::strong_ordering>
+{
+    if (auto* c = std::get_if<T>(&impl_))
+        return *c <=> std::get<T>(rhs.impl_);
+
+    return std::nullopt;
+}
+
+
+std::strong_ordering Weight::operator<=>(const Weight& rhs) const
+{
+    if (impl_.index() == 0)
+        return strong_ordering::less; // this is invisible
+
+    if (impl_.index() < rhs.impl_.index())
+        return strong_ordering::less;
+
+    if (impl_.index() > rhs.impl_.index())
+        return strong_ordering::greater;
+
+    D1_ASSERT(impl_.index() == rhs.impl_.index());
+
+    if (auto res = compare<Control>(rhs))
+        return res.value();
+
+    if (auto res = compare<Text>(rhs))
+        return res.value();
+
+    if (auto res = compare<Point>(rhs))
+        return res.value();
+
+    if (auto res = compare<Line>(rhs))
+        return res.value();
+
+    if (auto res = compare<Area>(rhs))
+        return res.value();
+
+    return strong_ordering::less;
+}
+
+
+void Weight::print(std::ostream& s) const
+{
+    const auto* wi = getImpl();
+
+    if (wi)
+        wi->print(s);
+}
+
+
+void WeightImpl::print(std::ostream& s) const
+{
+#ifdef _DEBUG
+    s << "selectionBias_=" << selectionBias_ << " " << typeid(*this).name();
+#endif
+}
+
+
+strong_ordering invert(strong_ordering o)
+{
+    if (o == strong_ordering::less)
+        return strong_ordering::greater;
+    else if (o == strong_ordering::greater)
+        return strong_ordering::less;
+    return o;
+}
 
 
 constexpr d1::float64 MinSize = 2.0;
@@ -143,56 +449,7 @@ void fuzzyCompare(d1::float64& res, const d1::float64& min, d1::float64 a, d1::f
 }
 
 
-
-class Weight::Impl::Invisible: public Impl
-{
-public:
-    ~Invisible()
-    {
-    }
-
-    static std::shared_ptr<Invisible> instance();
-    void operator+=(const Impl& rhs) {}
-    void increaseSelectionBias() {}
-
-    strong_ordering compare(const Impl& i) const { return strong_ordering::less; }
-
-    strong_ordering compare(const Control&) const { return strong_ordering::less; }
-    strong_ordering compare(const Text&) const { return strong_ordering::less; }
-    strong_ordering compare(const Point&) const { return strong_ordering::less; }
-    strong_ordering compare(const Line&) const { return strong_ordering::less; }
-    strong_ordering compare(const Area&) const { return strong_ordering::less; }
-};
-
-auto Weight::Impl::Invisible::instance()
-    -> std::shared_ptr<Impl::Invisible>
-{
-    static auto singleton = std::make_shared<Impl::Invisible>();
-    return singleton;
-}
-
-
-class Weight::Impl::Control: public Impl
-{
-    const d1::float64 distance2_;
-
-public:
-    Control(const d1::Point& weightAt, const d1::fPoint& pos):
-        distance2_{ d1::squareDistance(weightAt, pos) } {}
-
-    strong_ordering operator<=>(const Control&) const;
-
-    strong_ordering compare(const Impl& i) const { return invert(i.compare(*this)); }
-
-    strong_ordering compare(const Control& r) const { return *this <=> r; }
-    strong_ordering compare(const Text&) const { return strong_ordering::greater; }
-    strong_ordering compare(const Point&) const { return strong_ordering::greater; }
-    strong_ordering compare(const Line&) const { return strong_ordering::greater; }
-    strong_ordering compare(const Area&) const { return strong_ordering::greater; }
-};
-
-
-strong_ordering Weight::Impl::Control::operator<=>(const Control& c) const
+strong_ordering Control::operator<=>(const Control& c) const
 {
     if (not d1::isEqual(distance2_, c.distance2_))
     {
@@ -205,146 +462,13 @@ strong_ordering Weight::Impl::Control::operator<=>(const Control& c) const
 }
 
 
-class Weight::Impl::Text: public Impl
-{
-public:
-    strong_ordering operator<=>(const Text&) const;
-
-    strong_ordering compare(const Impl& i) const { return invert(i.compare(*this)); }
-
-    strong_ordering compare(const Control&) const { return strong_ordering::less; }
-    strong_ordering compare(const Text& r) const { return *this <=> r; }
-    strong_ordering compare(const Point&) const { return strong_ordering::greater; }
-    strong_ordering compare(const Line&) const { return strong_ordering::greater; }
-    strong_ordering compare(const Area&) const { return strong_ordering::greater; }
-};
-
-strong_ordering Weight::Impl::Text::operator<=>(const Text& t) const
+strong_ordering Text::operator<=>(const Text& t) const
 {
     return getSelectionBias() <=> t.getSelectionBias();
 }
 
 
-class Weight::Impl::Point: public Impl
-{
-    const d1::Point weightAt_;
-    const d1::int32 fuzziness_;
-    const d1::fPoint pos_;
-
-public:
-    Point(const d1::Point& weightAt, d1::int32 fuzziness, const d1::fPoint& pos):
-        weightAt_{ weightAt },
-        fuzziness_{ fuzziness },
-        pos_{ pos }
-    {
-    }
-
-    strong_ordering operator<=>(const Point&) const;
-    strong_ordering operator<=>(const Line&) const;
-    strong_ordering operator<=>(const Area&) const;
-
-    strong_ordering compare(const Impl& i) const { return invert(i.compare(*this)); }
-
-    strong_ordering compare(const Control& r) const { return strong_ordering::less; }
-    strong_ordering compare(const Text& r) const { return strong_ordering::less; }
-    strong_ordering compare(const Point& r) const { return *this <=> r; }
-    strong_ordering compare(const Line& r) const { return *this <=> r; }
-    strong_ordering compare(const Area& r) const { return *this <=> r; }
-
-private:
-    d1::float64 distance2() const { return d1::squareDistance(weightAt_, pos_); }
-};
-
-
-class Weight::Impl::Line: public Impl
-{
-    const d1::Point weightAt_;
-    const d1::int32 fuzziness_;
-    const d1::fPoint A_;
-    const d1::fPoint B_;
-
-public:
-    Line(const d1::Point& weightAt, d1::int32 fuzziness,
-        const d1::fPoint& a, const d1::fPoint& b):
-        weightAt_{ weightAt },
-        fuzziness_{ fuzziness },
-        A_{ a },
-        B_{ b }
-    {
-    }
-
-    strong_ordering operator<=>(const Line&) const;
-    strong_ordering operator<=>(const Area&) const;
-
-    strong_ordering compare(const Impl& i) const { return invert(i.compare(*this)); }
-
-    strong_ordering compare(const Control& r) const { return strong_ordering::less; }
-    strong_ordering compare(const Text& r) const { return strong_ordering::less; }
-    strong_ordering compare(const Point& r) const { return *this <=> r; }
-    strong_ordering compare(const Line& r) const { return *this <=> r; }
-    strong_ordering compare(const Area& r) const { return *this <=> r; }
-
-
-    d1::float64 centerDistance2() const
-    {
-        return d1::squareDistance(weightAt_, center());
-    }
-
-    d1::float64 length2() const { return d1::squareDistance(A_, B_); }
-
-private:
-    d1::float64 distance2() const
-    {
-        return GraphUtil::Segment{ A_, B_ }.squareDistance(weightAt_);
-    }
-
-    d1::fPoint center() const
-    {
-        return { (A_.x + B_.x) / 2.0, (A_.y + B_.y) / 2.0 };
-    }
-};
-
-
-class Weight::Impl::Area: public Impl
-{
-    const d1::Point weightAt_;
-    const d1::int32 fuzziness_;
-    const d1::nRect rect_;
-
-public:
-    Area(const d1::Point& weightAt, d1::int32 fuzziness, const d1::nRect& r):
-        weightAt_{ weightAt },
-        fuzziness_{ fuzziness },
-        rect_{ r }
-    {
-    }
-
-    strong_ordering operator<=>(const Area&) const;
-
-    strong_ordering compare(const Impl& i) const { return invert(i.compare(*this)); }
-
-    strong_ordering compare(const Control& r) const { return strong_ordering::less; }
-    strong_ordering compare(const Text& r) const { return strong_ordering::less; }
-    strong_ordering compare(const Point& r) const { return *this <=> r; }
-    strong_ordering compare(const Line& r) const { return *this <=> r; }
-    strong_ordering compare(const Area& r) const { return *this <=> r; }
-
-    d1::float64 centerDistance2() const
-    {
-        return d1::squareDistance(weightAt_, rect_.center());
-    }
-
-    d1::int32 width() const { return rect_.width(); }
-    d1::int32 height() const { return rect_.height(); }
-
-private:
-    d1::float64 distance2() const;
-    bool hit() const;
-    d1::int32 size() const { return rect_.width() * rect_.height(); }
-};
-
-
-strong_ordering Weight::Impl::Point::operator<=>(const Point& r) const
+strong_ordering Point::operator<=>(const Point& r) const
 {
     if (pos_ == r.pos_)
         return getSelectionBias() <=> r.getSelectionBias();
@@ -353,7 +477,7 @@ strong_ordering Weight::Impl::Point::operator<=>(const Point& r) const
 }
 
 
-strong_ordering Weight::Impl::Point::operator<=>(const Line& r) const
+strong_ordering Point::operator<=>(const Line& r) const
 {
     d1::float64 a = 0;
 
@@ -367,7 +491,7 @@ strong_ordering Weight::Impl::Point::operator<=>(const Line& r) const
 }
 
 
-strong_ordering Weight::Impl::Point::operator<=>(const Area& r) const
+strong_ordering Point::operator<=>(const Area& r) const
 {
     d1::float64 a = 0;
 
@@ -382,7 +506,7 @@ strong_ordering Weight::Impl::Point::operator<=>(const Area& r) const
 }
 
 
-strong_ordering Weight::Impl::Line::operator<=>(const Line& r) const
+strong_ordering Line::operator<=>(const Line& r) const
 {
     const d1::float64 dist = distance2();
     const d1::float64 distR = r.distance2();
@@ -408,7 +532,7 @@ strong_ordering Weight::Impl::Line::operator<=>(const Line& r) const
 }
 
 
-strong_ordering Weight::Impl::Line::operator<=>(const Area& r) const
+strong_ordering Line::operator<=>(const Area& r) const
 {
     d1::float64 a = 0;
 
@@ -423,7 +547,7 @@ strong_ordering Weight::Impl::Line::operator<=>(const Area& r) const
 }
 
 
-strong_ordering Weight::Impl::Area::operator<=>(const Area& r) const
+strong_ordering Area::operator<=>(const Area& r) const
 {
     const d1::int32 s = size();
     const d1::int32 sizeR = r.size();
@@ -458,13 +582,13 @@ strong_ordering Weight::Impl::Area::operator<=>(const Area& r) const
 }
 
 
-bool Weight::Impl::Area::hit() const
+bool Area::hit() const
 {
     return copy(rect_).enlarge(fuzziness_).encloses(weightAt_);
 }
 
 
-d1::float64 Weight::Impl::Area::distance2() const
+d1::float64 Area::distance2() const
 {
     if (rect_.encloses(weightAt_))
         return 0;
@@ -484,96 +608,6 @@ d1::float64 Weight::Impl::Area::distance2() const
         v = weightAt_.y - rect_.t;
 
     return h * h + v * v;
-}
-
-
-Weight::Weight(const std::shared_ptr<Impl>& impl):
-    impl_{ impl }
-{
-}
-
-
-Weight::Weight():
-    impl_{ Impl::Invisible::instance() }
-{
-}
-
-
-std::strong_ordering Weight::operator<=>(const Weight& rhs) const
-{
-    return impl_->compare(*rhs.impl_);
-}
-
-
-bool Weight::operator==(const Weight& rhs) const
-{
-    return not (*this < rhs) and not (rhs < *this);
-}
-
-
-void Weight::operator+=(const Weight& rhs)
-{
-    *impl_ += *rhs.impl_;
-}
-
-
-void Weight::increaseSelectionBias()
-{
-    impl_->increaseSelectionBias();
-}
-
-
-auto Weight::invisible() -> Weight
-{
-    return { Impl::Invisible::instance() };
-}
-
-
-auto Weight::text() -> Weight
-{
-    return { std::make_shared<Impl::Text>() };
-}
-
-
-auto Weight::control(const d1::Point& weightAt, d1::int32 fuzziness,
-    const d1::fPoint& point) -> Weight
-{
-    return { std::make_shared<Impl::Control>(weightAt, point) };
-}
-
-
-auto Weight::point(const d1::Point& weightAt, d1::int32 fuzziness,
-    const d1::fPoint& point) -> Weight
-{
-    return { std::make_shared<Impl::Point>(weightAt, fuzziness, point) };
-}
-
-
-auto Weight::line(const d1::Point& weightAt, d1::int32 fuzziness,
-    const d1::fPoint& a, const d1::fPoint& b) -> Weight
-{
-    return { std::make_shared<Impl::Line>(weightAt, fuzziness, a, b) };
-}
-
-
-auto Weight::area(const d1::Point& weightAt, d1::int32 fuzziness,
-    const d1::nRect& r) -> Weight
-{
-    return { std::make_shared<Impl::Area>(weightAt, fuzziness, r) };
-}
-
-
-void Weight::print(std::ostream& s) const
-{
-    impl_->print(s);
-}
-
-
-void Weight::Impl::print(std::ostream& s) const
-{
-#ifdef _DEBUG
-    s << "selectionBias_=" << selectionBias_ << " " << typeid(*this).name();
-#endif
 }
 
 }

@@ -97,7 +97,7 @@ class TransferSet::Copier
     friend class TransferSet;
 
     TransferSet& transferSet_;
-    std::unique_ptr<CopyRegistry> copyRegistry_; // ownership
+    CopyRegistry copyRegistry_;
 
 public:
     Copier(const Copier&) = delete;
@@ -191,7 +191,7 @@ auto TransferSet::paste(Transaction& t) const -> PasteRes
     if (elements_.empty())
         return res; // nothing to paste
 
-    auto r = CopyRegistry::makeNew();
+    auto r = CopyRegistry{};
 
     MeSet copies;
 
@@ -207,7 +207,7 @@ auto TransferSet::paste(Transaction& t) const -> PasteRes
         auto copy{ orig.copy() };
 
         copies.push_back(copy);
-        r->addMapping(&orig, copy.get());
+        r.addMapping(&orig, copy.get());
 
         if (&orig == focus_)
             res.focus = copy.get();
@@ -223,7 +223,7 @@ auto TransferSet::paste(Transaction& t) const -> PasteRes
     {
         auto copy = mi.get();
         D1_ASSERT(copy);
-        copy->adjustRefsAfterCopy(*r);
+        copy->adjustRefsAfterCopy(r);
     }
 
     // ## copies are consistent now and may be used
@@ -337,8 +337,7 @@ auto TransferSet::end() const -> d1::Iterator<IElement*>
 
 
 TransferSet::Copier::Copier(TransferSet& c):
-    transferSet_{ c },
-    copyRegistry_{ nullptr }
+    transferSet_{ c }
 {
     D1_ASSERT(not transferSet_.copier_);
     transferSet_.copier_ = this;
@@ -347,16 +346,12 @@ TransferSet::Copier::Copier(TransferSet& c):
 
 auto TransferSet::Copier::addCopy(IElement& m) -> IElement&
 {
-    if (not copyRegistry_)
-        copyRegistry_ = CopyRegistry::makeNew();
-
-    D1_ASSERT(copyRegistry_);
     D1_ASSERT(transferSet_.copier_ == this);
 
     auto copy{ m.copy() };
     transferSet_.add(copy);
 
-    copyRegistry_->addMapping(/*original*/ &m, /*copy*/ copy.get());
+    copyRegistry_.addMapping(/*original*/ &m, /*copy*/ copy.get());
 
     return *copy.get();
 }
@@ -371,21 +366,15 @@ void TransferSet::Copier::addFocusCopy(IElement& m)
 
 void TransferSet::Copier::complete()
 {
-    if (not copyRegistry_)
-        return;
-
-    D1_ASSERT(copyRegistry_);
     D1_ASSERT(transferSet_.copier_ == this);
 
     for (auto mi : transferSet_.elements_)
     {
         auto& me = *mi.get();
-        me.adjustRefsAfterCopy(*copyRegistry_);
+        me.adjustRefsAfterCopy(copyRegistry_);
     }
 
     transferSet_.copier_ = 0;
-
-    copyRegistry_.reset();
 }
 
 }
