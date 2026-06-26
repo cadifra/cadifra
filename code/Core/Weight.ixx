@@ -32,16 +32,7 @@ class WeightImpl
 {
     d1::int32 selectionBias_ = 0;
 
-protected:
-    ~WeightImpl()
-    {
-    }
-
 public:
-    WeightImpl() {}
-    WeightImpl(const WeightImpl&) = default;
-    WeightImpl& operator=(const WeightImpl&) = default;
-
     virtual void
     operator+=(const WeightImpl& rhs)
     {
@@ -59,14 +50,6 @@ public:
 class Invisible: public WeightImpl
 {
 public:
-    Invisible() {}
-    Invisible(const Invisible&) = default;
-    Invisible& operator=(const Invisible&) = default;
-
-    ~Invisible()
-    {
-    }
-
     void operator+=(const WeightImpl& rhs) {}
     void increaseSelectionBias() {}
 };
@@ -79,8 +62,6 @@ class Control: public WeightImpl
 public:
     Control(const d1::Point& weightAt, const d1::fPoint& pos):
         distance2_{ d1::squareDistance(weightAt, pos) } {}
-    Control(const Control&) = default;
-    Control& operator=(const Control&) = default;
 
     strong_ordering operator<=>(const Control&) const;
 };
@@ -96,22 +77,16 @@ public:
 class Point: public WeightImpl
 {
     d1::Point weightAt_;
-    d1::int32 fuzziness_;
     d1::fPoint pos_;
 
 public:
     Point(const d1::Point& weightAt, d1::int32 fuzziness, const d1::fPoint& pos):
         weightAt_{ weightAt },
-        fuzziness_{ fuzziness },
         pos_{ pos }
     {
     }
-    Point(const Point&) = default;
-    Point& operator=(const Point&) = default;
 
     strong_ordering operator<=>(const Point&) const;
-    strong_ordering operator<=>(const Line&) const;
-    strong_ordering operator<=>(const Area&) const;
 
 private:
     d1::float64 distance2() const { return d1::squareDistance(weightAt_, pos_); }
@@ -134,16 +109,8 @@ public:
         B_{ b }
     {
     }
-    Line(const Line&) = default;
-    Line& operator=(const Line&) = default;
 
     strong_ordering operator<=>(const Line&) const;
-    strong_ordering operator<=>(const Area&) const;
-
-    d1::float64 centerDistance2() const
-    {
-        return d1::squareDistance(weightAt_, center());
-    }
 
     d1::float64 length2() const { return d1::squareDistance(A_, B_); }
 
@@ -151,11 +118,6 @@ private:
     d1::float64 distance2() const
     {
         return GraphUtil::Segment{ A_, B_ }.squareDistance(weightAt_);
-    }
-
-    d1::fPoint center() const
-    {
-        return { (A_.x + B_.x) / 2.0, (A_.y + B_.y) / 2.0 };
     }
 };
 
@@ -173,17 +135,10 @@ public:
         rect_{ r }
     {
     }
-    Area(const Area&) = default;
-    Area& operator=(const Area&) = default;
 
     strong_ordering operator<=>(const Area&) const;
 
     strong_ordering compare(const Area& r) const { return *this <=> r; }
-
-    d1::float64 centerDistance2() const
-    {
-        return d1::squareDistance(weightAt_, rect_.center());
-    }
 
     d1::int32 width() const { return rect_.width(); }
     d1::int32 height() const { return rect_.height(); }
@@ -437,18 +392,6 @@ strong_ordering invert(strong_ordering o)
 }
 
 
-constexpr d1::float64 MinSize = 2.0;
-constexpr d1::float64 MinDist = 0.1;
-
-void fuzzyCompare(d1::float64& res, const d1::float64& min, d1::float64 a, d1::float64 b)
-{
-    a = std::max(min, std::fabs(a));
-    b = std::max(min, std::fabs(b));
-    if (not d1::isEqual(a, b))
-        res += (a - b) / (a + b);
-}
-
-
 strong_ordering Control::operator<=>(const Control& c) const
 {
     if (not d1::isEqual(distance2_, c.distance2_))
@@ -477,35 +420,6 @@ strong_ordering Point::operator<=>(const Point& r) const
 }
 
 
-strong_ordering Point::operator<=>(const Line& r) const
-{
-    d1::float64 a = 0;
-
-    fuzzyCompare(a, MinSize * fuzziness_, 0, std::sqrt(r.length2()));
-    fuzzyCompare(a, MinDist * fuzziness_,
-        std::sqrt(distance2()), std::sqrt(r.centerDistance2()));
-
-    if (a < 0)
-        return strong_ordering::greater;
-    return strong_ordering::less;
-}
-
-
-strong_ordering Point::operator<=>(const Area& r) const
-{
-    d1::float64 a = 0;
-
-    fuzzyCompare(a, MinSize * fuzziness_, 0, r.width());
-    fuzzyCompare(a, MinSize * fuzziness_, 0, r.height());
-    fuzzyCompare(a, MinDist * fuzziness_,
-        std::sqrt(distance2()), std::sqrt(r.centerDistance2()));
-
-    if (a < 0)
-        return strong_ordering::greater;
-    return strong_ordering::less;
-}
-
-
 strong_ordering Line::operator<=>(const Line& r) const
 {
     const d1::float64 dist = distance2();
@@ -529,21 +443,6 @@ strong_ordering Line::operator<=>(const Line& r) const
     }
 
     return getSelectionBias() <=> r.getSelectionBias();
-}
-
-
-strong_ordering Line::operator<=>(const Area& r) const
-{
-    d1::float64 a = 0;
-
-    fuzzyCompare(a, MinSize * fuzziness_, A_.x - B_.x, r.width());
-    fuzzyCompare(a, MinSize * fuzziness_, A_.y - B_.y, r.height());
-    fuzzyCompare(a, MinDist * fuzziness_,
-        std::sqrt(distance2()), std::sqrt(r.centerDistance2()));
-
-    if (a < 0)
-        return strong_ordering::greater;
-    return strong_ordering::less;
 }
 
 
